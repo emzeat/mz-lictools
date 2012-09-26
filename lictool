@@ -1,0 +1,5 @@
+#!/usr/bin/ruby
+
+require File.dirname(__FILE__) + '/license_tools'
+
+LicenseTools.run("lictool")
