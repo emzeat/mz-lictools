@@ -16,7 +16,7 @@ class Language
   end
 
   def file_matches?( path )
-    self.steams.each do |s|
+    self.stems.each do |s|
         return true if path.end_with? s
     end
 

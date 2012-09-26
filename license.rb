@@ -7,8 +7,8 @@ class License
 
   def initialize(name)
     self.name = name
-    self.files = []
-    self.short_header = ""
+    self.files = Dir.glob("#{File.dirname(__FILE__)}/#{name}/*")
+    self.short_header = IO.read("#{File.dirname(__FILE__)}/#{name}.erb")
   end
 
 end
