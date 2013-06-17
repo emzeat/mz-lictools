@@ -26,7 +26,13 @@ class Language
   def make_comment( str )
     output = comment_begin + "\n"
     str.lines.each {|l| output = output + comment + " " + l}
-    output = output + comment_end
+    return output = output + comment_end
+  end
+  
+  def make_part_of_comment( str )
+    output = ""
+    str.lines.each {|l| output = output + comment + " " + l}
+    return output
   end
 
   T_SPECS = [

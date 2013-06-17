@@ -1,9 +1,10 @@
 <%= file %>
 
 
-Copyright (c) <%= year %> <%= author %>
+<% authors.each do |author| %>
+Copyright (c) <%= author.year %> <%= author.name %>
+<% end %>
 All rights reserved.
 
-@LICENSE_HEADER_START@
 <%= license %>
-@LICENSE_HEADER_END@
+

@@ -18,7 +18,8 @@ class License
   end
 
   def to_s
-      return ERB.new( short_license_header, 0, "%<>").result(@options.instance_eval { binding });
+      txt = ERB.new( short_license_header, 0, "%<>").result(@options.instance_eval { binding });
+      return "@LICENSE_HEADER_START@\n#{txt}@LICENSE_HEADER_END@"
   end
 
   def make_header

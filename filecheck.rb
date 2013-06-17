@@ -28,6 +28,14 @@ class FileCheck
     File.open(@file, 'w') {|f| f.write str + "\n\n" + @contents }
   end
   
+  def update_license( str, lang )
+    contents2 = @contents.sub( /#{Regexp.escape(lang.comment)} @LICENSE_HEADER_START@.*@LICENSE_HEADER_END@/m, str )
+    
+    if( contents2 != @contents ) # only write when changed
+      File.open(@file, 'w') {|f| f.write contents2 }
+    end
+  end
+  
   def update_header( str, lang )
     contents2 = @contents.sub( /#{Regexp.escape(lang.comment_begin)}.*@LICENSE_HEADER_START@.*@LICENSE_HEADER_END@\n#{Regexp.escape(lang.comment_end)}/m, str )
     

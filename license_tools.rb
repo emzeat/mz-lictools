@@ -20,12 +20,13 @@ class LicenseTools
    @@options = OpenStruct.new
    @@options.license = License.new("Apache", @@options)
    @@options.report = true
-   @@options.author = ""
+   @@options.authors = []
    @@options.company = ""
-   @@options.year = ""
    @@options.recursive = false
    @@options.simualte = false
    @@options.quiet = false
+   @@options.missing = false
+   @@options.update = false
    @@options.directory = Dir.pwd
 
    optparse = OptionParser.new do |opts|
@@ -36,18 +37,20 @@ class LicenseTools
        @@options.report = false
      end
 
-     opts.on('-a', '--author AUTHOR', 'Set the author (e.g. "Max Musterman")' ) do |a|        
-       @@options.author = a
+     opts.on('-a', '--authors AUTHORS', 'Set the authors (e.g. "Max Musterman:2013" or "Max:2009-2012,Moritz:2012")' ) do |a|     
+       @@options.authors = Array.new
+       a.split(",").each do |author|
+        parts = author.split(":")
+        a2 = OpenStruct.new
+        a2.name = parts[0]
+        a2.year = parts[1]
+        @@options.authors << a2
+       end
        @@options.report = false
      end
      
-     opts.on('-c', '--company COMPANY', 'Set the author (e.g. "Orange Fruits")' ) do |a|        
+     opts.on('-c', '--company COMPANY', 'Set the company (e.g. "Orange Fruits")' ) do |a|        
        @@options.company = a
-       @@options.report = false
-     end
-
-     opts.on('-y', '--year YEAR', 'Set the copyright year (e.g. "2011,2012")' ) do |year|
-       @@options.year = year
        @@options.report = false
      end
 
@@ -63,6 +66,14 @@ class LicenseTools
      opts.on('-q', '--quiet', 'Print nothing on screen') do
        @@options.quiet = true
      end
+     
+     opts.on('-m', '--missing', 'Add missing headers only') do
+       @@options.missing = true
+     end
+     
+     opts.on('-u', '--update', 'Only update the license, keep copyrights') do
+       @@options.update = true
+     end
 
      opts.on_tail('-h', '--help', 'Display this screen' ) do
        puts opts
@@ -73,8 +84,15 @@ class LicenseTools
    optparse.parse!
    @@options.directory = ARGV[0] unless ARGV[0].nil?
    @@options.company = @@options.author if @@options.company.empty?
+   
+   if( @@options.authors.empty? )
+    log "WARNING: No authors given, aborting"
+    exit
+   end
 
    log "License will be set to '#{@@options.license.name}'"
+   log "Updating license only" if @@options.update
+   log "Will insert missing copyright notice, keep all other files" if @@options.missing
    scan @@options.directory, @@options.recursive
    log "Finished"
  end
@@ -110,12 +128,19 @@ class LicenseTools
       if l.file_matches? f
         debug "Type: #{l.name}"
         
-        cheader = l.make_comment( header )
+        full_header = l.make_comment( header )
+        lic_header = l.make_part_of_comment( @@options.license.to_s )
         if( fc.has_license )
-          fc.update_header( cheader, l ) unless @@options.simulate      
-          debug "Prepending header:\n#{cheader}" if @@options.simulate
+          if( not @@options.missing )
+            if( @@options.update )
+              fc.update_license( lic_header, l ) unless @@options.simulate      
+            else
+              fc.update_header( full_header, l ) unless @@options.simulate      
+            end
+            debug "Prepending header:\n#{cheader}" if @@options.simulate
+          end
         else
-          fc.add_header( cheader )
+          fc.add_header( full_header )
           debug "Updating header:\n#{cheader}" if @@options.simulate
         end
         return
