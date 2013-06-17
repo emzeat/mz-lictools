@@ -25,11 +25,11 @@ class FileCheck
   end
   
   def add_header( str )
-    File.open(@file, 'w') {|f| f.write str + @contents }
+    File.open(@file, 'w') {|f| f.write str + "\n\n" + @contents }
   end
   
   def update_header( str, lang )
-    contents2 = @contents.sub( /#{Regexp.escape(lang.comment_begin)}.*@LICENSE_HEADER_START@.*#{Regexp.escape(lang.comment_end)}/m, str )
+    contents2 = @contents.sub( /#{Regexp.escape(lang.comment_begin)}.*@LICENSE_HEADER_START@.*@LICENSE_HEADER_END@\n#{Regexp.escape(lang.comment_end)}/m, str )
     
     if( contents2 != @contents ) # only write when changed
       File.open(@file, 'w') {|f| f.write contents2 }

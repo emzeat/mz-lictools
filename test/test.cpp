@@ -21,13 +21,7 @@
 * @LICENSE_HEADER_END@
 */
 
-
-
-
-
-
-
-
-
-
-
+int main(int argc, char* argv[])
+{
+  return 0;
+}
