@@ -23,6 +23,12 @@ class Language
     return false
   end
 
+  def make_comment( str )
+    output = comment_begin + "\n"
+    str.lines.each {|l| output = output + comment + " " + l}
+    output = output + comment_end + "\n\n"
+  end
+
   T_SPECS = [
     Language.new('C/C++','/*','*','*/',['.h','.cc','.c','.cxx','.cpp']),
     Language.new('Ruby','#','#','#',['.rb']),
