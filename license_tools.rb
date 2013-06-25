@@ -50,6 +50,7 @@ class LicenseTools
    @@options.quiet = false
    @@options.missing = false
    @@options.update = false
+   @@options.extract = false
    @@options.directory = Dir.pwd
 
    optparse = OptionParser.new do |opts|
@@ -70,6 +71,10 @@ class LicenseTools
         @@options.authors << a2
        end
        @@options.report = false
+     end
+
+     opts.on('-e', '--extract-authors', 'Search for lines ala "Copyright (c) 2012 XYZ" and use them as authors') do
+       @@options.extract = true
      end
      
      opts.on('-c', '--company COMPANY', 'Set the company (e.g. "Orange Fruits")' ) do |a|        
@@ -105,10 +110,10 @@ class LicenseTools
    end
 
    optparse.parse!
-   @@options.directory = ARGV[0] unless ARGV[0].nil?
+   @@options.directory = File.expand_path( ARGV[0] ) unless ARGV[0].nil?
    @@options.company = @@options.author if @@options.company.empty?
    
-   if( @@options.authors.empty? )
+   if( @@options.authors.empty? and not @@options.update and not @@options.extract )
     log "WARNING: No authors given, aborting"
     exit
    end
@@ -145,26 +150,32 @@ class LicenseTools
     @@options.file = File.basename f
     
     fc = FileCheck.new( f )
+    if @@options.extract
+      file_authors = fc.get_authors
+      @@options.authors = file_authors unless file_authors.empty?
+    end
     header = @@options.license.make_header
     
     Language::T_SPECS.each do |l|
       if l.file_matches? f
         debug "Type: #{l.name}"
-        
+        debug "Authors: #{@@options.authors.map{|a| a.year + ' ' + a.name}}"
+
         full_header = l.make_comment( header )
         lic_header = l.make_part_of_comment( @@options.license.to_s )
         if( fc.has_license )
           if( not @@options.missing )
             if( @@options.update )
               fc.update_license( lic_header, l ) unless @@options.simulate      
+              debug "Updating license:\n#{lic_header}" if @@options.simulate
             else
               fc.update_header( full_header, l ) unless @@options.simulate      
+              debug "Updating header:\n#{full_header}" if @@options.simulate
             end
-            debug "Prepending header:\n#{cheader}" if @@options.simulate
           end
         else
           fc.add_header( full_header )
-          debug "Updating header:\n#{cheader}" if @@options.simulate
+          debug "Adding header:\n#{full_header}" if @@options.simulate
         end
         return
       end

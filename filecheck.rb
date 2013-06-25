@@ -29,11 +29,34 @@ class FileCheck
   end
   
   def has_license
-    if( @contents.match /@LICENSE_HEADER_START@/ or @contents.match /Copyright (c)/ )
+    if( @contents.match /LICENSE_HEADER_START@/ or @contents.match /Copyright \(c\)/ )
       return true
     end
     
     return false
+  end
+
+  def get_authors
+    copies = Array.new
+
+    @contents.lines.each do |l|
+        if( l.match /Copyright.*\(c\)/ )
+            l.gsub!(/\*.*Copyright.*\(c\)/ ,"")
+            l.gsub!(/\#.*Copyright.*\(c\)/ ,"")
+            l.gsub!("\n","")
+            l.gsub!("All rights reserved.","")
+            l.strip!
+
+            a2 = OpenStruct.new
+            a2.year = l.match(/[0-9]*(-[0-9]*)*/).to_s.strip
+            name = l.gsub(a2.year,"")
+            name.gsub!("- ")
+            a2.name = name.strip
+            copies << a2
+        end
+    end
+
+    return copies
   end
   
   def add_header( str )
@@ -49,7 +72,8 @@ class FileCheck
   end
   
   def update_header( str, lang )
-    contents2 = @contents.sub( /#{Regexp.escape(lang.comment_begin)}.*@LICENSE_HEADER_START@.*@LICENSE_HEADER_END@\n#{Regexp.escape(lang.comment_end)}/m, str )
+    contents2 = @contents.sub( /#{Regexp.escape(lang.comment_begin)}.*@MLBA_OPEN_LICENSE_HEADER_START@.*@MLBA_OPEN_LICENSE_HEADER_END@\n#{Regexp.escape(lang.comment_end)}/m, str )
+    contents2 = contents2.sub( /#{Regexp.escape(lang.comment_begin)}.*@LICENSE_HEADER_START@.*@LICENSE_HEADER_END@\n#{Regexp.escape(lang.comment_end)}/m, str )
     
     if( contents2 != @contents ) # only write when changed
       File.open(@file, 'w') {|f| f.write contents2 }
