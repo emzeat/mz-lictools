@@ -59,7 +59,7 @@ class Language
   end
 
   T_SPECS = [
-    Language.new('C/C++','/*','*','*/',['.h','.cc','.c','.cxx','.cpp']),
+    Language.new('C/C++','/*','*','*/',['.h','.cc','.c','.cxx','.cpp','.hpp']),
     Language.new('Ruby','#','#','#',['.rb']),
     Language.new('Bash','#','#','#',['.sh']),
     Language.new('XML','<!--','','-->',['.xml','.ui']),
