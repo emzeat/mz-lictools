@@ -1,20 +1,20 @@
 #
 # license_tools.rb
-# 
+#
 # Copyright (c) 2012-2013 Marius Zwicker
 # All rights reserved.
-# 
+#
 # @LICENSE_HEADER_START@
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Library General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -33,11 +33,11 @@ class LicenseTools
  def self.log( s )
   puts "-- #{ s }" unless @@options.quiet
  end
- 
+
  def self.debug( s )
   puts "   #{ s }" unless @@options.quiet
  end
- 
+
  def self.run( binary )
 
    @@options = OpenStruct.new
@@ -56,12 +56,12 @@ class LicenseTools
    optparse = OptionParser.new do |opts|
      opts.banner = "Usage: #{binary} <options> <directory>"
 
-     opts.on('-l', '--license LIC', 'Specify the license' ) do |lic|  
+     opts.on('-l', '--license LIC', 'Specify the license' ) do |lic|
        @@options.license = License.new(lic, @@options)
        @@options.report = false
      end
 
-     opts.on('-a', '--authors AUTHORS', 'Set the authors (e.g. "Max Musterman:2013" or "Max:2009-2012,Moritz:2012")' ) do |a|     
+     opts.on('-a', '--authors AUTHORS', 'Set the authors (e.g. "Max Musterman:2013" or "Max:2009-2012,Moritz:2012")' ) do |a|
        @@options.authors = Array.new
        a.split(",").each do |author|
         parts = author.split(":")
@@ -76,8 +76,8 @@ class LicenseTools
      opts.on('-e', '--extract-authors', 'Search for lines ala "Copyright (c) 2012 XYZ" and use them as authors') do
        @@options.extract = true
      end
-     
-     opts.on('-c', '--company COMPANY', 'Set the company (e.g. "Orange Fruits")' ) do |a|        
+
+     opts.on('-c', '--company COMPANY', 'Set the company (e.g. "Orange Fruits")' ) do |a|
        @@options.company = a
        @@options.report = false
      end
@@ -94,11 +94,11 @@ class LicenseTools
      opts.on('-q', '--quiet', 'Print nothing on screen') do
        @@options.quiet = true
      end
-     
+
      opts.on('-m', '--missing', 'Add missing headers only') do
        @@options.missing = true
      end
-     
+
      opts.on('-u', '--update', 'Only update the license, keep copyrights') do
        @@options.update = true
      end
@@ -112,7 +112,7 @@ class LicenseTools
    optparse.parse!
    @@options.directory = File.expand_path( ARGV[0] ) unless ARGV[0].nil?
    @@options.company = @@options.author if @@options.company.empty?
-   
+
    if( @@options.authors.empty? and not @@options.update and not @@options.extract )
     log "WARNING: No authors given, aborting"
     exit
@@ -146,16 +146,16 @@ class LicenseTools
  end
 
  def self.handle_file(f)
-    
+
     @@options.file = File.basename f
-    
+
     fc = FileCheck.new( f )
     if @@options.extract
       file_authors = fc.get_authors
       @@options.authors = file_authors unless file_authors.empty?
     end
     header = @@options.license.make_header
-    
+
     Language::T_SPECS.each do |l|
       if l.file_matches? f
         debug "Type: #{l.name}"
@@ -166,10 +166,10 @@ class LicenseTools
         if( fc.has_license )
           if( not @@options.missing )
             if( @@options.update )
-              fc.update_license( lic_header, l ) unless @@options.simulate      
+              fc.update_license( lic_header, l ) unless @@options.simulate
               debug "Updating license:\n#{lic_header}" if @@options.simulate
             else
-              fc.update_header( full_header, l ) unless @@options.simulate      
+              fc.update_header( full_header, l ) unless @@options.simulate
               debug "Updating header:\n#{full_header}" if @@options.simulate
             end
           end
@@ -183,6 +183,6 @@ class LicenseTools
 
     debug "Skipped, unknown type"
  end
-   
+
 end
 
