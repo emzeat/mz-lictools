@@ -63,9 +63,11 @@ class Header:
                                       license=license, filename=filename, authors=authors, company=company)
         header = header.split('\n')
         if style == Style.C_STYLE:
-            header = ['/*'] + ['* ' + h if h else '*' for h in header] + ['/*']
+            header = ['/*'] + \
+                ['* ' + h if h else '*' for h in header] + ['*/', '']
         elif style == Style.POUND_STYLE:
-            header = ['#'] + ['# ' + h if h else '#' for h in header] + ['#']
+            header = ['#'] + \
+                ['# ' + h if h else '#' for h in header] + ['#', '']
         return '\n'.join(header)
 
 

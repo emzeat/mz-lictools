@@ -1,0 +1,18 @@
+{{ filename }}
+
+{% for author in authors -%}
+    {% if author.year_from == author.year_to -%}
+        Copyright (c) {{ author.year_to }} {{ author.name }}
+    {%- else -%}
+        Copyright (c) {{ author.year_from }} - {{ author.year_to }} {{ author.name }}
+    {%- endif %}
+{% endfor -%}
+All rights reserved.
+
+@LICENSE_HEADER_START@
+{% if license -%}
+    {{ license }}
+{% else -%}
+    {% include default_license %}
+{% endif -%}
+@LICENSE_HEADER_END@

@@ -91,5 +91,27 @@ class TestParserPoundStyle(unittest.TestCase):
             "This library is"), parsed.license)
 
 
+class TestLicense(unittest.TestCase):
+
+    def test_generator(self):
+        author1 = license_tools.Author('Max Muster', 2013, 2020)
+        author2 = license_tools.Author('Umbrella Inc', 2021)
+        authors = [author1, author2]
+
+        for l in license_tools.LICENSES:
+            license = license_tools.License(l)
+            header = license_tools.Header(license)
+            filename = f'TestLicense.c_{l}.expected'
+            output = header.render(
+                filename, authors, license_tools.Style.C_STYLE)
+            with open(BASE / 'test' / filename, 'r') as expected:
+                self.assertEqual(expected.read(), output)
+            filename = f'TestLicense.pound_{l}.expected'
+            output = header.render(
+                filename, authors, license_tools.Style.POUND_STYLE)
+            with open(BASE / 'test' / filename, 'r') as expected:
+                self.assertEqual(expected.read(), output)
+
+
 if __name__ == '__main__':
     unittest.main()
