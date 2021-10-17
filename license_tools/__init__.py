@@ -3,6 +3,10 @@ import pathlib
 import datetime
 import re
 import enum
+import sys
+import json
+import argparse
+import subprocess
 from operator import attrgetter
 
 BASE_DIR = pathlib.Path(__file__).parent
@@ -49,6 +53,8 @@ class License:
     def __init__(self, name: str):
         self.name = name
         self.header = name + '.erb'
+        if not (BASE_DIR / self.header).exists():
+            raise TypeError("No such license")
 
 
 class Header:
@@ -66,10 +72,10 @@ class Header:
         header = header.split('\n')
         if style == Style.C_STYLE:
             header = ['/*'] + \
-                     ['* ' + h if h else '*' for h in header] + ['*/', '']
+                     ['* ' + h if h.strip() else '*' for h in header] + ['*/', '']
         elif style == Style.POUND_STYLE:
             header = ['#'] + \
-                     ['# ' + h if h else '#' for h in header] + ['#', '']
+                     ['# ' + h if h.strip() else '#' for h in header] + ['#', '']
         return '\n'.join(header)
 
 
@@ -113,7 +119,7 @@ class ParsedHeader:
                     re.MULTILINE | re.DOTALL)
         if style:
             self.license = re.sub(
-                r'^. ', '', style[1], flags=re.MULTILINE).strip()
+                r'[^ \n] ?(\n)?', r'\1', style[1], flags=re.MULTILINE).strip()
             self.remainder = style[2].strip()
         else:
             self.license = None
@@ -152,5 +158,87 @@ class Tool:
         output = output + '\n' + parsed.remainder + '\n'
         return output
 
-    def generate(self, filename: str, style: Style) -> str:
-        return self.default_license.render(filename=filename, authors=[self.default_author], style=style)
+    def bump_inplace(self, filename: pathlib.PurePath, keep_license: bool = True, simulate: bool = False) -> bool:
+        bumped = self.bump(filename, keep_license=keep_license)
+        if bumped:
+            filename = str(filename) + \
+                '.license_bumped' if simulate else filename
+            with open(filename, 'w') as output:
+                output.write(bumped)
+                return True
+        return False
+
+
+def main():
+    license_json = '.license-tools-config' \
+                   '.json'
+    parser = argparse.ArgumentParser(
+        prog='license_tools',
+        description='Helper to maintain current code license headers')
+    parser.add_argument(
+        '-c', '--config', help=f'Configuration to be loaded, will search for {license_json} in the current working dir or its parent if omitted', default=None)
+    parser.add_argument('-f', '--force-license',
+                        help='Ignore existing license headers and replace with the configured license instead', default=False, action='store_true')
+    parser.add_argument('-s', '--simulate', help='Simulate and write to a sidecar file instead',
+                        default=False, action='store_true')
+    parser.add_argument('files', nargs='*', type=pathlib.Path,
+                        help='The file to be processed. Repeat to pass multiple. Pass none to process current working directory')
+    args = parser.parse_args()
+
+    cwd = pathlib.Path.cwd()
+    level = cwd
+    while args.config is None and level.parent != level:
+        config = level / license_json
+        if config.exists():
+            args.config = config
+        else:
+            level = level.parent
+    if args.config:
+        print(f"Using configuration from '{args.config}'")
+    else:
+        parser.print_help()
+        parser.error("Failed to discover configuration")
+
+    with open(args.config, 'r') as configfile:
+        config = json.load(configfile)
+
+    try:
+        license = License(config.get('license', None))
+    except TypeError:
+        valid = "\"" + "\", \"".join(LICENSES) + "\""
+        print(f"Invalid license, supported licenses are {valid}")
+        sys.exit(2)
+
+    config_author = config.get('author', dict())
+    if 'name' in config_author:
+        author = Author(config_author['name'])
+    elif 'from_git' in config_author:
+        try:
+            git_author = subprocess.check_output(
+                'git config user.name', stderr=subprocess.STDOUT, shell=True)
+            git_author = git_author.decode().strip()
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to fetch author using git: {e.output}")
+        print(f"Using author from git: \"{git_author}\"")
+        author = Author(git_author)
+
+    tool = Tool(license, author)
+    keep = False if args.force_license else True
+    failed = False
+    if args.files:
+        for f in args.files:
+            f = f.resolve()
+            if not f.exists():
+                print(f"Bad inputfile \"{f.relative_to(cwd)}\"")
+                sys.exit(1)
+            print(f"+ Processing \"{f.relative_to(cwd)}\"")
+            if not tool.bump_inplace(f, keep_license=keep, simulate=args.simulate):
+                failed = True
+    else:
+        for expr in config.get('update', []):
+            for f in cwd.glob(expr):
+                print(f"+ Processing \"{f.relative_to(cwd)}\"")
+                if not tool.bump_inplace(f, keep_license=keep, simulate=args.simulate):
+                    failed = True
+    if failed:
+        sys.exit(1)

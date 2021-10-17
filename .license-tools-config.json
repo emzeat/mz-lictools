@@ -1,0 +1,12 @@
+{
+  "author": {
+    "from_git": true
+  },
+  "license": "GPL",
+  "update": [
+    "license_tools/**/*.py",
+    "setup.py",
+    "test.py",
+    "lictool"
+  ]
+}
