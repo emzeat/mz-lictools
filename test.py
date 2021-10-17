@@ -1,3 +1,26 @@
+#
+# test.py
+#
+# Copyright (c) 2021 Marius Zwicker
+# All rights reserved.
+#
+# @LICENSE_HEADER_START@
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# @LICENSE_HEADER_END@
+#
+
 import license_tools
 import unittest
 import pathlib
@@ -105,12 +128,12 @@ class TestHeader(unittest.TestCase):
             output = header.render(
                 filename, authors, license_tools.Style.C_STYLE)
             with open(BASE / 'test' / filename, 'r') as expected:
-                self.assertEqual(expected.read(), output)
+                self.assertEqual(expected.read(), output, output)
             filename = f'TestHeader-pound_{l}.expected'
             output = header.render(
                 filename, authors, license_tools.Style.POUND_STYLE)
             with open(BASE / 'test' / filename, 'r') as expected:
-                self.assertEqual(expected.read(), output)
+                self.assertEqual(expected.read(), output, output)
 
 
 class TestTool(unittest.TestCase):
@@ -125,7 +148,8 @@ class TestTool(unittest.TestCase):
             result = tool.bump(file, keep_license=True)
             self.assertIsNotNone(result)
             with open(BASE / 'test' / (stem + ".expected"), 'r') as expected:
-                self.assertEqual(expected.read(), result)
+                self.assertEqual(expected.read(), result,
+                                 f"{file}\n\n{result}")
 
 
 if __name__ == '__main__':
