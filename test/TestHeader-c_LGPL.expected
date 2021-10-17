@@ -1,7 +1,8 @@
 /*
-* test.h
+* TestHeader-c_LGPL.expected
 *
-* Copyright (c) 2010 Max Muster
+* Copyright (c) 2013 - 2020 Max Muster
+* Copyright (c) 2021 Umbrella Inc
 * All rights reserved.
 *
 * @LICENSE_HEADER_START@
@@ -20,5 +21,3 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 * @LICENSE_HEADER_END@
 */
-
-#include <stdio.h>
