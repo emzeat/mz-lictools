@@ -85,9 +85,13 @@ class ParsedHeader:
             contents = file_obj.read()
         # style is determined from the extension, if unknown we try a second attempt using the contents below
         self.style = Style.from_suffix(file.suffix)
+        # retain any shebang at the beginning
+        self.shebang = re.match(r'^#!.+', contents)
+        if self.shebang:
+            self.shebang = self.shebang[0]
         # use a regex to extract existing authors, i.e. any line starting with 'Copyright'
         self.authors = []
-        for match in re.findall(r"Copyright[^\d]*([0-9]+) *(?:- *([0-9]+))? *([\w \.]+)", contents):
+        for match in re.findall(r"(?<!\w) Copyright[^\d]*([0-9]+) *(?:- *([0-9]+))? *([\w \.]+)", contents):
             if 3 == len(match):
                 kw = dict()
                 kw['name'] = match[2]
@@ -102,13 +106,13 @@ class ParsedHeader:
         # any known license is wrapped in well-known tags
         # try to guess a c-style
         style = re.search(
-            r"/*(?:.*)@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*)\*/(.*)", contents, re.MULTILINE | re.DOTALL)
+            r"\* +@LICENSE_HEADER_START@(.+)\* +@LICENSE_HEADER_END@(?:.*?)\*/(.*)", contents, re.MULTILINE | re.DOTALL)
         if style:
             self.style = Style.C_STYLE
         else:
             # try to guess a pound-style
             style = re.search(
-                r"#(?:.*)@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*)#\n(.*)", contents,
+                r"# +@LICENSE_HEADER_START@(.+)# +@LICENSE_HEADER_END@(?:.*?)#\n(.*)", contents,
                 re.MULTILINE | re.DOTALL)
             if style:
                 self.style = Style.POUND_STYLE
@@ -119,7 +123,7 @@ class ParsedHeader:
                     re.MULTILINE | re.DOTALL)
         if style:
             self.license = re.sub(
-                r'[^ \n] ?(\n)?', r'\1', style[1], flags=re.MULTILINE).strip()
+                r'[#\*] ?', '', style[1], flags=re.MULTILINE).strip()
             self.remainder = style[2].strip()
         else:
             self.license = None
@@ -156,6 +160,8 @@ class Tool:
         output = self.header.render(
             filename.name, parsed.authors, parsed.style, license=license_text)
         output = output + '\n' + parsed.remainder + '\n'
+        if parsed.shebang:
+            output = parsed.shebang + '\n' + output
         return output
 
     def bump_inplace(self, filename: pathlib.PurePath, keep_license: bool = True, simulate: bool = False) -> bool:
