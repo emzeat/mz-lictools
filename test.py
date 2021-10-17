@@ -9,7 +9,7 @@ class TestParserCStyle(unittest.TestCase):
 
     def test_parse_1author_1year(self):
         parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/Parser.c_1author_1year.txt')
+            file=BASE / 'test/Parser.1author_1year.h')
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -21,7 +21,7 @@ class TestParserCStyle(unittest.TestCase):
 
     def test_parse_1author_2years(self):
         parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/Parser.c_1author_2years.txt')
+            file=BASE / 'test/Parser.1author_2years.cxx')
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -32,7 +32,7 @@ class TestParserCStyle(unittest.TestCase):
 
     def test_parse_2authors_2years(self):
         parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/Parser.c_2authors_2years.txt')
+            file=BASE / 'test/Parser.2authors_2years.c')
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -52,7 +52,7 @@ class TestParserPoundStyle(unittest.TestCase):
 
     def test_parse_1author_1year(self):
         parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/Parser.pound_1author_1year.txt')
+            file=BASE / 'test/Parser.1author_1year.py')
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -64,7 +64,7 @@ class TestParserPoundStyle(unittest.TestCase):
 
     def test_parse_1author_2years(self):
         parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/Parser.pound_1author_2years.txt')
+            file=BASE / 'test/Parser.1author_2years.sh')
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -75,7 +75,7 @@ class TestParserPoundStyle(unittest.TestCase):
 
     def test_parse_2authors_2years(self):
         parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/Parser.pound_2authors_2years.txt')
+            file=BASE / 'test/Parser.2authors_2years')
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
