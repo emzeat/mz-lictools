@@ -36,7 +36,8 @@ class ParsedHeader:
         # if no input read the file instead
         if input is None:
             if file is None:
-                raise NotImplementedError("Need either input string or filepath")
+                raise NotImplementedError(
+                    "Need either input string or filepath")
             with open(file, 'r') as contents:
                 input = contents.read()
         # use a regex to extract existing authors, i.e. any line starting with 'Copyright'
@@ -55,15 +56,18 @@ class ParsedHeader:
         self.authors = sorted(self.authors, key=attrgetter('year_from'))
         # any known license is wrapped in well-known tags
         # the type is determined when matching the remainder of the file
-        style = re.search(r'/*(?:.*)@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*)\*/(.*)', input, re.MULTILINE | re.DOTALL)
+        style = re.search(
+            r'/*(?:.*)@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*)\*/(.*)', input, re.MULTILINE | re.DOTALL)
         if style:
             self.style = Style.C_STYLE
         else:
-            style = re.search(r'#(?:.*)@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*)#\n(.*)', input, re.MULTILINE | re.DOTALL)
+            style = re.search(
+                r'#(?:.*)@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*)#\n(.*)', input, re.MULTILINE | re.DOTALL)
             if style:
                 self.style = Style.POUND_STYLE
             else:
-                raise NotImplementedError("Unknown code style, cannot update license")
+                raise NotImplementedError(
+                    "Unknown code style, cannot update license")
         self.license = re.sub(r'^. ', '', style[1], flags=re.MULTILINE).strip()
         self.remainder = style[2].strip()
         pass

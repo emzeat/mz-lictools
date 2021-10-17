@@ -12,4 +12,4 @@ setup(name='lictool',
       package_data={'license_tools': ['license_tools/*.erb']},
       scripts=['lictool'],
       requires=['jinja2']
-     )
+      )
