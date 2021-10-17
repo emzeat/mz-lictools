@@ -1,4 +1,3 @@
-
 import jinja2
 import pathlib
 import datetime
@@ -39,8 +38,11 @@ class Style(enum.Enum):
 class Author:
     def __init__(self, name: str, year_from: int = None, year_to: int = datetime.date.today().year):
         self.name = name
-        self.year_from = year_from
         self.year_to = year_to
+        if year_from:
+            self.year_from = year_from
+        else:
+            self.year_from = year_to
 
 
 class License:
@@ -64,10 +66,10 @@ class Header:
         header = header.split('\n')
         if style == Style.C_STYLE:
             header = ['/*'] + \
-                ['* ' + h if h else '*' for h in header] + ['*/', '']
+                     ['* ' + h if h else '*' for h in header] + ['*/', '']
         elif style == Style.POUND_STYLE:
             header = ['#'] + \
-                ['# ' + h if h else '#' for h in header] + ['#', '']
+                     ['# ' + h if h else '#' for h in header] + ['#', '']
         return '\n'.join(header)
 
 
@@ -107,7 +109,7 @@ class ParsedHeader:
             else:
                 # no style determination possible
                 style = re.search(
-                    r'@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@', contents,
+                    r'@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(.*)', contents,
                     re.MULTILINE | re.DOTALL)
         if style:
             self.license = re.sub(
@@ -121,12 +123,34 @@ class ParsedHeader:
 
 class Tool:
     def __init__(self, default_license: License, default_author: Author):
+        self.this_year = datetime.date.today().year
         self.default_license = default_license
         self.default_author = default_author
+        self.header = Header(self.default_license)
 
-    def bump(self, filename: pathlib.PurePath) -> str:
+    def bump(self, filename: pathlib.PurePath, keep_license: bool = True) -> str:
         parsed = ParsedHeader(filename)
-        return str(parsed)
+        if parsed.style == Style.UNKNOWN:
+            print(f"Failed to determine comment style for {filename}")
+            return None
+
+        new_author = True
+        for author in parsed.authors:
+            if author.name == self.default_author.name:
+                author.year_to = self.this_year
+                new_author = False
+        if new_author:
+            parsed.authors.append(self.default_author)
+
+        license_text = None
+        if keep_license:
+            license_text = parsed.license
+
+        # the updated output is the new header with the remainder and ensuring a single trailing newline
+        output = self.header.render(
+            filename.name, parsed.authors, parsed.style, license=license_text)
+        output = output + '\n' + parsed.remainder + '\n'
+        return output
 
     def generate(self, filename: str, style: Style) -> str:
         return self.default_license.render(filename=filename, authors=[self.default_author], style=style)

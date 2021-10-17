@@ -113,5 +113,20 @@ class TestHeader(unittest.TestCase):
                 self.assertEqual(expected.read(), output)
 
 
+class TestTool(unittest.TestCase):
+
+    def test_bump(self):
+        author = license_tools.Author("Test Guy")
+        license = license_tools.License("Apache")
+        tool = license_tools.Tool(
+            default_license=license, default_author=author)
+        for file in BASE.glob('test/TestTool-bump*.input.*'):
+            stem = file.name.split('.')[0]
+            result = tool.bump(file, keep_license=True)
+            self.assertIsNotNone(result)
+            with open(BASE / 'test' / (stem + ".expected"), 'r') as expected:
+                self.assertEqual(expected.read(), result)
+
+
 if __name__ == '__main__':
     unittest.main()
