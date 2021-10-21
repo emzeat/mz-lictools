@@ -7,7 +7,7 @@ for various file types.
 Requirements
 --------
 
-Requires a ruby installation with 'erb' installed.
+Requires an installation of python3
 
 Usage
 --------

@@ -201,7 +201,7 @@ def main():
                    '.json'
     parser = argparse.ArgumentParser(
         prog='license_tools',
-        description='Helper to maintain current code license headers')
+        description=f'Helper to maintain current code license headers ({", ".join(LICENSES)}).')
     parser.add_argument(
         '-c', '--config', help=f'Configuration to be loaded, will search for {license_json} in the current working dir or its parent if omitted', default=None)
     parser.add_argument('-f', '--force-license',

@@ -32,7 +32,7 @@ setup(name='lictool',
       author_email='marius@numlz.de',
       url='https://github.com/emzeat/license-tools',
       packages=['license_tools'],
-      package_data={'license_tools': ['license_tools/*.erb']},
+      package_data={'license_tools': ['*.erb', '*.j2']},
       scripts=['lictool'],
       requires=['jinja2']
       )
