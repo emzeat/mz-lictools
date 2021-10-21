@@ -1,7 +1,7 @@
 #
 # __init__.py
 #
-# Copyright (c) 2021 Marius Zwicker
+# Copyright (c) 2012 - 2021 Marius Zwicker
 # All rights reserved.
 #
 # @LICENSE_HEADER_START@
@@ -252,20 +252,15 @@ def main():
     tool = Tool(license, author)
     keep = False if args.force_license else True
     failed = False
-    if args.files:
-        for f in args.files:
-            f = f.resolve()
-            if not f.exists():
-                print(f"Bad inputfile \"{f.relative_to(cwd)}\"")
-                sys.exit(1)
-            print(f"+ Processing \"{f.relative_to(cwd)}\"")
+
+    for expr in config.get('update', []):
+        for f in cwd.glob(expr):
+            f_rel = f.relative_to(cwd)
+            if args.files and f_rel not in args.files:
+                continue
+            print(f"+ Processing \"{f_rel}\"")
             if not tool.bump_inplace(f, keep_license=keep, simulate=args.simulate):
                 failed = True
-    else:
-        for expr in config.get('update', []):
-            for f in cwd.glob(expr):
-                print(f"+ Processing \"{f.relative_to(cwd)}\"")
-                if not tool.bump_inplace(f, keep_license=keep, simulate=args.simulate):
-                    failed = True
+
     if failed:
         sys.exit(1)

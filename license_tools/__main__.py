@@ -1,7 +1,7 @@
 #
 # __main__.py
 #
-# Copyright (c) 2021 Marius Zwicker
+# Copyright (c) 2012 - 2021 Marius Zwicker
 # All rights reserved.
 #
 # @LICENSE_HEADER_START@

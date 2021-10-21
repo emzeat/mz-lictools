@@ -1,0 +1,6 @@
+-   id: license-tools
+    name: Check license headers
+    entry: lictool
+    language: python
+    types: [text]
+    require_serial: true
