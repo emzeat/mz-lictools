@@ -16,6 +16,7 @@ repos:
     rev: 'v1.5.7'
     hooks:
     -   id: autopep8
+        args: [--in-place, --max-line-length=120]
 -   repo: https://github.com/PyCQA/pylint
     rev: 'v2.11.1'
     hooks:

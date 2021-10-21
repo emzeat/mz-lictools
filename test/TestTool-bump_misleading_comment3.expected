@@ -1,7 +1,7 @@
 """
- __init__.py
+ TestTool-bump_misleading_comment3.input.py
 
- Copyright (c) 2012 - 2021 Marius Zwicker
+ Copyright (c) 2021 Test Guy
  All rights reserved.
 
  @LICENSE_HEADER_START@
@@ -72,7 +72,7 @@ class Style(enum.Enum):
         return [
             (Style.C_STYLE, r"\* +@LICENSE_HEADER_START@(.+)\* +@LICENSE_HEADER_END@(?:.*?)\*/(.*)"),
             (Style.POUND_STYLE, r"# +@LICENSE_HEADER_START@(.+)# +@LICENSE_HEADER_END@(?:.*?)#\n(.*)"),
-            (Style.DOCSTRING_STYLE, r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*?)\n\"\"\"(.*)"),
+            (Style.DOCSTRING_STYLE, r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*?)\"\"\"(.*)"),
             (Style.UNKNOWN, r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(.*)")
         ]
 
@@ -210,12 +210,11 @@ class Tool:
         Reads a file and returns the bumped contents
         :filename: The file to be bumped
         :keep_license: If an existing license should be retained or replaced with the new default
-        returns a tuple of detected language and bumped contents
         """
         parsed = ParsedHeader(filename)
         if parsed.style == Style.UNKNOWN:
             print(f"Failed to determine comment style for {filename}")
-            return Style.UNKNOWN, None
+            return None
 
         new_author = True
         for author in parsed.authors:
@@ -235,7 +234,7 @@ class Tool:
         output = output + '\n' + parsed.remainder + '\n'
         if parsed.shebang:
             output = parsed.shebang + '\n' + output
-        return parsed.style, output
+        return output
 
     def bump_inplace(self, filename: pathlib.PurePath, keep_license: bool = True,
                      simulate: bool = False) -> bool:
@@ -244,7 +243,7 @@ class Tool:
         :filename: The file to be bumped
         :keep_license: If an existing license should be retained or replaced with the new default
         """
-        _, bumped = self.bump(filename, keep_license=keep_license)
+        bumped = self.bump(filename, keep_license=keep_license)
         if bumped:
             filename = str(filename) + \
                 '.license_bumped' if simulate else filename
