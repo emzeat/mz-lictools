@@ -1,46 +1,48 @@
-#
-# __init__.py
-#
-# Copyright (c) 2012 - 2021 Marius Zwicker
-# All rights reserved.
-#
-# @LICENSE_HEADER_START@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# @LICENSE_HEADER_END@
-#
+"""
+ __init__.py
 
-import jinja2
-import pathlib
-import datetime
-import re
-import enum
-import sys
-import json
-import argparse
-import subprocess
+ Copyright (c) 2012 - 2021 Marius Zwicker
+ All rights reserved.
+
+ @LICENSE_HEADER_START@
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ @LICENSE_HEADER_END@
+"""
+
 from operator import attrgetter
+import argparse
+import datetime
+import enum
+import json
+import pathlib
+import re
+import subprocess
+import sys
+import jinja2
 
 BASE_DIR = pathlib.Path(__file__).parent
 LICENSES = [license_file.stem for license_file in BASE_DIR.glob('*.erb')]
 
 
 class Style(enum.Enum):
+    """Enumerates the different known comment styles"""
     UNKNOWN = 1
     C_STYLE = 2
     POUND_STYLE = 3
 
     @staticmethod
     def from_suffix(ext):
+        """Tries to determine the style based on a file suffix"""
         mapping = {
             '.cc': Style.C_STYLE,
             '.cxx': Style.C_STYLE,
@@ -61,7 +63,16 @@ class Style(enum.Enum):
 
 
 class Author:
-    def __init__(self, name: str, year_from: int = None, year_to: int = datetime.date.today().year):
+    """Describes an author of a file"""
+
+    def __init__(self, name: str, year_from: int = None,
+                 year_to: int = datetime.date.today().year):
+        """
+        Creates a new author
+        :name: The name of the author
+        :year_from: The first year the author contributed
+        :year_to: The last year the author contributed
+        """
         self.name = name
         self.year_to = year_to
         if year_from:
@@ -71,7 +82,14 @@ class Author:
 
 
 class License:
+    """Describes a license to be added to a header"""
+
     def __init__(self, name: str):
+        """
+        Creates a new license
+
+        The name needs to be one of the supported licenses
+        """
         self.name = name
         self.header = name + '.erb'
         if not (BASE_DIR / self.header).exists():
@@ -79,13 +97,24 @@ class License:
 
 
 class Header:
+    """Describes a header to be rendered with license and authors"""
+
     def __init__(self, default_license):
+        """Creates a new header using given default license"""
         loader = jinja2.FileSystemLoader(BASE_DIR)
         self.env = jinja2.Environment(loader=loader)
         self.template = self.env.get_template('Header.j2')
         self.default_license = default_license
 
     def render(self, filename: str, authors, style: Style, company: str = None, license: str = None) -> str:
+        """
+        Renders a header to a string
+        :filename: The file the header belongs to
+        :authors: A list of authors which contributed to the file
+        :style: The comment style to use when generating the header
+        :company: An optional company string to be included
+        :license: An optional license string to be used, if omitted the default_license will apply
+        """
         if company is None:
             company = authors[-1].name
         header = self.template.render(default_license=self.default_license.header,
@@ -101,8 +130,11 @@ class Header:
 
 
 class ParsedHeader:
+    """A license header parsed from an existing file"""
+
     def __init__(self, file: pathlib.PurePath = None):
-        with open(file, 'r') as file_obj:
+        """Parses a header from the given file"""
+        with open(file, 'r', encoding='utf-8') as file_obj:
             contents = file_obj.read()
         # style is determined from the extension, if unknown we try a second attempt using the contents below
         self.style = Style.from_suffix(file.suffix)
@@ -113,15 +145,16 @@ class ParsedHeader:
         # use a regex to extract existing authors, i.e. any line starting with 'Copyright'
         self.authors = []
         for match in re.findall(r"(?<!\w) Copyright[^\d]*([0-9]+) *(?:- *([0-9]+))? *([\w \.]+)", contents):
-            if 3 == len(match):
-                kw = dict()
-                kw['name'] = match[2]
-                kw['year_from'] = int(match[0])
+            if len(match) == 3:
+                args = {
+                    'name': match[2],
+                    'year_from': int(match[0])
+                }
                 try:
-                    kw['year_to'] = int(match[1])
+                    args['year_to'] = int(match[1])
                 except ValueError:
-                    kw['year_to'] = kw['year_from']
-                author = Author(**kw)
+                    args['year_to'] = args['year_from']
+                author = Author(**args)
                 self.authors.append(author)
         self.authors = sorted(self.authors, key=attrgetter('year_from'))
         # any known license is wrapped in well-known tags
@@ -149,17 +182,25 @@ class ParsedHeader:
         else:
             self.license = None
             self.remainder = contents.strip()
-        pass
 
 
 class Tool:
+    """The license tool"""
+
     def __init__(self, default_license: License, default_author: Author):
+        """Creates a new tool instance with default license and author"""
         self.this_year = datetime.date.today().year
         self.default_license = default_license
         self.default_author = default_author
         self.header = Header(self.default_license)
 
-    def bump(self, filename: pathlib.PurePath, keep_license: bool = True) -> str:
+    def bump(self, filename: pathlib.PurePath,
+             keep_license: bool = True) -> str:
+        """
+        Reads a file and returns the bumped contents
+        :filename: The file to be bumped
+        :keep_license: If an existing license should be retained or replaced with the new default
+        """
         parsed = ParsedHeader(filename)
         if parsed.style == Style.UNKNOWN:
             print(f"Failed to determine comment style for {filename}")
@@ -185,31 +226,45 @@ class Tool:
             output = parsed.shebang + '\n' + output
         return output
 
-    def bump_inplace(self, filename: pathlib.PurePath, keep_license: bool = True, simulate: bool = False) -> bool:
+    def bump_inplace(self, filename: pathlib.PurePath, keep_license: bool = True,
+                     simulate: bool = False) -> bool:
+        """
+        Bumps the license header of a given file
+        :filename: The file to be bumped
+        :keep_license: If an existing license should be retained or replaced with the new default
+        """
         bumped = self.bump(filename, keep_license=keep_license)
         if bumped:
             filename = str(filename) + \
                 '.license_bumped' if simulate else filename
-            with open(filename, 'w') as output:
+            with open(filename, 'w', encoding='utf-8') as output:
                 output.write(bumped)
                 return True
         return False
 
 
 def main():
+    """CLI entry point"""
     license_json = '.license-tools-config' \
                    '.json'
     parser = argparse.ArgumentParser(
         prog='license_tools',
         description=f'Helper to maintain current code license headers ({", ".join(LICENSES)}).')
     parser.add_argument(
-        '-c', '--config', help=f'Configuration to be loaded, will search for {license_json} in the current working dir or its parent if omitted', default=None)
-    parser.add_argument('-f', '--force-license',
-                        help='Ignore existing license headers and replace with the configured license instead', default=False, action='store_true')
-    parser.add_argument('-s', '--simulate', help='Simulate and write to a sidecar file instead',
-                        default=False, action='store_true')
-    parser.add_argument('files', nargs='*', type=pathlib.Path,
-                        help='The file to be processed. Repeat to pass multiple. Pass none to process current working directory')
+        '-c', '--config',
+        help='Configuration to be loaded.'
+        f' Will search for {license_json} in the current working dir or its parent if omitted',
+        default=None)
+    parser.add_argument(
+        '-f', '--force-license',
+        help='Ignore existing license headers and replace with the configured license instead',
+        default=False, action='store_true')
+    parser.add_argument(
+        '-s', '--simulate', help='Simulate and write to a sidecar file instead',
+        default=False, action='store_true')
+    parser.add_argument(
+        'files', nargs='*', type=pathlib.Path,
+        help='The file to be processed. Repeat to pass multiple. Pass none to process current working directory')
     args = parser.parse_args()
 
     cwd = pathlib.Path.cwd()
@@ -226,7 +281,7 @@ def main():
         parser.print_help()
         parser.error("Failed to discover configuration")
 
-    with open(args.config, 'r') as configfile:
+    with open(args.config, 'r', encoding='utf-8') as configfile:
         config = json.load(configfile)
 
     try:
@@ -236,7 +291,7 @@ def main():
         print(f"Invalid license, supported licenses are {valid}")
         sys.exit(2)
 
-    config_author = config.get('author', dict())
+    config_author = config.get('author', {})
     if 'name' in config_author:
         author = Author(config_author['name'])
     elif 'from_git' in config_author:
@@ -244,22 +299,22 @@ def main():
             git_author = subprocess.check_output(
                 'git config user.name', stderr=subprocess.STDOUT, shell=True)
             git_author = git_author.decode().strip()
-        except subprocess.CalledProcessError as e:
-            print(f"Failed to fetch author using git: {e.output}")
+        except subprocess.CalledProcessError as error:
+            print(f"Failed to fetch author using git: {error.output}")
         print(f"Using author from git: \"{git_author}\"")
         author = Author(git_author)
 
     tool = Tool(license, author)
-    keep = False if args.force_license else True
+    keep = not args.force_license
     failed = False
 
     for expr in config.get('update', []):
-        for f in cwd.glob(expr):
-            f_rel = f.relative_to(cwd)
-            if args.files and f_rel not in args.files:
+        for file in cwd.glob(expr):
+            file_rel = file.relative_to(cwd)
+            if args.files and file_rel not in args.files:
                 continue
-            print(f"+ Processing \"{f_rel}\"")
-            if not tool.bump_inplace(f, keep_license=keep, simulate=args.simulate):
+            print(f"+ Processing \"{file_rel}\"")
+            if not tool.bump_inplace(file, keep_license=keep, simulate=args.simulate):
                 failed = True
 
     if failed:
