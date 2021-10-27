@@ -158,10 +158,14 @@ class ParsedHeader:
             contents = file_obj.read()
         # style is determined from the extension, if unknown we try a second attempt using the contents below
         self.style = Style.from_suffix(file.suffix)
-        # retain any shebang at the beginning
-        self.shebang = re.match(r'^#!.+', contents)
+        # retain any shebang and encoding at the beginning
+        self.shebang = re.match(r'^#!.+(\n# -\*-.+)?', contents, re.MULTILINE)
         if self.shebang:
             self.shebang = self.shebang[0]
+        else:
+            self.shebang = re.match(r'^# -\*-.+', contents)
+            if self.shebang:
+                self.shebang = self.shebang[0]
         # use a regex to extract existing authors, i.e. any line starting with 'Copyright'
         self.authors = []
         for match in re.findall(r"(?<!\w) Copyright[^\d]*([0-9]+) *(?:- *([0-9]+))? *([\w \.]+)", contents):
