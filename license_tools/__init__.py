@@ -325,7 +325,7 @@ def main():
     keep = not args.force_license
     failed = False
 
-    for expr in config.get('update', []):
+    for expr in config.get('update', ['**']):
         for file in cwd.glob(expr):
             file_rel = file.relative_to(cwd)
             if args.files and file_rel not in args.files:
