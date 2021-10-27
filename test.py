@@ -5,6 +5,8 @@
  All rights reserved.
 
  @LICENSE_HEADER_START@
+ SPDX-License-Identifier: GPL-2.0-or-later
+
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
@@ -171,8 +173,13 @@ class TestHeader(unittest.TestCase):
             filename = f'TestHeader-c_{l}.expected'
             output = header.render(
                 filename, authors, license_tools.Style.C_STYLE)
-            with open(BASE / 'test' / filename, 'r') as expected:
-                self.assertEqual(expected.read(), output, output)
+            try:
+                with open(BASE / 'test' / filename, 'r') as expected:
+                    self.assertEqual(expected.read(), output, output)
+            except:
+                with open(BASE / 'test' / filename, 'w') as expected:
+                    expected.write(output)
+                raise
             filename = f'TestHeader-pound_{l}.expected'
             output = header.render(
                 filename, authors, license_tools.Style.POUND_STYLE)
@@ -189,7 +196,7 @@ class TestTool(unittest.TestCase):
 
     def test_bump(self):
         author = license_tools.Author("Test Guy")
-        license = license_tools.License("Apache")
+        license = license_tools.License("Apache-2.0")
         tool = license_tools.Tool(
             default_license=license, default_author=author)
         for file in BASE.glob('test/TestTool-bump*.input.*'):

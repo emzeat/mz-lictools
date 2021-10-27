@@ -5,6 +5,8 @@
  All rights reserved.
 
  @LICENSE_HEADER_START@
+ SPDX-License-Identifier: GPL-2.0-or-later
+
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
@@ -32,7 +34,7 @@ setup(name='lictool',
       author_email='marius@numlz.de',
       url='https://github.com/emzeat/license-tools',
       packages=['license_tools'],
-      package_data={'license_tools': ['*.erb', '*.j2']},
+      package_data={'license_tools': ['*.license', '*.spdx', '*.j2']},
       scripts=['lictool'],
       install_requires=['jinja2']
       )

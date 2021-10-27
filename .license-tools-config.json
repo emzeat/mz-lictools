@@ -2,7 +2,7 @@
   "author": {
     "from_git": true
   },
-  "license": "GPL",
+  "license": "GPL-2.0-or-later",
   "update": [
     "license_tools/**/*.py",
     "setup.py",

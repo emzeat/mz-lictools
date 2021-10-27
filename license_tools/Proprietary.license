@@ -4,4 +4,4 @@ by {{ company }} or part of its connected software and documentation.
 
 ANY SOURCECODE BEARING THIS HEADER SHALL NOT BE RELEASED TO THE
 PUBLIC, BE USED, BE MODIFIED OR BE DISTRIBUTED IN ANY WAY
-WITHOUT PERMISSION OF {{ company | upper }}.
+WITHOUT WRITTEN PERMISSION OF {{ company | upper }}.

@@ -13,6 +13,10 @@ All rights reserved.
 {% if license -%}
     {{ license }}
 {% else -%}
-    {% include default_license %}
+{% if default_license.spdx -%}
+SPDX-License-Identifier: {{ default_license.name }}
+
+{% endif -%}
+    {% include default_license.header %}
 {% endif -%}
 @LICENSE_HEADER_END@

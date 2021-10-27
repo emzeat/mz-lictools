@@ -1,11 +1,13 @@
 /*
-* TestHeader-c_LGPL.expected
+* TestHeader-c_LGPL-2.1-or-later.expected
 *
 * Copyright (c) 2013 - 2020 Max Muster
 * Copyright (c) 2021 Umbrella Inc
 * All rights reserved.
 *
 * @LICENSE_HEADER_START@
+* SPDX-License-Identifier: LGPL-2.1-or-later
+*
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
 * License as published by the Free Software Foundation; either

@@ -5,6 +5,8 @@
  All rights reserved.
 
  @LICENSE_HEADER_START@
+ SPDX-License-Identifier: GPL-2.0-or-later
+
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
@@ -33,7 +35,9 @@ import sys
 import jinja2
 
 BASE_DIR = pathlib.Path(__file__).parent
-LICENSES = [license_file.stem for license_file in BASE_DIR.glob('*.erb')]
+SPDX_LICENSES = list(BASE_DIR.glob('*.spdx'))
+OTHER_LICENSES = list(BASE_DIR.glob('*.license'))
+LICENSES = {license_file.stem: license_file for license_file in SPDX_LICENSES + OTHER_LICENSES}
 
 
 class Style(enum.Enum):
@@ -108,9 +112,11 @@ class License:
         The name needs to be one of the supported licenses
         """
         self.name = name
-        self.header = name + '.erb'
-        if not (BASE_DIR / self.header).exists():
-            raise TypeError("No such license")
+        self.header = LICENSES.get(name, None)
+        if self.header is None:
+            raise TypeError(f"No such license '{name}'")
+        self.spdx = self.header in SPDX_LICENSES
+        self.header = self.header.name
 
 
 class Header:
@@ -134,7 +140,7 @@ class Header:
         """
         if company is None:
             company = authors[-1].name
-        header = self.template.render(default_license=self.default_license.header,
+        header = self.template.render(default_license=self.default_license,
                                       license=license, filename=filename, authors=authors, company=company)
         header = header.split('\n')
         if style == Style.C_STYLE:
@@ -304,7 +310,7 @@ def main():
     try:
         license = License(config.get('license', None))
     except TypeError:
-        valid = "\"" + "\", \"".join(LICENSES) + "\""
+        valid = "\"" + "\", \"".join(LICENSES.keys()) + "\""
         print(f"Invalid license, supported licenses are {valid}")
         sys.exit(2)
 
