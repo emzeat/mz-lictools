@@ -286,11 +286,31 @@ def main():
         '-s', '--simulate', help='Simulate and write to a sidecar file instead',
         default=False, action='store_true')
     parser.add_argument(
+        '--sample-config', help='Generate a default configuration file to the working directory',
+        default=False, action='store_true')
+    parser.add_argument(
         'files', nargs='*', type=pathlib.Path,
         help='The file to be processed. Repeat to pass multiple. Pass none to process current working directory')
     args = parser.parse_args()
 
     cwd = pathlib.Path.cwd()
+    if args.sample_config:
+        default_config = {
+            'author': {
+                'from_git': True,
+                'name': '<author here>'
+            },
+            'license': f'<pick one of {", ".join(LICENSES.keys())}>',
+            'force_license': False,
+            'update': [
+                '**'
+            ]
+        }
+        with open(cwd / license_json, 'w', encoding='utf-8') as configfile:
+            configfile.write(json.dumps(default_config, indent=4))
+            print(f'Wrote default config to {cwd / license_json}')
+            sys.exit(0)
+
     level = cwd
     while args.config is None and level.parent != level:
         config = level / license_json
@@ -328,7 +348,7 @@ def main():
         author = Author(git_author)
 
     tool = Tool(license, author)
-    keep = not args.force_license
+    keep = not args.force_license and not config.get('force_license', False)
     failed = False
 
     for expr in config.get('update', ['**']):
