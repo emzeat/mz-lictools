@@ -1,12 +1,10 @@
 /*
-* TestHeader-c_LGPL-2.1-or-later.expected
+* test.h
 *
-* Copyright (c) 2013 - 2020 Max Muster
-* Copyright (c) 2021 Umbrella Inc
+* Copyright (c) 2010 Max Muster
 * All rights reserved.
 *
-* SPDX-License-Identifier: LGPL-2.1-or-later
-*
+* @LICENSE_HEADER_START@
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
 * License as published by the Free Software Foundation; either
@@ -20,4 +18,7 @@
 * You should have received a copy of the GNU Lesser General Public
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+* @LICENSE_HEADER_END@
 */
+
+#include <stdio.h>

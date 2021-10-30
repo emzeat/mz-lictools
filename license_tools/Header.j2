@@ -9,14 +9,12 @@
 {% endfor -%}
 All rights reserved.
 
-@LICENSE_HEADER_START@
 {% if license -%}
     {{ license }}
-{% else -%}
+{%- else -%}
 {% if default_license.spdx -%}
 SPDX-License-Identifier: {{ default_license.name }}
 
 {% endif -%}
-    {% include default_license.header %}
-{% endif -%}
-@LICENSE_HEADER_END@
+    {% include default_license.header | trim %}
+{%- endif -%}

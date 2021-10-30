@@ -4,7 +4,6 @@
  Copyright (c) 2012 - 2021 Marius Zwicker
  All rights reserved.
 
- @LICENSE_HEADER_START@
  SPDX-License-Identifier: GPL-2.0-or-later
 
  This program is free software; you can redistribute it and/or modify
@@ -20,7 +19,6 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- @LICENSE_HEADER_END@
 """
 
 from operator import attrgetter
@@ -77,8 +75,11 @@ class Style(enum.Enum):
         """
         return [
             (Style.C_STYLE, r"\* +@LICENSE_HEADER_START@(.+)\* +@LICENSE_HEADER_END@(?:.*?)\*/(.*)"),
+            (Style.C_STYLE, r"\* +All rights reserved\.(.+?)\*/(.*)"),
             (Style.POUND_STYLE, r"# +@LICENSE_HEADER_START@(.+)# +@LICENSE_HEADER_END@(?:.*?)#\n(.*)"),
+            (Style.POUND_STYLE, r"# +All rights reserved\.(.+?)#\n[^#](.*)"),
             (Style.DOCSTRING_STYLE, r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*?)\n\"\"\"(.*)"),
+            (Style.DOCSTRING_STYLE, r"All rights reserved\.(.+?)\"\"\"\n(.*)"),
             (Style.UNKNOWN, r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(.*)")
         ]
 
