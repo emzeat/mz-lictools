@@ -12,22 +12,61 @@ Requires an installation of python3
 Usage
 --------
 
-Make sure the script 'lictool' is executable and run it
-with './lictool --help' to obtain a full list of available options.
+Make sure the script `lictool` is executable and run it
+with `./lictool --help` to obtain a full list of available options.
+
+Alternatively you can install it as python package via
+```bash
+python3 -m pip install .
+lictool --help
+```
+
+We also support usage as a hook in `pre-commit`:
+```yaml
+-   repo: https://github.com/emzeat/license-tools
+    hooks:
+    -   id: license-tools
+```
 
 
-License
--------
+Configuration
+--------
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+The used license, managed files and used authors get configured through a json
+file placed in the root of your project and named '.license-tools-config.json'.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+A default configuration file can be generated in the current working directory
+by invoking `lictool --sample-config`.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+A sample configuration is given below with each option explained. Note that the
+actual configuration parser is accepting valid json only (which has no concept
+of a comment).
+
+```json
+{
+  "author": {
+    # determine the copyright author based on [user] in your local .gitconfig
+    "from_git": true
+    # explicitly specify the author. Useful when the code is owned by a company
+    # and copyrights should not reflect updates made by individual authors
+    "name": "My Awesome Company"
+    # when both 'from_git' and 'name' have been specified, the 'name' setting
+    # will take precedence
+  },
+  # specifies the license to be put at the top of each file. Use lictool --help
+  # to get a list of supported licenses
+  "license": "GPL-2.0-or-later",
+  # globbing expressions to specify files for which to maintain a license header
+  # all expressions will be applied relative to the directory holding the config
+  "include": [
+    "**/*.py"
+  ],
+  # regular expressions to specify files not to be touched
+  # all expressions will be applied relative to the directory holding the config
+  "exclude": [
+    # example to exclude all dot directories and files
+    "\\.[^/]+/",
+    "\\.[^/]"
+  ]
+}
+```

@@ -284,14 +284,16 @@ def main():
         help='Ignore existing license headers and replace with the configured license instead',
         default=False, action='store_true')
     parser.add_argument(
-        '-s', '--simulate', help='Simulate and write to a sidecar file instead',
+        '--dry-run', help='Simulate and write to a sidecar file instead',
         default=False, action='store_true')
     parser.add_argument(
         '--sample-config', help='Generate a default configuration file to the working directory',
         default=False, action='store_true')
     parser.add_argument(
         'files', nargs='*', type=pathlib.Path,
-        help='The file to be processed. Repeat to pass multiple. Pass none to process current working directory')
+        help='The file to be processed. Repeat to pass multiple.'
+             ' Leave empty to process files in and below the current working directory.'
+             ' Inclusions and exclusions from the config will always be considered.')
     args = parser.parse_args()
 
     cwd = pathlib.Path.cwd()
@@ -303,8 +305,12 @@ def main():
             },
             'license': f'<pick one of {", ".join(LICENSES.keys())}>',
             'force_license': False,
-            'update': [
+            'include': [
                 '**'
+            ],
+            'exclude': [
+                '\\.[^/]+/',
+                '\\.[^/]'
             ]
         }
         with open(cwd / license_json, 'w', encoding='utf-8') as configfile:
@@ -325,6 +331,7 @@ def main():
         parser.print_help()
         parser.error("Failed to discover configuration")
 
+    config_dir = args.config.parent
     with open(args.config, 'r', encoding='utf-8') as configfile:
         config = json.load(configfile)
 
@@ -348,17 +355,29 @@ def main():
         print(f"Using author from git: \"{git_author}\"")
         author = Author(git_author)
 
+    if args.files:
+        args.files = [file.resolve() for file in args.files]
+
     tool = Tool(license, author)
     keep = not args.force_license and not config.get('force_license', False)
     failed = False
+    excludes = [re.compile(excl) for excl in config.get('exclude', ['\\.[^/]+/', '\\.[^/]'])]
 
-    for expr in config.get('update', ['**']):
-        for file in cwd.glob(expr):
-            file_rel = file.relative_to(cwd)
-            if args.files and file_rel not in args.files:
+    for include in config.get('include', ['**']):
+        for file in config_dir.glob(include):
+            if args.files and file not in args.files:
+                continue
+            excluded = False
+            file_rel = file.relative_to(config_dir)
+            for exclude in excludes:
+                if re.search(exclude, str(file_rel)):
+                    #print(f"- Excluding \"{file_rel}\" due to {exclude}")
+                    excluded = True
+                    break
+            if excluded:
                 continue
             print(f"+ Processing \"{file_rel}\"")
-            if not tool.bump_inplace(file, keep_license=keep, simulate=args.simulate):
+            if not tool.bump_inplace(file, keep_license=keep, simulate=args.dry_run):
                 failed = True
 
     if failed:

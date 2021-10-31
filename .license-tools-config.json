@@ -3,10 +3,13 @@
     "from_git": true
   },
   "license": "GPL-2.0-or-later",
-  "update": [
-    "license_tools/**/*.py",
-    "setup.py",
-    "test.py",
+  "include": [
+    "**/*.py",
     "lictool"
+  ],
+  "exclude": [
+    "test/",
+    "\\.[^/]+/",
+    "\\.[^/]"
   ]
 }
