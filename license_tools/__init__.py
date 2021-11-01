@@ -75,13 +75,22 @@ class Style(enum.Enum):
         Each regex has two match groups, one for the license and one for the remainder
         """
         return [
-            (Style.C_STYLE, r"\* +@LICENSE_HEADER_START@(.+)\* +@LICENSE_HEADER_END@(?:.*?)\*/(.*)"),
-            (Style.C_STYLE, r"\* +All rights reserved\.(.+?)\*/(.*)"),
-            (Style.POUND_STYLE, r"# +@LICENSE_HEADER_START@(.+)# +@LICENSE_HEADER_END@(?:.*?)#\n(.*)"),
-            (Style.POUND_STYLE, r"# +All rights reserved\.(.+?)#\n[^#](.*)"),
-            (Style.DOCSTRING_STYLE, r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*?)\n\"\"\"(.*)"),
-            (Style.DOCSTRING_STYLE, r"All rights reserved\.(.+?)\"\"\"\n(.*)"),
-            (Style.UNKNOWN, r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(.*)")
+            (Style.C_STYLE,
+                r"\* +@LICENSE_HEADER_START@(.+)\* +@LICENSE_HEADER_END@(?:.*?)\*/(.*)"),
+            (Style.C_STYLE,
+                r"\* +@MLBA_OPEN_LICENSE_HEADER_START@(.+)\* +@MLBA_OPEN_LICENSE_HEADER_END@(?:.*?)\*/(.*)"),
+            (Style.C_STYLE,
+                r"\* +All rights reserved\.(.+?)\*/(.*)"),
+            (Style.POUND_STYLE,
+                r"# +@LICENSE_HEADER_START@(.+)# +@LICENSE_HEADER_END@(?:.*?)#\n(.*)"),
+            (Style.POUND_STYLE,
+                r"# +All rights reserved\.(.+?)#\n[^#](.*)"),
+            (Style.DOCSTRING_STYLE,
+                r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*?)\n\"\"\"(.*)"),
+            (Style.DOCSTRING_STYLE,
+                r"All rights reserved\.(.+?)\"\"\"\n(.*)"),
+            (Style.UNKNOWN,
+                r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(.*)")
         ]
 
 
@@ -391,7 +400,7 @@ def main():
                     break
             if excluded:
                 continue
-            logging.info(f"Processing '{file_rel}'")
+            logging.debug(f"Processing '{file_rel}'")
             try:
                 if not tool.bump_inplace(file, keep_license=keep, simulate=args.dry_run):
                     failed = True
