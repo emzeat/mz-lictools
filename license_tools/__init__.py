@@ -365,6 +365,8 @@ def main():
 
     for include in config.get('include', ['**']):
         for file in config_dir.glob(include):
+            if file.is_dir():
+                continue
             if args.files and file not in args.files:
                 continue
             excluded = False
