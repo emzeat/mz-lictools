@@ -147,7 +147,7 @@ class Header:
         header = header.split('\n')
         if style == Style.C_STYLE:
             header = ['/*'] + \
-                     ['* ' + h if h.strip() else '*' for h in header] + ['*/', '']
+                     [' * ' + h if h.strip() else ' *' for h in header] + [' */', '']
         elif style == Style.POUND_STYLE:
             header = ['#'] + \
                      ['# ' + h if h.strip() else '#' for h in header] + ['#', '']
@@ -197,7 +197,7 @@ class ParsedHeader:
                     self.style = style
                 break
         if match:
-            self.license = re.sub(r'[#\*] ?', '', match[1], flags=re.MULTILINE).strip('\n\r')
+            self.license = re.sub(r' ?[#\*] ?', '', match[1], flags=re.MULTILINE).strip('\n\r')
             if self.license.startswith(' '):
                 # filter any leading indends
                 self.license = self.license.replace('\n ', '\n')
