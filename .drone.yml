@@ -1,0 +1,22 @@
+---
+kind: pipeline
+type: docker
+name: pre-commit
+
+steps:
+- name: check hooks
+  image: ${MZ_DOCKER_REGISTRY}/pre-commit:latest
+  commands:
+    - SKIP=license-tools pre-commit run --all-files --verbose --show-diff-on-failure
+
+---
+kind: pipeline
+type: docker
+name: tests
+
+steps:
+- name: run tests
+  image: ${MZ_DOCKER_REGISTRY}/pre-commit:latest
+  commands:
+    - python3 -m pip install --no-cache-dir --no-python-version-warning --disable-pip-version-check .
+    - python3 ./test.py

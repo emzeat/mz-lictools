@@ -21,3 +21,7 @@ repos:
     rev: 'v2.11.1'
     hooks:
     -   id: pylint
+-   repo: https://github.com/emzeat/mz-lictools
+    rev: 35b7db965e
+    hooks:
+    -   id: license-tools
