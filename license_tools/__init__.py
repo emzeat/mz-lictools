@@ -45,6 +45,7 @@ class Style(enum.Enum):
     C_STYLE = 2
     POUND_STYLE = 3
     DOCSTRING_STYLE = 4
+    XML_STYLE = 5
 
     @staticmethod
     def from_suffix(ext):
@@ -63,7 +64,10 @@ class Style(enum.Enum):
             '.sh': Style.POUND_STYLE,
             '.bash': Style.POUND_STYLE,
             '.command': Style.POUND_STYLE,
-            '.cmake': Style.POUND_STYLE
+            '.cmake': Style.POUND_STYLE,
+            '.xml': Style.XML_STYLE,
+            '.htm': Style.XML_STYLE,
+            '.html': Style.XML_STYLE
         }
         return mapping.get(ext, Style.UNKNOWN)
 
@@ -89,6 +93,10 @@ class Style(enum.Enum):
                 r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*?)\n\"\"\"(.*)"),
             (Style.DOCSTRING_STYLE,
                 r"All rights reserved\.(.+?)\"\"\"\n(.*)"),
+            (Style.XML_STYLE,
+                r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*?)\n-->(.*)"),
+            (Style.XML_STYLE,
+                r"All rights reserved\.(.+?)-->\n(.*)"),
             (Style.UNKNOWN,
                 r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(.*)")
         ]
@@ -163,6 +171,9 @@ class Header:
         elif style == Style.DOCSTRING_STYLE:
             header = ['"""'] + \
                      [' ' + h if h.strip() else '' for h in header] + ['"""', '']
+        elif style == Style.XML_STYLE:
+            header = ['<!--'] + \
+                     [' ' + h if h.strip() else '' for h in header] + ['-->', '']
         return '\n'.join(header)
 
 
