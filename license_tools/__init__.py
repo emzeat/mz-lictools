@@ -30,6 +30,7 @@ import pathlib
 import re
 import subprocess
 import sys
+import logging
 import jinja2
 
 BASE_DIR = pathlib.Path(__file__).parent
@@ -227,7 +228,7 @@ class Tool:
         """
         parsed = ParsedHeader(filename)
         if parsed.style == Style.UNKNOWN:
-            print(f"Failed to determine comment style for {filename}")
+            logging.warning(f"Failed to determine comment style for {filename}")
             return Style.UNKNOWN, None
 
         new_author = True
@@ -274,6 +275,8 @@ def main():
     parser = argparse.ArgumentParser(
         prog='license_tools',
         description=f'Helper to maintain current code license headers ({", ".join(LICENSES)}).')
+    parser.add_argument('-v', '--verbose', help='Enable verbose logging',
+                        action='store_true', default=False)
     parser.add_argument(
         '-c', '--config',
         help='Configuration to be loaded.'
@@ -296,6 +299,12 @@ def main():
              ' Inclusions and exclusions from the config will always be considered.')
     args = parser.parse_args()
 
+    format = '[%(levelname)s] %(message)s'
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG, format=format)
+    else:
+        logging.basicConfig(level=logging.INFO, format=format)
+
     cwd = pathlib.Path.cwd()
     if args.sample_config:
         default_config = {
@@ -315,7 +324,7 @@ def main():
         }
         with open(cwd / license_json, 'w', encoding='utf-8') as configfile:
             configfile.write(json.dumps(default_config, indent=4))
-            print(f'Wrote default config to {cwd / license_json}')
+            logging.info(f'Wrote default config to {cwd / license_json}')
             sys.exit(0)
 
     level = cwd
@@ -326,7 +335,7 @@ def main():
         else:
             level = level.parent
     if args.config:
-        print(f"Using configuration from '{args.config}'")
+        logging.info(f"Using configuration from '{args.config}'")
     else:
         parser.print_help()
         parser.error("Failed to discover configuration")
@@ -339,7 +348,7 @@ def main():
         license = License(config.get('license', None))
     except TypeError:
         valid = "\"" + "\", \"".join(LICENSES.keys()) + "\""
-        print(f"Invalid license, supported licenses are {valid}")
+        logging.fatal(f"Invalid license, supported licenses are {valid}")
         sys.exit(2)
 
     config_author = config.get('author', {})
@@ -351,8 +360,9 @@ def main():
                 'git config user.name', stderr=subprocess.STDOUT, shell=True)
             git_author = git_author.decode().strip()
         except subprocess.CalledProcessError as error:
-            print(f"Failed to fetch author using git: {error.output}")
-        print(f"Using author from git: \"{git_author}\"")
+            logging.fatal(f"Failed to fetch author using git: {error.output}")
+            sys.exit(2)
+        logging.info(f"Using author from git: \"{git_author}\"")
         author = Author(git_author)
 
     if args.files:
@@ -364,21 +374,24 @@ def main():
     excludes = [re.compile(excl) for excl in config.get('exclude', ['\\.[^/]+/', '\\.[^/]'])]
 
     for include in config.get('include', ['**']):
+        logging.debug(f"Pattern '{include}'")
         for file in config_dir.glob(include):
             if file.is_dir():
                 continue
+            file_rel = file.relative_to(config_dir)
+            logging.debug(f"Candidate '{file_rel}'")
             if args.files and file not in args.files:
+                logging.debug(f"Excluding '{file_rel}' because not in args")
                 continue
             excluded = False
-            file_rel = file.relative_to(config_dir)
             for exclude in excludes:
                 if re.search(exclude, str(file_rel)):
-                    #print(f"- Excluding \"{file_rel}\" due to {exclude}")
+                    logging.debug(f"Excluding '{file_rel}' due to '{exclude}'")
                     excluded = True
                     break
             if excluded:
                 continue
-            print(f"+ Processing \"{file_rel}\"")
+            logging.info(f"Processing '{file_rel}'")
             if not tool.bump_inplace(file, keep_license=keep, simulate=args.dry_run):
                 failed = True
 
