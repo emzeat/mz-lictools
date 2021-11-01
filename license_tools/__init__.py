@@ -392,7 +392,11 @@ def main():
             if excluded:
                 continue
             logging.info(f"Processing '{file_rel}'")
-            if not tool.bump_inplace(file, keep_license=keep, simulate=args.dry_run):
+            try:
+                if not tool.bump_inplace(file, keep_license=keep, simulate=args.dry_run):
+                    failed = True
+            except UnicodeDecodeError as error:
+                logging.warning(f"Failed to decode {file_rel}: {error}")
                 failed = True
 
     if failed:
