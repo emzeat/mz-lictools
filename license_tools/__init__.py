@@ -315,11 +315,11 @@ def main():
             'license': f'<pick one of {", ".join(LICENSES.keys())}>',
             'force_license': False,
             'include': [
-                '**'
+                '**/*'
             ],
             'exclude': [
-                '\\.[^/]+/',
-                '\\.[^/]'
+                '^\\.[^/]+',
+                '/\\.[^/]+'
             ]
         }
         with open(cwd / license_json, 'w', encoding='utf-8') as configfile:
@@ -371,9 +371,9 @@ def main():
     tool = Tool(license, author)
     keep = not args.force_license and not config.get('force_license', False)
     failed = False
-    excludes = [re.compile(excl) for excl in config.get('exclude', ['\\.[^/]+/', '\\.[^/]'])]
+    excludes = [re.compile(excl) for excl in config.get('exclude', ['^\\.[^/]+', '/\\.[^/]+'])]
 
-    for include in config.get('include', ['**']):
+    for include in config.get('include', ['**/*']):
         logging.debug(f"Pattern '{include}'")
         for file in config_dir.glob(include):
             if file.is_dir():
