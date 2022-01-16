@@ -107,7 +107,7 @@ class Author:
 
     def __init__(self, name: str, year_from: int = None,
                  year_to: int = datetime.date.today().year,
-                 git_root: pathlib.Path = None):
+                 git_repo=None):
         """
         Creates a new author
         :name: The name of the author
@@ -115,12 +115,74 @@ class Author:
         :year_to: The last year the author contributed
         """
         self.name = name
-        self.git_root = git_root
+        self.git_repo = git_repo
         self.year_to = year_to
         if year_from:
             self.year_from = year_from
         else:
             self.year_from = year_to
+
+
+class GitRepo:
+    """Git repository object"""
+
+    def __init__(self):
+        """
+        Creates a repository object using the current working dir to determine the root
+
+        :throws RuntimeError: When failing to detect the root
+        """
+        try:
+            self.git_root = subprocess.check_output(
+                'git rev-parse --show-toplevel', stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
+            self.git_root = pathlib.Path(self.git_root.strip())
+        except subprocess.CalledProcessError as error:
+            raise RuntimeError(f"Not a git repo: {error.output}") from error
+
+    def author_from_config(self) -> Author:
+        """Returns the author as set via gitconfig"""
+        try:
+            git_author = subprocess.check_output(
+                'git config user.name', stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
+            git_author = git_author.strip()
+            return Author(git_author, git_repo=self)
+        except subprocess.CalledProcessError as error:
+            logging.fatal(f"Failed to fetch author using git: {error.output}")
+            return None
+
+    def author_from_history(self, filename: pathlib.Path) -> Author:
+        """Returns the author who touched the file for the last time or None"""
+        file_rel = filename.relative_to(self.git_root)
+        try:
+            author_raw = subprocess.check_output(
+                f'git log -1 --date=format:%Y --pretty=format:"%an\t%ad" -- {file_rel}',
+                cwd=self.git_root, stderr=subprocess.STDOUT, shell=True,
+                encoding='utf-8')
+            author_raw = author_raw.strip()
+            author_name, author_year = author_raw.split('\t')
+            author_year = int(author_year)
+            logging.debug(f"{file_rel} was last touched by \"{author_name}\" during {author_year}")
+            return Author(name=author_name, year_to=author_year, git_repo=self)
+        except ValueError:
+            pass
+        except subprocess.CalledProcessError:
+            pass
+        return None
+
+    def is_modified_in_tree(self, filename: pathlib.Path) -> bool:
+        """Returns true when the file has uncommited chnages in the tree"""
+        file_rel = filename.relative_to(self.git_root)
+        try:
+            diff = subprocess.check_output(
+                f'git diff --name-only HEAD -- {file_rel}',
+                cwd=self.git_root, stderr=subprocess.STDOUT, shell=True,
+                encoding='utf-8').strip()
+            if len(diff) != 0:
+                logging.debug(f"{file_rel} was just modified\": {diff}")
+                return True
+        except subprocess.CalledProcessError:
+            pass
+        return False
 
 
 class License:
@@ -252,39 +314,15 @@ class Tool:
             logging.warning(f"Failed to determine comment style for {filename}")
             return Style.UNKNOWN, None
 
-        # try to determine the author using the git history of the file
         last_author = None
-        if self.default_author.git_root:
+        git_repo = self.default_author.git_repo
+        if git_repo:
             # first try to test if the file has been cached
-            relative_file = filename.relative_to(self.default_author.git_root)
-            try:
-                diff = subprocess.check_output(
-                    f'git diff --name-only HEAD -- {relative_file}',
-                    cwd=self.default_author.git_root,
-                    stderr=subprocess.STDOUT, shell=True, encoding='utf-8').strip()
-                if len(diff) != 0:
-                    logging.debug(f"{filename} was just modified by \"{self.default_author.name}\": {diff}")
-                    last_author = self.default_author
-            except subprocess.CalledProcessError:
-                # test the git log
-                pass
-            if last_author is None:
-                try:
-                    author_raw = subprocess.check_output(
-                        f'git log -1 --date=format:%Y --pretty=format:"%an\t%ad" -- {relative_file}',
-                        cwd=self.default_author.git_root,
-                        stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
-                    author_raw = author_raw.strip()
-                    author_name, author_year = author_raw.split('\t')
-                    author_year = int(author_year)
-                    last_author = Author(name=author_name, year_to=author_year)
-                    logging.debug(f"{filename} was last touched by \"{author_name}\" during {author_year}")
-                except ValueError:
-                    # stick to the default author
-                    pass
-                except subprocess.CalledProcessError:
-                    # stick to the default author
-                    pass
+            if git_repo.is_modified_in_tree(filename):
+                last_author = self.default_author
+            # try to determine the author using the git history of the file
+            else:
+                last_author = git_repo.author_from_history(filename)
         if last_author is None:
             last_author = self.default_author
 
@@ -412,22 +450,12 @@ def main():
     if 'name' in config_author:
         author = Author(config_author['name'])
     elif 'from_git' in config_author:
+        git_repo = GitRepo()
         try:
-            git_author = subprocess.check_output(
-                'git config user.name', stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
-            git_author = git_author.strip()
-        except subprocess.CalledProcessError as error:
-            logging.fatal(f"Failed to fetch author using git: {error.output}")
+            author = git_repo.author_from_config()
+        except RuntimeError:
             sys.exit(2)
-        logging.info(f"New files will get author from git: \"{git_author}\"")
-        try:
-            git_root = subprocess.check_output(
-                'git rev-parse --show-toplevel', stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
-            git_root = git_root.strip()
-        except subprocess.CalledProcessError as error:
-            logging.fatal(f"Failed to determine repo root using git: {error.output}")
-            sys.exit(2)
-        author = Author(git_author, git_root=pathlib.Path(git_root))
+        logging.info(f"New files will get author from git: \"{author.name}\"")
 
     if args.files:
         args.files = [file.resolve() for file in args.files]
