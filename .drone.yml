@@ -7,7 +7,7 @@ steps:
 - name: check hooks
   image: ${MZ_DOCKER_REGISTRY}/pre-commit:latest
   commands:
-    - SKIP=license-tools pre-commit run --all-files --verbose --show-diff-on-failure
+    - pre-commit run --all-files --verbose --show-diff-on-failure
 
 ---
 kind: pipeline

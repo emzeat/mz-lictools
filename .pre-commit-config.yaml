@@ -21,7 +21,12 @@ repos:
     rev: 'v2.11.1'
     hooks:
     -   id: pylint
--   repo: https://github.com/emzeat/mz-lictools
-    rev: 35b7db965e
+-   repo: local
     hooks:
-    -   id: license-tools
+        - id: license-tools
+          name: Check license headers
+          entry: ./lictool
+          language: python
+          types: [text]
+          require_serial: true
+          additional_dependencies: ['jinja2']

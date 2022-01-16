@@ -1,7 +1,7 @@
 """
  __init__.py
 
- Copyright (c) 2012 - 2021 Marius Zwicker
+ Copyright (c) 2012 - 2022 Marius Zwicker
  All rights reserved.
 
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -106,7 +106,8 @@ class Author:
     """Describes an author of a file"""
 
     def __init__(self, name: str, year_from: int = None,
-                 year_to: int = datetime.date.today().year):
+                 year_to: int = datetime.date.today().year,
+                 git_root: pathlib.Path = None):
         """
         Creates a new author
         :name: The name of the author
@@ -114,6 +115,7 @@ class Author:
         :year_to: The last year the author contributed
         """
         self.name = name
+        self.git_root = git_root
         self.year_to = year_to
         if year_from:
             self.year_from = year_from
@@ -233,7 +235,6 @@ class Tool:
 
     def __init__(self, default_license: License, default_author: Author):
         """Creates a new tool instance with default license and author"""
-        self.this_year = datetime.date.today().year
         self.default_license = default_license
         self.default_author = default_author
         self.header = Header(self.default_license)
@@ -251,10 +252,46 @@ class Tool:
             logging.warning(f"Failed to determine comment style for {filename}")
             return Style.UNKNOWN, None
 
+        # try to determine the author using the git history of the file
+        last_author = None
+        if self.default_author.git_root:
+            # first try to test if the file has been cached
+            relative_file = filename.relative_to(self.default_author.git_root)
+            try:
+                diff = subprocess.check_output(
+                    f'git diff --name-only HEAD -- {relative_file}',
+                    cwd=self.default_author.git_root,
+                    stderr=subprocess.STDOUT, shell=True, encoding='utf-8').strip()
+                if len(diff) != 0:
+                    logging.debug(f"{filename} was just modified by \"{self.default_author.name}\": {diff}")
+                    last_author = self.default_author
+            except subprocess.CalledProcessError:
+                # test the git log
+                pass
+            if last_author is None:
+                try:
+                    author_raw = subprocess.check_output(
+                        f'git log -1 --date=format:%Y --pretty=format:"%an\t%ad" -- {relative_file}',
+                        cwd=self.default_author.git_root,
+                        stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
+                    author_raw = author_raw.strip()
+                    author_name, author_year = author_raw.split('\t')
+                    author_year = int(author_year)
+                    last_author = Author(name=author_name, year_to=author_year)
+                    logging.debug(f"{filename} was last touched by \"{author_name}\" during {author_year}")
+                except ValueError:
+                    # stick to the default author
+                    pass
+                except subprocess.CalledProcessError:
+                    # stick to the default author
+                    pass
+        if last_author is None:
+            last_author = self.default_author
+
         new_author = True
         for author in parsed.authors:
-            if author.name == self.default_author.name:
-                author.year_to = self.this_year
+            if author.name == last_author.name:
+                author.year_to = last_author.year_to
                 new_author = False
         if new_author:
             parsed.authors.append(self.default_author)
@@ -377,13 +414,20 @@ def main():
     elif 'from_git' in config_author:
         try:
             git_author = subprocess.check_output(
-                'git config user.name', stderr=subprocess.STDOUT, shell=True)
-            git_author = git_author.decode().strip()
+                'git config user.name', stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
+            git_author = git_author.strip()
         except subprocess.CalledProcessError as error:
             logging.fatal(f"Failed to fetch author using git: {error.output}")
             sys.exit(2)
-        logging.info(f"Using author from git: \"{git_author}\"")
-        author = Author(git_author)
+        logging.info(f"New files will get author from git: \"{git_author}\"")
+        try:
+            git_root = subprocess.check_output(
+                'git rev-parse --show-toplevel', stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
+            git_root = git_root.strip()
+        except subprocess.CalledProcessError as error:
+            logging.fatal(f"Failed to determine repo root using git: {error.output}")
+            sys.exit(2)
+        author = Author(git_author, git_root=pathlib.Path(git_root))
 
     if args.files:
         args.files = [file.resolve() for file in args.files]

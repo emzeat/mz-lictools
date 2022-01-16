@@ -1,7 +1,7 @@
 """
  test.py
 
- Copyright (c) 2021 Marius Zwicker
+ Copyright (c) 2021 - 2022 Marius Zwicker
  All rights reserved.
 
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -318,7 +318,7 @@ class TestHeader(unittest.TestCase):
     def test_generator(self):
         self.maxDiff = None
         author1 = license_tools.Author('Max Muster', 2013, 2020)
-        author2 = license_tools.Author('Umbrella Inc', 2021)
+        author2 = license_tools.Author('Umbrella Inc', 2021, 2021)
         authors = [author1, author2]
 
         for l in license_tools.LICENSES:
@@ -373,7 +373,7 @@ class TestTool(unittest.TestCase):
 
     def test_bump(self):
         self.maxDiff = None
-        author = license_tools.Author("Test Guy")
+        author = license_tools.Author("Test Guy", year_to=2021)
         license = license_tools.License("Apache-2.0")
         tool = license_tools.Tool(
             default_license=license, default_author=author)
