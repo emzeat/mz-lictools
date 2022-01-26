@@ -425,6 +425,18 @@ class TestPackage(unittest.TestCase):
                 raw.write(diff)
             raise
 
+    def test_bad_config(self):
+        with self._prepare_repo(BASE / 'test/package_bad_license.patch',
+                                BASE / 'test/package_bad_license.patch') as repo:
+            with self.assertRaises(subprocess.CalledProcessError):
+                subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+
+    def test_bad_license(self):
+        with self._prepare_repo(BASE / 'test/package_bad_license.patch',
+                                BASE / 'test/package_bad_license.json') as repo:
+            with self.assertRaises(subprocess.CalledProcessError):
+                subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+
     def test_apply(self):
         with self._prepare_repo(BASE / 'test/package_apply.patch',
                                 BASE / 'test/package_apply.json') as repo:
