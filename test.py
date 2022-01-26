@@ -437,6 +437,18 @@ class TestPackage(unittest.TestCase):
             with self.assertRaises(subprocess.CalledProcessError):
                 subprocess.check_call(f'{BASE}/lictool', cwd=repo)
 
+    def test_force_license(self):
+        with self._prepare_repo(BASE / 'test/package_force_license.patch',
+                                BASE / 'test/package_force_license.json') as repo:
+            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+            self._diff_repo(repo, BASE / 'test/package_force_license.diff')
+
+    def test_retain_license(self):
+        with self._prepare_repo(BASE / 'test/package_retain_license.patch',
+                                BASE / 'test/package_retain_license.json') as repo:
+            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+            self._diff_repo(repo, BASE / 'test/package_retain_license.diff')
+
     def test_apply(self):
         with self._prepare_repo(BASE / 'test/package_apply.patch',
                                 BASE / 'test/package_apply.json') as repo:
