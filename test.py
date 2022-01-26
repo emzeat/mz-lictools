@@ -425,6 +425,18 @@ class TestPackage(unittest.TestCase):
                 raw.write(diff)
             raise
 
+    def test_apply(self):
+        with self._prepare_repo(BASE / 'test/package_apply.patch',
+                                BASE / 'test/package_apply.json') as repo:
+            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+            self._diff_repo(repo, BASE / 'test/package_apply.diff')
+
+    def test_no_changes(self):
+        with self._prepare_repo(BASE / 'test/package_no_changes.patch',
+                                BASE / 'test/package_no_changes.json') as repo:
+            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+            self._diff_repo(repo, BASE / 'test/package_no_changes.diff')
+
     def test_from_git_apply(self):
         with self._prepare_repo(BASE / 'test/package_from_git_apply.patch',
                                 BASE / 'test/package_from_git_apply.json') as repo:
