@@ -21,9 +21,13 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 """
 
+from asyncio import subprocess
+import shutil
 import license_tools
 import unittest
 import pathlib
+import tempfile
+import subprocess
 
 BASE = pathlib.Path(__file__).parent
 
@@ -390,6 +394,48 @@ class TestTool(unittest.TestCase):
                 with open(BASE / 'test' / (stem + ".expected"), 'w') as expected:
                     expected.write(result)
                 raise
+
+
+class TestPackage(unittest.TestCase):
+
+    def _prepare_repo(self, commit: pathlib.Path, config: pathlib.Path):
+        wkdir = tempfile.TemporaryDirectory(suffix='lictools')
+        try:
+            cwd = pathlib.Path(wkdir.name)
+            subprocess.check_call('git init', cwd=cwd, shell=True)
+            (cwd / ".gitignore").write_text("")
+            subprocess.check_call('git add .gitignore', cwd=cwd, shell=True)
+            subprocess.check_call('git commit -a -m "Prepare Repo"', cwd=cwd, shell=True)
+            subprocess.check_call('git config --local user.name "Lictools Unittest"', cwd=cwd, shell=True)
+            subprocess.check_call('git config --local user.email "lictools@unittest.local"', cwd=cwd, shell=True)
+            subprocess.check_call(f'git am {commit}', cwd=cwd, shell=True)
+            (cwd / '.license-tools-config.json').write_text(config.read_text())
+            return wkdir
+        except:
+            wkdir.cleanup()
+            raise
+
+    def _diff_repo(self, repo: pathlib.Path, expected: pathlib.Path):
+        diff = subprocess.check_output('git diff', cwd=repo, shell=True, encoding='utf-8')
+        try:
+            with open(expected, 'r') as raw:
+                self.assertEqual(raw.read(), diff)
+        except:
+            with open(expected, 'w') as raw:
+                raw.write(diff)
+            raise
+
+    def test_from_git_apply(self):
+        with self._prepare_repo(BASE / 'test/package_from_git_apply.patch',
+                                BASE / 'test/package_from_git_apply.json') as repo:
+            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+            self._diff_repo(repo, BASE / 'test/package_from_git_apply.diff')
+
+    def test_from_git_no_changes(self):
+        with self._prepare_repo(BASE / 'test/package_from_git_no_changes.patch',
+                                BASE / 'test/package_from_git_no_changes.json') as repo:
+            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+            self._diff_repo(repo, BASE / 'test/package_from_git_no_changes.diff')
 
 
 if __name__ == '__main__':
