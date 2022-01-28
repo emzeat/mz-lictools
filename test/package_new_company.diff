@@ -1,5 +1,5 @@
 diff --git a/code.cpp b/code.cpp
-index a1b8312..b568772 100644
+index a1b8312..e0c83a8 100644
 --- a/code.cpp
 +++ b/code.cpp
 @@ -6,11 +6,11 @@
@@ -9,7 +9,8 @@ index a1b8312..b568772 100644
 - * by Umbrella Inc or part of its connected software and documentation.
 + * by Rainbow GbR. or part of its connected software and documentation.
   *
-  * ANY SOURCECODE BEARING THIS HEADER SHALL NOT BE RELEASED TO THE
+- * ANY SOURCECODE BEARING THIS HEADER SHALL NOT BE RELEASED TO THE
++ * ANY FILE BEARING THIS HEADER SHALL NOT BE RELEASED TO THE
   * PUBLIC, BE USED, BE MODIFIED OR BE DISTRIBUTED IN ANY WAY
 - * WITHOUT WRITTEN PERMISSION OF UMBRELLA INC.
 + * WITHOUT WRITTEN PERMISSION OF RAINBOW GBR..
