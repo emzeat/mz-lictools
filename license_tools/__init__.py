@@ -439,7 +439,11 @@ def main():
 
     config_dir = args.config.parent
     with open(args.config, 'r', encoding='utf-8') as configfile:
-        config = json.load(configfile)
+        try:
+            config = json.load(configfile)
+        except json.JSONDecodeError as error:
+            logging.fatal(f"Failed to parse config: {error}")
+            sys.exit(2)
 
     try:
         license = License(config.get('license', None))
