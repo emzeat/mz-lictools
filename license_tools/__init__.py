@@ -295,10 +295,11 @@ class ParsedHeader:
 class Tool:
     """The license tool"""
 
-    def __init__(self, default_license: License, default_author: Author):
+    def __init__(self, default_license: License, default_author: Author, company: str = None):
         """Creates a new tool instance with default license and author"""
         self.default_license = default_license
         self.default_author = default_author
+        self.company = company
         self.header = Header(self.default_license)
 
     def bump(self, filename: pathlib.PurePath,
@@ -340,7 +341,7 @@ class Tool:
 
         # the updated output is the new header with the remainder and ensuring a single trailing newline
         output = self.header.render(
-            filename.name, parsed.authors, parsed.style, license=license_text)
+            filename.name, parsed.authors, parsed.style, company=self.company, license=license_text)
         output = output + '\n' + parsed.remainder + '\n'
         if parsed.shebang:
             output = parsed.shebang + '\n' + output
@@ -407,6 +408,7 @@ def main():
                 'from_git': True,
                 'name': '<author here>'
             },
+            'company': '<optional company here>',
             'license': f'<pick one of {", ".join(LICENSES.keys())}>',
             'force_license': False,
             'include': [
@@ -460,7 +462,8 @@ def main():
     if args.files:
         args.files = [file.resolve() for file in args.files]
 
-    tool = Tool(license, author)
+    company = config.get('company', None)
+    tool = Tool(license, author, company)
     keep = not args.force_license and not config.get('force_license', False)
     failed = False
     excludes = [re.compile(excl) for excl in config.get('exclude', ['^\\.[^/]+', '/\\.[^/]+'])]

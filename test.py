@@ -449,6 +449,12 @@ class TestPackage(unittest.TestCase):
             subprocess.check_call(f'{BASE}/lictool', cwd=repo)
             self._diff_repo(repo, BASE / 'test/package_retain_license.diff')
 
+    def test_new_company(self):
+        with self._prepare_repo(BASE / 'test/package_new_company.patch',
+                                BASE / 'test/package_new_company.json') as repo:
+            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+            self._diff_repo(repo, BASE / 'test/package_new_company.diff')
+
     def test_apply(self):
         with self._prepare_repo(BASE / 'test/package_apply.patch',
                                 BASE / 'test/package_apply.json') as repo:
