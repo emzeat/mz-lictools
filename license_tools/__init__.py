@@ -434,8 +434,7 @@ def main():
     if args.config:
         logging.info(f"Using configuration from '{args.config}'")
     else:
-        parser.print_help()
-        parser.error("Failed to discover configuration")
+        parser.error("Failed to discover a configuration")
 
     config_dir = args.config.parent
     with open(args.config, 'r', encoding='utf-8') as configfile:

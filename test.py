@@ -433,6 +433,13 @@ class TestPackage(unittest.TestCase):
             with self.assertRaises(subprocess.CalledProcessError):
                 subprocess.check_call(f'{BASE}/lictool', cwd=repo)
 
+    def test_no_config(self):
+        with self._prepare_repo(BASE / 'test/package_bad_license.patch',
+                                BASE / 'test/package_bad_license.patch') as repo:
+            (pathlib.Path(repo) / '.license-tools-config.json').unlink()
+            with self.assertRaises(subprocess.CalledProcessError):
+                subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+
     def test_bad_license(self):
         with self._prepare_repo(BASE / 'test/package_bad_license.patch',
                                 BASE / 'test/package_bad_license.json') as repo:
