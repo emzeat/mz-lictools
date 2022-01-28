@@ -456,10 +456,15 @@ def main():
     if 'name' in config_author:
         author = Author(config_author['name'])
     elif 'from_git' in config_author:
-        git_repo = GitRepo()
+        try:
+            git_repo = GitRepo()
+        except RuntimeError as error:
+            logging.fatal(f"Not running within a git repo: {error}")
+            sys.exit(2)
         try:
             author = git_repo.author_from_config()
-        except RuntimeError:
+        except RuntimeError as error:
+            logging.fatal(f"Failed to fetch author from git as configured: {error}")
             sys.exit(2)
         logging.info(f"New files will get author from git: \"{author.name}\"")
 

@@ -481,6 +481,13 @@ class TestPackage(unittest.TestCase):
             subprocess.check_call(f'{BASE}/lictool', cwd=repo)
             self._diff_repo(repo, BASE / 'test/package_from_git_no_changes.diff')
 
+    def test_from_git_no_repo(self):
+        with self._prepare_repo(BASE / 'test/package_from_git_no_repo.patch',
+                                BASE / 'test/package_from_git_no_repo.json') as repo:
+            shutil.rmtree(pathlib.Path(repo) / '.git')
+            with self.assertRaises(subprocess.CalledProcessError):
+                subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+
 
 if __name__ == '__main__':
     unittest.main()
