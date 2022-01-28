@@ -29,7 +29,7 @@ import pathlib
 import tempfile
 import subprocess
 
-BASE = pathlib.Path(__file__).parent
+BASE = pathlib.Path(__file__).resolve().absolute().parent
 
 
 class TestParserCStyle(unittest.TestCase):
