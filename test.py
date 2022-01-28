@@ -402,13 +402,15 @@ class TestPackage(unittest.TestCase):
         wkdir = tempfile.TemporaryDirectory(suffix='lictools')
         try:
             cwd = pathlib.Path(wkdir.name)
-            subprocess.check_call('git init', cwd=cwd, shell=True)
+            subprocess.check_call('git init --initial-branch=master', cwd=cwd, shell=True, stdout=subprocess.DEVNULL)
             (cwd / ".gitignore").write_text("")
-            subprocess.check_call('git add .gitignore', cwd=cwd, shell=True)
-            subprocess.check_call('git commit -a -m "Prepare Repo"', cwd=cwd, shell=True)
-            subprocess.check_call('git config --local user.name "Lictools Unittest"', cwd=cwd, shell=True)
-            subprocess.check_call('git config --local user.email "lictools@unittest.local"', cwd=cwd, shell=True)
-            subprocess.check_call(f'git am {commit}', cwd=cwd, shell=True)
+            subprocess.check_call('git add .gitignore', cwd=cwd, shell=True, stdout=subprocess.DEVNULL)
+            subprocess.check_call('git commit -a -m "Prepare Repo"', cwd=cwd, shell=True, stdout=subprocess.DEVNULL)
+            subprocess.check_call('git config --local user.name "Lictools Unittest"',
+                                  cwd=cwd, shell=True, stdout=subprocess.DEVNULL)
+            subprocess.check_call('git config --local user.email "lictools@unittest.local"',
+                                  cwd=cwd, shell=True, stdout=subprocess.DEVNULL)
+            subprocess.check_call(f'git am {commit}', cwd=cwd, shell=True, stdout=subprocess.DEVNULL)
             (cwd / '.license-tools-config.json').write_text(config.read_text())
             return wkdir
         except:
