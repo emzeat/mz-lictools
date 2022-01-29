@@ -21,16 +21,17 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 """
 
-from operator import attrgetter
 import argparse
 import datetime
 import enum
 import json
+import logging
 import pathlib
 import re
 import subprocess
 import sys
-import logging
+from operator import attrgetter
+from typing import Dict
 import jinja2
 
 BASE_DIR = pathlib.Path(__file__).parent
@@ -295,10 +296,12 @@ class ParsedHeader:
 class Tool:
     """The license tool"""
 
-    def __init__(self, default_license: License, default_author: Author, company: str = None):
+    def __init__(self, default_license: License, default_author: Author,
+                 company: str = None, aliases: Dict[str, str] = None):
         """Creates a new tool instance with default license and author"""
         self.default_license = default_license
         self.default_author = default_author
+        self.aliases = aliases or {}
         self.company = company
         self.header = Header(self.default_license)
 
@@ -315,22 +318,24 @@ class Tool:
             logging.warning(f"Failed to determine comment style for {filename}")
             return Style.UNKNOWN, None
 
-        last_author = None
+        latest_author = None
         git_repo = self.default_author.git_repo
         if git_repo:
             # first try to test if the file has been cached
             if git_repo.is_modified_in_tree(filename):
-                last_author = self.default_author
+                latest_author = self.default_author
             # try to determine the author using the git history of the file
             else:
-                last_author = git_repo.author_from_history(filename)
-        if last_author is None:
-            last_author = self.default_author
+                latest_author = git_repo.author_from_history(filename)
+        if latest_author is None:
+            latest_author = self.default_author
 
         new_author = True
         for author in parsed.authors:
-            if author.name == last_author.name:
-                author.year_to = last_author.year_to
+            alias = self.aliases.get(author.name, None)
+            if latest_author.name in (author.name, alias):
+                author.year_to = latest_author.year_to
+                author.name = latest_author.name
                 new_author = False
         if new_author:
             parsed.authors.append(self.default_author)
@@ -407,7 +412,10 @@ def main():
             'author': {
                 'from_git': True,
                 'name': '<author here>',
-                'company': '<optional company here>'
+                'company': '<optional company here>',
+                'aliases': {
+                    '<old author name>': '<new author name>'
+                }
             },
             'license': f'<pick one of {", ".join(LICENSES.keys())}>',
             'force_license': False,
@@ -466,12 +474,13 @@ def main():
             logging.fatal(f"Failed to fetch author from git as configured: {error}")
             sys.exit(2)
         logging.info(f"New files will get author from git: \"{author.name}\"")
+    aliases = config_author.get('aliases', {})
 
     if args.files:
         args.files = [file.resolve() for file in args.files]
 
     company = config_author.get('company', None)
-    tool = Tool(license, author, company)
+    tool = Tool(license, author, company, aliases)
     keep = not args.force_license and not config.get('force_license', False)
     failed = False
     excludes = [re.compile(excl) for excl in config.get('exclude', ['^\\.[^/]+', '/\\.[^/]+'])]

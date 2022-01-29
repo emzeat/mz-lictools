@@ -507,6 +507,12 @@ class TestPackage(unittest.TestCase):
             with self.assertRaises(subprocess.CalledProcessError):
                 subprocess.check_call(f'{BASE}/lictool', cwd=repo)
 
+    def test_author_alias(self):
+        with self._prepare_repo(BASE / 'test/package_author_alias.patch',
+                                BASE / 'test/package_author_alias.json') as repo:
+            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+            self._diff_repo(repo, BASE / 'test/package_author_alias.diff')
+
 
 if __name__ == '__main__':
     unittest.main()

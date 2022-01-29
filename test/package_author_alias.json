@@ -1,0 +1,11 @@
+{
+  "author": {
+    "name": "New Author",
+    "company": "Rainbow GbR.",
+    "aliases": {
+      "Test Author": "New Author"
+    }
+  },
+  "license": "Proprietary",
+  "force_license": true
+}
