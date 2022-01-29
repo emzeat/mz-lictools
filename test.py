@@ -57,6 +57,18 @@ class TestParserCStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("#include <stdio.h>", parsed.remainder)
 
+    def test_parse_1author_1year_dash(self):
+        parsed = license_tools.ParsedHeader(
+            file=BASE / 'test/TestParserCStyle-1author_1year.hpp')
+        self.assertEqual(1, len(parsed.authors))
+        self.assertEqual("AB_CD-Team", parsed.authors[0].name)
+        self.assertEqual(1984, parsed.authors[0].year_from)
+        self.assertEqual(1984, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.C_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith(
+            "This library is"), parsed.license)
+        self.assertEqual("#include <stdio.h>", parsed.remainder)
+
     def test_parse_1author_2years(self):
         parsed = license_tools.ParsedHeader(
             file=BASE / 'test/TestParserCStyle-1author_2years.cxx')

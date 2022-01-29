@@ -260,7 +260,7 @@ class ParsedHeader:
                 self.shebang = self.shebang[0]
         # use a regex to extract existing authors, i.e. any line starting with 'Copyright'
         self.authors = []
-        for match in re.findall(r"(?<!\w) Copyright[^\d]*([0-9]+) *(?:- *([0-9]+))? *([\w \.]+)", contents):
+        for match in re.findall(r"(?<![^\n\r#\*]) Copyright[^\d]*([0-9]+) *(?:- *([0-9]+))? *([^\n\r]+)", contents):
             if len(match) == 3:
                 args = {
                     'name': match[2],
