@@ -1,0 +1,16 @@
+diff --git a/code.cpp b/code.cpp
+index 7078ea1..3395d01 100644
+--- a/code.cpp
++++ b/code.cpp
+@@ -1,8 +1,8 @@
+ /*
+- * SomeOutdatedFilename.hpp
++ * code.cpp
+  *
+- * Copyright (c) 2001 - 2020 Peter Pan
+- * Copyright (c) 2019 - 2022 Peter Pan
++ * Copyright (c) 2001 - 2022 Peter Pan
++ * Copyright (c) 2022 Test Author
+  * All rights reserved.
+  *
+  * Unauthorized copying of this file, via any medium is strictly prohibited.

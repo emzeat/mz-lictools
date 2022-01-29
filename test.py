@@ -475,6 +475,12 @@ class TestPackage(unittest.TestCase):
             subprocess.check_call(f'{BASE}/lictool', cwd=repo)
             self._diff_repo(repo, BASE / 'test/package_retain_license.diff')
 
+    def test_duplicate_authors(self):
+        with self._prepare_repo(BASE / 'test/package_duplicate_authors.patch',
+                                BASE / 'test/package_duplicate_authors.json') as repo:
+            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+            self._diff_repo(repo, BASE / 'test/package_duplicate_authors.diff')
+
     def test_new_company(self):
         with self._prepare_repo(BASE / 'test/package_new_company.patch',
                                 BASE / 'test/package_new_company.json') as repo:

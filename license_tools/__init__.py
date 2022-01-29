@@ -340,6 +340,17 @@ class Tool:
         if new_author:
             parsed.authors.append(latest_author)
 
+        # make sure to deduplicate authors properly
+        seen_authors = {}
+        for author in parsed.authors:
+            seen = seen_authors.get(author.name, None)
+            if seen:
+                seen.year_from = min(seen.year_from, author.year_from)
+                seen.year_to = max(seen.year_to, author.year_to)
+            else:
+                seen_authors[author.name] = author
+        parsed.authors = list(seen_authors.values())
+
         license_text = None
         if keep_license:
             license_text = parsed.license
