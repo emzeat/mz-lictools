@@ -46,16 +46,29 @@ of a comment).
 {
   "author": {
     // determine the copyright author based on [user] in your local .gitconfig
-    "from_git": true
+    "from_git": true,
     // explicitly specify the author. Useful when the code is owned by a company
     // and copyrights should not reflect updates made by individual authors
-    "name": "My Awesome Company"
     // when both 'from_git' and 'name' have been specified, the 'name' setting
     // will take precedence
+    "name": "My Awesome Company",
+    // for some licenses an additional company name which is different from the
+    // author may be wanted. This can be specified here.
+    "company": "<optional company here>",
+    // in case the name of an author has changed, e.g. due to marriage you
+    // can specify a mapping of old to new name. In such case any changes
+    // from the old name will be considered as done by the new name and the
+    // respective years simply be extended instead of adding a new author entry.
+    "aliases": {
+      "<old name>": "<new name"
+    }
   },
   // specifies the license to be put at the top of each file. Use lictool --help
   // to get a list of supported licenses
   "license": "GPL-2.0-or-later",
+  // do not retain existing licenses on the header but replace all licensing
+  // information with the license specified above
+  "force_license": false,
   // globbing expressions to specify files for which to maintain a license header
   // all expressions will be applied relative to the directory holding the config
   "include": [
