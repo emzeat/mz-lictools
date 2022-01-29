@@ -23,7 +23,7 @@ lictool --help
 
 We also support usage as a hook in `pre-commit`:
 ```yaml
--   repo: https://github.com/emzeat/license-tools
+-   repo: https://github.com/emzeat/mz-lictools
     hooks:
     -   id: license-tools
 ```
