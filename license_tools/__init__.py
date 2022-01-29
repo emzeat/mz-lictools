@@ -338,7 +338,7 @@ class Tool:
                 author.name = latest_author.name
                 new_author = False
         if new_author:
-            parsed.authors.append(self.default_author)
+            parsed.authors.append(latest_author)
 
         license_text = None
         if keep_license:

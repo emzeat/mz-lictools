@@ -28,6 +28,7 @@ import unittest
 import pathlib
 import tempfile
 import subprocess
+import os
 
 BASE = pathlib.Path(__file__).resolve().absolute().parent
 
@@ -411,6 +412,10 @@ class TestTool(unittest.TestCase):
 class TestPackage(unittest.TestCase):
 
     def _prepare_repo(self, commit: pathlib.Path, config: pathlib.Path):
+        # override any external input to the git config so we truly
+        # use our expected config to ensure tests cannot fail
+        os.putenv('GIT_CONFIG_COUNT', '0')
+
         wkdir = tempfile.TemporaryDirectory(suffix='lictools')
         try:
             cwd = pathlib.Path(wkdir.name)
@@ -506,6 +511,14 @@ class TestPackage(unittest.TestCase):
             shutil.rmtree(pathlib.Path(repo) / '.git')
             with self.assertRaises(subprocess.CalledProcessError):
                 subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+
+    def test_new_author(self):
+        with self._prepare_repo(BASE / 'test/package_from_git_new_author.patch',
+                                BASE / 'test/package_from_git_new_author.json') as repo:
+            code = pathlib.Path(repo) / 'code.cpp'
+            code.write_text(code.read_text() + "\ninline void unused(){}\n\n")
+            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+            self._diff_repo(repo, BASE / 'test/package_from_git_new_author.diff')
 
     def test_author_alias(self):
         with self._prepare_repo(BASE / 'test/package_author_alias.patch',
