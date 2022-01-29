@@ -1,8 +1,8 @@
 {
   "author": {
-    "name": "Test Author"
+    "name": "Test Author",
+    "company": "Rainbow GbR."
   },
-  "company": "Rainbow GbR.",
   "license": "Proprietary",
   "force_license": true
 }

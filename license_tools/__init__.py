@@ -406,9 +406,9 @@ def main():
         default_config = {
             'author': {
                 'from_git': True,
-                'name': '<author here>'
+                'name': '<author here>',
+                'company': '<optional company here>'
             },
-            'company': '<optional company here>',
             'license': f'<pick one of {", ".join(LICENSES.keys())}>',
             'force_license': False,
             'include': [
@@ -470,7 +470,7 @@ def main():
     if args.files:
         args.files = [file.resolve() for file in args.files]
 
-    company = config.get('company', None)
+    company = config_author.get('company', None)
     tool = Tool(license, author, company)
     keep = not args.force_license and not config.get('force_license', False)
     failed = False
