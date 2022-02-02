@@ -242,7 +242,7 @@ class Header:
         :license: An optional license string to be used, if omitted the default_license will apply
         """
         if company is None:
-            company = authors[-1].name
+            company = 'the authors'
         header = self.template.render(default_license=self.default_license,
                                       license=license, filename=filename, authors=authors, company=company)
         header = header.split('\n')
@@ -464,7 +464,7 @@ def main():
             'author': {
                 'from_git': True,
                 'name': '<author here>',
-                'company': '<optional company here>',
+                'company': 'the authors',
                 'aliases': {
                     '<old author name>': '<new author name>'
                 }

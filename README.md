@@ -54,7 +54,7 @@ of a comment).
     "name": "My Awesome Company",
     // for some licenses an additional company name which is different from the
     // author may be wanted. This can be specified here.
-    "company": "<optional company here>",
+    "company": "the authors",
     // in case the name of an author has changed, e.g. due to marriage you
     // can specify a mapping of old to new name. In such case any changes
     // from the old name will be considered as done by the new name and the
