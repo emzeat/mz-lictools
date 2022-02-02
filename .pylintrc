@@ -93,7 +93,8 @@ disable=raw-checker-failed,
         too-many-branches,
         too-many-statements,
         import-error,
-        logging-fstring-interpolation
+        logging-fstring-interpolation,
+        line-too-long
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

@@ -86,25 +86,25 @@ class Style(enum.Enum):
         """
         return [
             (Style.C_STYLE,
-                r"\* +@LICENSE_HEADER_START@(.+)\* +@LICENSE_HEADER_END@(?:.*?)\*/(.*)"),
+                r"\* +@LICENSE_HEADER_START@(?P<license>.+)\* +@LICENSE_HEADER_END@(?:.*?)\*/(?P<body>.*)"),
             (Style.C_STYLE,
-                r"\* +@MLBA_OPEN_LICENSE_HEADER_START@(.+)\* +@MLBA_OPEN_LICENSE_HEADER_END@(?:.*?)\*/(.*)"),
+                r"\* +@MLBA_OPEN_LICENSE_HEADER_START@(?P<license>.+)\* +@MLBA_OPEN_LICENSE_HEADER_END@(?:.*?)\*/(?P<body>.*)"),
             (Style.C_STYLE,
-                r"\* +All rights reserved\.(.+?)\*/(.*)"),
+                r"\* +All rights reserved\.(?P<license>.+?)\*/(?P<body>.*)"),
             (Style.POUND_STYLE,
-                r"# +@LICENSE_HEADER_START@(.+)# +@LICENSE_HEADER_END@(?:.*?)#\n(.*)"),
+                r"# +@LICENSE_HEADER_START@(?P<license>.+)# +@LICENSE_HEADER_END@(?:.*?)#\n(?P<body>.*)"),
             (Style.POUND_STYLE,
-                r"# +All rights reserved\.(.+?)#\n[^#](.*)"),
+                r"# +All rights reserved\.(?P<license>.+?)#\n[^#](?P<body>.*)"),
             (Style.DOCSTRING_STYLE,
-                r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*?)\n\"\"\"(.*)"),
+                r"@LICENSE_HEADER_START@(?P<license>.+)@LICENSE_HEADER_END@(?:.*?)\n\"\"\"(?P<body>.*)"),
             (Style.DOCSTRING_STYLE,
-                r"All rights reserved\.(.+?)\"\"\"\n(.*)"),
+                r"All rights reserved\.(?P<license>.+?)\"\"\"\n(?P<body>.*)"),
             (Style.XML_STYLE,
-                r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(?:.*?)\n-->(.*)"),
+                r"@LICENSE_HEADER_START@(?P<license>.+)@LICENSE_HEADER_END@(?:.*?)\n-->(?P<body>.*)"),
             (Style.XML_STYLE,
-                r"All rights reserved\.(.+?)-->\n(.*)"),
+                r"All rights reserved\.(?P<license>.+?)-->\n(?P<body>.*)"),
             (Style.UNKNOWN,
-                r"@LICENSE_HEADER_START@(.+)@LICENSE_HEADER_END@(.*)")
+                r"@LICENSE_HEADER_START@(?P<license>.+)@LICENSE_HEADER_END@(?P<body>.*)")
         ]
 
 
@@ -266,18 +266,17 @@ class ParsedHeader:
                 self.shebang = self.shebang[0]
         # use a regex to extract existing authors, i.e. any line starting with 'Copyright'
         self.authors = []
-        for match in re.findall(r"(?<![^\n\r#\*]) Copyright[^\d]*([0-9]+) *(?:- *([0-9]+))? *([^\n\r]+)", contents):
-            if len(match) == 3:
-                args = {
-                    'name': match[2],
-                    'year_from': int(match[0])
-                }
-                try:
-                    args['year_to'] = int(match[1])
-                except ValueError:
-                    args['year_to'] = args['year_from']
-                author = Author(**args)
-                self.authors.append(author)
+        for match in re.finditer(r"(?<![^\n\r#\*]) Copyright[^\d]*(?P<from>[0-9]+) *(?:- *(?P<to>[0-9]+))? *(?P<name>[^\n\r]+)", contents):
+            args = {
+                'name': match.group('name'),
+                'year_from': int(match.group('from'))
+            }
+            try:
+                args['year_to'] = int(match.group('to'))
+            except TypeError:
+                args['year_to'] = args['year_from']
+            author = Author(**args)
+            self.authors.append(author)
         self.authors = sorted(self.authors, key=attrgetter('year_from'))
         # any known license is wrapped in well-known tags
         for style, pattern in Style.patterns():
@@ -287,12 +286,13 @@ class ParsedHeader:
                     self.style = style
                 break
         if match:
-            self.license = re.sub(r' ?[#\*] ?', '', match[1], flags=re.MULTILINE).strip('\n\r')
+            # grab the matched license but remove any # or * per line prefix decorators
+            self.license = re.sub(r' ?[#\*] ?', '', match.group('license'), flags=re.MULTILINE).strip('\n\r')
             if self.license.startswith(' '):
                 # filter any leading indends
                 self.license = self.license.replace('\n ', '\n')
             self.license = self.license.strip()
-            self.remainder = match[2].strip()
+            self.remainder = match.group('body').strip()
         else:
             self.license = None
             self.remainder = contents.strip()
