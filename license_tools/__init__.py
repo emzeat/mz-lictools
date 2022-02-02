@@ -256,14 +256,21 @@ class ParsedHeader:
             contents = file_obj.read()
         # style is determined from the extension, if unknown we try a second attempt using the contents below
         self.style = Style.from_suffix(file.suffix)
-        # retain any shebang and encoding at the beginning
-        self.shebang = re.match(r'^#!.+(\n# -\*-.+)?', contents, re.MULTILINE)
-        if self.shebang:
-            self.shebang = self.shebang[0]
-        else:
-            self.shebang = re.match(r'^# -\*-.+', contents)
-            if self.shebang:
-                self.shebang = self.shebang[0]
+        # strip but remember any shebang, encoding or doctype at the beginning
+        self.decls = []
+
+        def extract_decl(pattern, contents):
+            decl = re.match(pattern, contents, re.MULTILINE)
+            if decl:
+                decl = decl[0]
+                self.decls.append(decl)
+                # remove the decl including the newline
+                return contents[len(decl):].lstrip()
+            return contents
+        # something like '#!/usr/bin/env bash'
+        contents = extract_decl(r'^#!.+$', contents)
+        # something like '# -*- coding: utf-8 -*-'
+        contents = extract_decl(r'^# -\*-.+$', contents)
         # any known license is wrapped in well-known tags
         for style, pattern in Style.patterns():
             match = re.search(pattern, contents, re.MULTILINE | re.DOTALL)
@@ -369,8 +376,8 @@ class Tool:
         output = self.header.render(
             filename.name, parsed.authors, parsed.style, company=self.company, license=license_text)
         output = output + '\n' + parsed.remainder + '\n'
-        if parsed.shebang:
-            output = parsed.shebang + '\n' + output
+        if parsed.decls:
+            output = '\n'.join(parsed.decls) + '\n' + output
         return parsed.style, output
 
     def bump_inplace(self, filename: pathlib.PurePath, keep_license: bool = True,
