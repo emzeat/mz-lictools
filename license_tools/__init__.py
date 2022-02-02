@@ -86,25 +86,25 @@ class Style(enum.Enum):
         """
         return [
             (Style.C_STYLE,
-                r"\* +@LICENSE_HEADER_START@(?P<license>.+)\* +@LICENSE_HEADER_END@(?:.*?)\*/(?P<body>.*)"),
+                r"\*(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)\* +@LICENSE_HEADER_END@(?:.*?)\*/(?P<body>.*)"),
             (Style.C_STYLE,
-                r"\* +@MLBA_OPEN_LICENSE_HEADER_START@(?P<license>.+)\* +@MLBA_OPEN_LICENSE_HEADER_END@(?:.*?)\*/(?P<body>.*)"),
+                r"\*(?P<authors>.+?)@MLBA_OPEN_LICENSE_HEADER_START@(?P<license>.+?)\* +@MLBA_OPEN_LICENSE_HEADER_END@(?:.*?)\*/(?P<body>.*)"),
             (Style.C_STYLE,
-                r"\* +All rights reserved\.(?P<license>.+?)\*/(?P<body>.*)"),
+                r"\*(?P<authors>.+?)All rights reserved\.(?P<license>.+?)\*/(?P<body>.*)"),
             (Style.POUND_STYLE,
-                r"# +@LICENSE_HEADER_START@(?P<license>.+)# +@LICENSE_HEADER_END@(?:.*?)#\n(?P<body>.*)"),
+                r"#(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)# +@LICENSE_HEADER_END@(?:.*?)#\n(?P<body>.*)"),
             (Style.POUND_STYLE,
-                r"# +All rights reserved\.(?P<license>.+?)#\n[^#](?P<body>.*)"),
+                r"#(?P<authors>.+?)All rights reserved\.(?P<license>.+?)#\n[^#](?P<body>.*)"),
             (Style.DOCSTRING_STYLE,
-                r"@LICENSE_HEADER_START@(?P<license>.+)@LICENSE_HEADER_END@(?:.*?)\n\"\"\"(?P<body>.*)"),
+                r"\"\"\"\n(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)\n\"\"\"(?P<body>.*)"),
             (Style.DOCSTRING_STYLE,
-                r"All rights reserved\.(?P<license>.+?)\"\"\"\n(?P<body>.*)"),
+                r"\"\"\"\n(?P<authors>.+?)All rights reserved\.(?P<license>.+?)\"\"\"\n(?P<body>.*)"),
             (Style.XML_STYLE,
-                r"@LICENSE_HEADER_START@(?P<license>.+)@LICENSE_HEADER_END@(?:.*?)\n-->(?P<body>.*)"),
+                r"<!--\n(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)\n-->(?P<body>.*)"),
             (Style.XML_STYLE,
-                r"All rights reserved\.(?P<license>.+?)-->\n(?P<body>.*)"),
+                r"<!--\n(?P<authors>.+?)All rights reserved\.(?P<license>.+?)-->\n(?P<body>.*)"),
             (Style.UNKNOWN,
-                r"@LICENSE_HEADER_START@(?P<license>.+)@LICENSE_HEADER_END@(?P<body>.*)")
+                r"(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?P<body>.*)")
         ]
 
 
@@ -264,20 +264,6 @@ class ParsedHeader:
             self.shebang = re.match(r'^# -\*-.+', contents)
             if self.shebang:
                 self.shebang = self.shebang[0]
-        # use a regex to extract existing authors, i.e. any line starting with 'Copyright'
-        self.authors = []
-        for match in re.finditer(r"(?<![^\n\r#\*]) Copyright[^\d]*(?P<from>[0-9]+) *(?:- *(?P<to>[0-9]+))? *(?P<name>[^\n\r]+)", contents):
-            args = {
-                'name': match.group('name'),
-                'year_from': int(match.group('from'))
-            }
-            try:
-                args['year_to'] = int(match.group('to'))
-            except TypeError:
-                args['year_to'] = args['year_from']
-            author = Author(**args)
-            self.authors.append(author)
-        self.authors = sorted(self.authors, key=attrgetter('year_from'))
         # any known license is wrapped in well-known tags
         for style, pattern in Style.patterns():
             match = re.search(pattern, contents, re.MULTILINE | re.DOTALL)
@@ -296,6 +282,25 @@ class ParsedHeader:
         else:
             self.license = None
             self.remainder = contents.strip()
+        # in case we have a matched header we can use its authors group to limit our search
+        # use a regex to extract existing authors, i.e. any line starting with 'Copyright'
+        if match:
+            authors_raw = match.group('authors') or contents
+        else:
+            authors_raw = contents
+        self.authors = []
+        for match in re.finditer(r"(?<![^\n\r#\*]) Copyright[^\d]*(?P<from>[0-9]+) *(?:- *(?P<to>[0-9]+))? *(?P<name>[^\n\r]+)", authors_raw):
+            args = {
+                'name': match.group('name'),
+                'year_from': int(match.group('from'))
+            }
+            try:
+                args['year_to'] = int(match.group('to'))
+            except TypeError:
+                args['year_to'] = args['year_from']
+            author = Author(**args)
+            self.authors.append(author)
+        self.authors = sorted(self.authors, key=attrgetter('year_from'))
 
 
 class Tool:

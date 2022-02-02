@@ -70,6 +70,29 @@ class TestParserCStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("#include <stdio.h>", parsed.remainder)
 
+    def test_parse_non_greedy(self):
+        parsed = license_tools.ParsedHeader(
+            file=BASE / 'test/TestParserCStyle-non_greedy.hpp')
+        self.assertEqual(1, len(parsed.authors))
+        self.assertEqual("Max Muster", parsed.authors[0].name)
+        self.assertEqual(2012, parsed.authors[0].year_from)
+        self.assertEqual(2018, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.C_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith(
+            "Permission to use"), parsed.license)
+        self.assertEqual("#ifndef GEN_NON_", parsed.remainder[:16])
+
+        parsed = license_tools.ParsedHeader(
+            file=BASE / 'test/TestParserTaggedCStyle-non_greedy.hpp')
+        self.assertEqual(1, len(parsed.authors))
+        self.assertEqual("Max Muster", parsed.authors[0].name)
+        self.assertEqual(2012, parsed.authors[0].year_from)
+        self.assertEqual(2018, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.C_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith(
+            "Permission to use"), parsed.license)
+        self.assertEqual("#ifndef GEN_NON_", parsed.remainder[:16])
+
     def test_parse_1author_2years(self):
         parsed = license_tools.ParsedHeader(
             file=BASE / 'test/TestParserCStyle-1author_2years.cxx')
