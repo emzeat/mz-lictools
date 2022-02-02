@@ -59,6 +59,8 @@ class Style(enum.Enum):
             '.hpp': Style.C_STYLE,
             '.h': Style.C_STYLE,
             '.hxx': Style.C_STYLE,
+            '.mm': Style.C_STYLE,
+            '.m': Style.C_STYLE,
             '.java': Style.C_STYLE,
             '.glsl': Style.C_STYLE,
             '.frag': Style.C_STYLE,
