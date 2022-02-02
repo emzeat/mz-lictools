@@ -271,6 +271,11 @@ class ParsedHeader:
         contents = extract_decl(r'^#!.+$', contents)
         # something like '# -*- coding: utf-8 -*-'
         contents = extract_decl(r'^# -\*-.+$', contents)
+        # something like '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'
+        # note: use xmllint to easily validate generated output
+        contents = extract_decl(r'^<\?xml .+?\?>', contents)
+        # something like '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">'
+        contents = extract_decl(r'^<!DOCTYPE .+?>', contents)
         # any known license is wrapped in well-known tags
         for style, pattern in Style.patterns():
             match = re.search(pattern, contents, re.MULTILINE | re.DOTALL)
