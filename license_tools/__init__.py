@@ -276,8 +276,8 @@ class ParsedHeader:
         # strip but remember any shebang, encoding or doctype at the beginning
         self.decls = []
 
-        def extract_decl(pattern, contents):
-            decl = re.match(pattern, contents, re.MULTILINE)
+        def extract_decl(pattern, contents, flags=re.MULTILINE):
+            decl = re.match(pattern, contents, flags)
             if decl:
                 decl = decl[0]
                 self.decls.append(decl)
@@ -293,6 +293,8 @@ class ParsedHeader:
         contents = extract_decl(r'^<\?xml .+?\?>', contents)
         # something like '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">'
         contents = extract_decl(r'^<!DOCTYPE .+?>', contents)
+        # beginning of batch files silencing output but only if the very first line
+        contents = extract_decl(r'^@echo off', contents, flags=0)
         # any known license is wrapped in well-known tags
         for style, pattern in Style.patterns():
             match = re.search(pattern, contents, re.MULTILINE | re.DOTALL)
