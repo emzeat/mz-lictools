@@ -61,6 +61,7 @@ class Style(enum.Enum):
             '.hxx': Style.C_STYLE,
             '.mm': Style.C_STYLE,
             '.m': Style.C_STYLE,
+            '.qml': Style.C_STYLE,
             '.java': Style.C_STYLE,
             '.glsl': Style.C_STYLE,
             '.frag': Style.C_STYLE,
@@ -73,7 +74,10 @@ class Style(enum.Enum):
             '.cmake': Style.POUND_STYLE,
             '.xml': Style.XML_STYLE,
             '.htm': Style.XML_STYLE,
-            '.html': Style.XML_STYLE
+            '.html': Style.XML_STYLE,
+            '.ui': Style.XML_STYLE,
+            '.qrc': Style.XML_STYLE,
+            '.svg': Style.XML_STYLE
         }
         return mapping.get(ext, Style.UNKNOWN)
 
