@@ -353,6 +353,59 @@ class TestParserXmlStyle(unittest.TestCase):
             "This library is"), parsed.license)
 
 
+class TestParserBatchStyle(unittest.TestCase):
+
+    def test_parse_1author_1year(self):
+        parsed = license_tools.ParsedHeader(
+            file=BASE / 'test/TestParserBatchStyle-1author_1year.bat')
+        self.assertEqual(1, len(parsed.authors))
+        self.assertEqual("Max Muster", parsed.authors[0].name)
+        self.assertEqual(2010, parsed.authors[0].year_from)
+        self.assertEqual(2010, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.BATCH_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith(
+            "This library is"), parsed.license)
+        self.assertEqual(
+            "echo.Hello World", parsed.remainder)
+
+        parsed = license_tools.ParsedHeader(
+            file=BASE / 'test/TestParserTaggedBatchStyle-1author_1year.bat')
+        self.assertEqual(1, len(parsed.authors))
+        self.assertEqual("Max Muster", parsed.authors[0].name)
+        self.assertEqual(2010, parsed.authors[0].year_from)
+        self.assertEqual(2010, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.BATCH_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith(
+            "This library is"), parsed.license)
+        self.assertEqual(
+            "echo.Hello World", parsed.remainder)
+
+    def test_parse_1author_2years(self):
+        parsed = license_tools.ParsedHeader(
+            file=BASE / 'test/TestParserBatchStyle-1author_2years.bat')
+        self.assertEqual(1, len(parsed.authors))
+        self.assertEqual("Max Muster", parsed.authors[0].name)
+        self.assertEqual(2010, parsed.authors[0].year_from)
+        self.assertEqual(2013, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.BATCH_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith(
+            "This library is"), parsed.license)
+        self.assertEqual(
+            "echo.Hello World", parsed.remainder)
+
+        parsed = license_tools.ParsedHeader(
+            file=BASE / 'test/TestParserTaggedBatchStyle-1author_2years.bat')
+        self.assertEqual(1, len(parsed.authors))
+        self.assertEqual("Max Muster", parsed.authors[0].name)
+        self.assertEqual(2010, parsed.authors[0].year_from)
+        self.assertEqual(2013, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.BATCH_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith(
+            "This library is"), parsed.license)
+        self.assertEqual(
+            "echo.Hello World", parsed.remainder)
+
+
 class TestHeader(unittest.TestCase):
 
     def test_generator(self):

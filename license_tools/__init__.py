@@ -47,6 +47,7 @@ class Style(enum.Enum):
     POUND_STYLE = 3
     DOCSTRING_STYLE = 4
     XML_STYLE = 5
+    BATCH_STYLE = 6
 
     @staticmethod
     def from_suffix(ext):
@@ -77,7 +78,8 @@ class Style(enum.Enum):
             '.html': Style.XML_STYLE,
             '.ui': Style.XML_STYLE,
             '.qrc': Style.XML_STYLE,
-            '.svg': Style.XML_STYLE
+            '.svg': Style.XML_STYLE,
+            '.bat': Style.BATCH_STYLE
         }
         return mapping.get(ext, Style.UNKNOWN)
 
@@ -107,6 +109,14 @@ class Style(enum.Enum):
                 r"<!--\n(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)\n-->(?P<body>.*)"),
             (Style.XML_STYLE,
                 r"<!--\n(?P<authors>.+?)All rights reserved\.(?P<license>.+?)-->\n(?P<body>.*)"),
+            (Style.BATCH_STYLE,
+                r"REM(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)REM\n(?!REM)(?P<body>.*)"),
+            (Style.BATCH_STYLE,
+                r"REM(?P<authors>.+?)All rights reserved\.(?P<license>.+?)REM\n(?!REM)(?P<body>.*)"),
+            (Style.BATCH_STYLE,
+                r"::(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)::\n(?!::)(?P<body>.*)"),
+            (Style.BATCH_STYLE,
+                r"::(?P<authors>.+?)All rights reserved\.(?P<license>.+?)::\n(?!::)(?P<body>.*)"),
             (Style.UNKNOWN,
                 r"(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?P<body>.*)")
         ]
@@ -289,7 +299,7 @@ class ParsedHeader:
                 break
         if match:
             # grab the matched license but remove any # or * per line prefix decorators
-            self.license = re.sub(r' ?[#\*] ?', '', match.group('license'), flags=re.MULTILINE).strip('\n\r')
+            self.license = re.sub(r' ?(?:[#\*]|REM|::) ?', '', match.group('license'), flags=re.MULTILINE).strip('\n\r')
             if self.license.startswith(' '):
                 # filter any leading indends
                 self.license = self.license.replace('\n ', '\n')
@@ -305,7 +315,7 @@ class ParsedHeader:
         else:
             authors_raw = contents
         self.authors = []
-        for match in re.finditer(r"(?<![^\n\r#\*]) Copyright[^\d]*(?P<from>[0-9]+) *(?:- *(?P<to>[0-9]+))? *(?P<name>[^\n\r]+)", authors_raw):
+        for match in re.finditer(r" Copyright[^\d]*(?P<from>[0-9]+) *(?:- *(?P<to>[0-9]+))? *(?P<name>[^\n\r]+)", authors_raw):
             args = {
                 'name': match.group('name'),
                 'year_from': int(match.group('from'))
