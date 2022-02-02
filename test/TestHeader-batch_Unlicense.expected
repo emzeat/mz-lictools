@@ -1,0 +1,32 @@
+REM
+REM TestHeader-batch_Unlicense.expected
+REM
+REM Copyright (c) 2013 - 2020 Max Muster
+REM Copyright (c) 2021 Umbrella Inc
+REM All rights reserved.
+REM
+REM SPDX-License-Identifier: Unlicense
+REM
+REM This is free and unencumbered software released into the public domain.
+REM
+REM Anyone is free to copy, modify, publish, use, compile, sell, or distribute
+REM this software, either in source code form or as a compiled binary, for any
+REM purpose, commercial or non-commercial, and by any means.
+REM
+REM In jurisdictions that recognize copyright laws, the author or authors of
+REM this software dedicate any and all copyright interest in the software to
+REM the public domain. We make this dedication for the benefit of the public
+REM at large and to the detriment of our heirs and successors. We intend this
+REM dedication to be an overt act of relinquishment in perpetuity of all
+REM present and future rights to this software under copyright law.
+REM
+REM THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+REM OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+REM MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+REM IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+REM LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+REM FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+REM DEALINGS IN THE SOFTWARE.
+REM
+REM For more information, please refer to <https://unlicense.org/>
+REM

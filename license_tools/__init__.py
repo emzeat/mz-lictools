@@ -258,6 +258,9 @@ class Header:
         elif style == Style.XML_STYLE:
             header = ['<!--'] + \
                      [' ' + h if h.strip() else '' for h in header] + ['-->', '']
+        elif style == Style.BATCH_STYLE:
+            header = ['REM'] + \
+                     ['REM ' + h if h.strip() else 'REM' for h in header] + ['REM', '']
         return '\n'.join(header)
 
 

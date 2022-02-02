@@ -461,6 +461,17 @@ class TestHeader(unittest.TestCase):
                     expected.write(output)
                 raise
 
+            filename = f'TestHeader-batch_{l}.expected'
+            output = header.render(
+                filename, authors, license_tools.Style.BATCH_STYLE)
+            try:
+                with open(BASE / 'test' / filename, 'r') as expected:
+                    self.assertEqual(expected.read(), output)
+            except:
+                with open(BASE / 'test' / filename, 'w') as expected:
+                    expected.write(output)
+                raise
+
 
 class TestTool(unittest.TestCase):
 
