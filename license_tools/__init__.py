@@ -49,6 +49,7 @@ class Style(enum.Enum):
     DOCSTRING_STYLE = 4
     XML_STYLE = 5
     BATCH_STYLE = 6
+    SLASH_STYLE = 7
 
     @staticmethod
     def from_suffix(ext):
@@ -80,7 +81,8 @@ class Style(enum.Enum):
             '.ui': Style.XML_STYLE,
             '.qrc': Style.XML_STYLE,
             '.svg': Style.XML_STYLE,
-            '.bat': Style.BATCH_STYLE
+            '.bat': Style.BATCH_STYLE,
+            '.rc': Style.SLASH_STYLE
         }
         return mapping.get(ext, Style.UNKNOWN)
 
@@ -118,8 +120,12 @@ class Style(enum.Enum):
                 r"::(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)::\n(?!::)(?P<body>.*)"),
             (Style.BATCH_STYLE,
                 r"::(?P<authors>.+?)All rights reserved\.(?P<license>.+?)::\n(?!::)(?P<body>.*)"),
+            (Style.SLASH_STYLE,
+                r"//(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)// +@LICENSE_HEADER_END@(?:.*?)//\n(?P<body>.*)"),
+            (Style.SLASH_STYLE,
+                r"//(?P<authors>.+?)All rights reserved\.(?P<license>.+?)//\n[^//](?P<body>.*)"),
             (Style.UNKNOWN,
-                r"(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?P<body>.*)")
+                r"(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?P<body>.*)"),
         ]
 
     @staticmethod
@@ -162,6 +168,8 @@ class Style(enum.Enum):
             return Decorator('<!--', '', '-->', None)
         if style == Style.BATCH_STYLE:
             return Decorator('REM', 'REM', 'REM', r' ?(?:REM|::) ?')
+        if style == Style.SLASH_STYLE:
+            return Decorator('//', '//', '//', r' ?(?://) ?')
         return Decorator('', '', '', None)
 
 
@@ -327,7 +335,7 @@ class ParsedHeader:
         if match:
             # grab the matched license but remove any # or * per line prefix decorators
             self.license = match.group('license')
-            decorators = Style.decorators(style)
+            decorators = Style.decorators(self.style)
             if decorators.pattern:
                 self.license = re.sub(decorators.pattern, '', self.license, flags=re.MULTILINE)
             self.license = self.license.strip('\n\r')

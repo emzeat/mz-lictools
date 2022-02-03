@@ -92,6 +92,7 @@ disable=raw-checker-failed,
         too-many-locals,
         too-many-branches,
         too-many-statements,
+        too-many-return-statements,
         import-error,
         logging-fstring-interpolation,
         line-too-long
