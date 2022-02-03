@@ -121,6 +121,27 @@ class Style(enum.Enum):
                 r"(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?P<body>.*)")
         ]
 
+    @staticmethod
+    def declarations():
+        """
+        Returns a list of document declarations retained at the first line
+
+        Each entry is a pair of matching regex and additional flags required
+        """
+        return [
+            # something like '#!/usr/bin/env bash'
+            (r'^#!.+', 0),
+            # something like '# -*- coding: utf-8 -*-'
+            (r'^# -\*-.+', 0),
+            # something like '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'
+            # note: use xmllint to easily validate generated output
+            (r'^<\?xml .+?\?>', 0),
+            # something like '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">'
+            (r'^<!DOCTYPE .+?>', 0),
+            # beginning of batch files silencing output but only if the very first line
+            (r'^@echo off', 0)
+        ]
+
 
 class Author:
     """Describes an author of a file"""
@@ -284,17 +305,8 @@ class ParsedHeader:
                 # remove the decl including the newline
                 return contents[len(decl):].lstrip()
             return contents
-        # something like '#!/usr/bin/env bash'
-        contents = extract_decl(r'^#!.+$', contents)
-        # something like '# -*- coding: utf-8 -*-'
-        contents = extract_decl(r'^# -\*-.+$', contents)
-        # something like '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'
-        # note: use xmllint to easily validate generated output
-        contents = extract_decl(r'^<\?xml .+?\?>', contents)
-        # something like '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">'
-        contents = extract_decl(r'^<!DOCTYPE .+?>', contents)
-        # beginning of batch files silencing output but only if the very first line
-        contents = extract_decl(r'^@echo off', contents, flags=0)
+        for decl, flags in Style.declarations():
+            contents = extract_decl(decl, contents, flags)
         # any known license is wrapped in well-known tags
         for style, pattern in Style.patterns():
             match = re.search(pattern, contents, re.MULTILINE | re.DOTALL)
