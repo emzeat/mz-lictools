@@ -3,8 +3,9 @@ v2.3
 ------
 *WIP:* _in progress_
 
-* Add support for .qml, .ui, .qrc, .svg, .bat, .mm, .m, .frag, .vert and .glsl file types
+* Add support for .rc, .qml, .ui, .qrc, .svg, .bat, .mm, .m, .frag, .vert and .glsl file types
 * Support for parsing and updating batch files
+* Support for parsing and updating rc files
 * Support for retaining decl types at the beginning of xml documents
 * Changed the default company name from using the git author to a more generic term referring to all authors of a file
 
