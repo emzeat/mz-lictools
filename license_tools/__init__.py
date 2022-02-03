@@ -30,6 +30,7 @@ import pathlib
 import re
 import subprocess
 import sys
+from collections import namedtuple
 from operator import attrgetter
 from typing import Dict
 import jinja2
@@ -141,6 +142,27 @@ class Style(enum.Enum):
             # beginning of batch files silencing output but only if the very first line
             (r'^@echo off', 0)
         ]
+
+    @staticmethod
+    def decorators(style):
+        """
+        Returns the decorator descriptions for a given style
+
+        Expect a named tuple with entries for start, prefix, end
+        as well as a pattern to strip these decorators from a line
+        """
+        Decorator = namedtuple('Decorator', 'start prefix end pattern')
+        if style == Style.C_STYLE:
+            return Decorator('/*', ' *', ' */', r' ?(?:\*) ?')
+        if style == Style.POUND_STYLE:
+            return Decorator('#', '#', '#', r' ?(?:#) ?')
+        if style == Style.DOCSTRING_STYLE:
+            return Decorator('"""', '', '"""', None)
+        if style == Style.XML_STYLE:
+            return Decorator('<!--', '', '-->', None)
+        if style == Style.BATCH_STYLE:
+            return Decorator('REM', 'REM', 'REM', r' ?(?:REM|::) ?')
+        return Decorator('', '', '', None)
 
 
 class Author:
@@ -266,22 +288,10 @@ class Header:
             company = 'the authors'
         header = self.template.render(default_license=self.default_license,
                                       license=license, filename=filename, authors=authors, company=company)
+        decorators = Style.decorators(style)
         header = header.split('\n')
-        if style == Style.C_STYLE:
-            header = ['/*'] + \
-                     [' * ' + h if h.strip() else ' *' for h in header] + [' */', '']
-        elif style == Style.POUND_STYLE:
-            header = ['#'] + \
-                     ['# ' + h if h.strip() else '#' for h in header] + ['#', '']
-        elif style == Style.DOCSTRING_STYLE:
-            header = ['"""'] + \
-                     [' ' + h if h.strip() else '' for h in header] + ['"""', '']
-        elif style == Style.XML_STYLE:
-            header = ['<!--'] + \
-                     [' ' + h if h.strip() else '' for h in header] + ['-->', '']
-        elif style == Style.BATCH_STYLE:
-            header = ['REM'] + \
-                     ['REM ' + h if h.strip() else 'REM' for h in header] + ['REM', '']
+        header = [decorators.start] + \
+                 [f'{decorators.prefix} ' + h if h.strip() else decorators.prefix for h in header] + [decorators.end, '']
         return '\n'.join(header)
 
 
@@ -316,7 +326,11 @@ class ParsedHeader:
                 break
         if match:
             # grab the matched license but remove any # or * per line prefix decorators
-            self.license = re.sub(r' ?(?:[#\*]|REM|::) ?', '', match.group('license'), flags=re.MULTILINE).strip('\n\r')
+            self.license = match.group('license')
+            decorators = Style.decorators(style)
+            if decorators.pattern:
+                self.license = re.sub(decorators.pattern, '', self.license, flags=re.MULTILINE)
+            self.license = self.license.strip('\n\r')
             if self.license.startswith(' '):
                 # filter any leading indends
                 self.license = self.license.replace('\n ', '\n')
