@@ -1,7 +1,7 @@
 
 v2.3
 ------
-*WIP:* _in progress_
+_05.02.2022_
 
 * Add support for .rc, .qml, .ui, .qrc, .svg, .bat, .mm, .m, .frag, .vert and .glsl file types
 * Support for parsing and updating batch files
