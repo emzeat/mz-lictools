@@ -1,4 +1,10 @@
 
+v2.3.1
+------
+*WIP:* _in progress_
+
+* Fix package version scheme to follow semver and be automatically derived from `git describe`
+
 v2.3
 ------
 _05.02.2022_

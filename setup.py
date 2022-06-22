@@ -1,7 +1,7 @@
 """
  setup.py
 
- Copyright (c) 2021 Marius Zwicker
+ Copyright (c) 2021 - 2022 Marius Zwicker
  All rights reserved.
 
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -24,13 +24,43 @@
 #!/usr/bin/env python3
 
 from distutils.core import setup
+from subprocess import check_output, CalledProcessError
+import re
+import os
 
-setup(name='lictool',
-      version='1.0',
+GIT_DESCRIBE = 'git describe --tags --long --dirty'
+GIT_RE = r'^v(?P<tag>.+?)-(?P<commits>[0-9]+)-g(?P<sha>[a-z0-9]{7,40}?)(?P<dirty>-dirty)?$'
+
+try:
+    git_describe = check_output(GIT_DESCRIBE.split(' '), encoding='utf8', cwd=os.path.dirname(__file__)).strip()
+    match = re.match(GIT_RE, git_describe)
+    tag = match.group('tag')
+    commits = match.group('commits')
+    sha = match.group('sha')
+    dirty = match.lastgroup == 'dirty'
+
+    # git describe will be something like <tag>-<commits>-g<sha>-dirty, convert this to https://semver.org
+    meta = []
+    if int(commits) > 0:
+        meta.append(f'{commits}.sha.{sha}')
+    if dirty:
+        meta.append('dirty')
+    if meta:
+        GIT_VERSION = f"{tag}+{'.'.join(meta)}"
+    else:
+        GIT_VERSION = tag
+
+except CalledProcessError:
+    GIT_VERSION = '0.0'
+except AttributeError:
+    GIT_VERSION = '0.0'
+
+setup(name='mz-lictools',
+      version=GIT_VERSION,
       description='License Header Manager',
       author='Marius Zwicker',
       author_email='marius@numlz.de',
-      url='https://github.com/emzeat/license-tools',
+      url='https://github.com/emzeat/mz-lictools',
       packages=['license_tools'],
       package_data={'license_tools': ['*.license', '*.spdx', '*.j2']},
       scripts=['lictool'],
