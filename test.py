@@ -1,7 +1,7 @@
 """
  test.py
 
- Copyright (c) 2021 - 2022 Marius Zwicker
+ Copyright (c) 2021 - 2023 Marius Zwicker
  All rights reserved.
 
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -53,6 +53,21 @@ class TestParserCStyle(unittest.TestCase):
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
         self.assertEqual(2010, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.C_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith(
+            "This library is"), parsed.license)
+        self.assertEqual("#include <stdio.h>", parsed.remainder)
+
+    def test_parse_copyright_caps(self):
+        parsed = license_tools.ParsedHeader(
+            file=BASE / 'test/TestParserCStyle-copyright_caps.h')
+        self.assertEqual(2, len(parsed.authors))
+        self.assertEqual("Max Muster", parsed.authors[0].name)
+        self.assertEqual(2010, parsed.authors[0].year_from)
+        self.assertEqual(2010, parsed.authors[0].year_to)
+        self.assertEqual("Dana Dot", parsed.authors[1].name)
+        self.assertEqual(2011, parsed.authors[1].year_from)
+        self.assertEqual(2011, parsed.authors[1].year_to)
         self.assertEqual(license_tools.Style.C_STYLE, parsed.style)
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
