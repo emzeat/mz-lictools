@@ -30,6 +30,7 @@ import pathlib
 import re
 import subprocess
 import sys
+import os
 from collections import namedtuple
 from operator import attrgetter
 from typing import Dict
@@ -39,6 +40,23 @@ BASE_DIR = pathlib.Path(__file__).parent
 SPDX_LICENSES = list(BASE_DIR.glob('*.spdx'))
 OTHER_LICENSES = list(BASE_DIR.glob('*.license'))
 LICENSES = {license_file.stem: license_file for license_file in SPDX_LICENSES + OTHER_LICENSES}
+
+
+class DateUtils:
+    """Utilities for date functions used in this package"""
+    _current_year = None
+
+    @staticmethod
+    def current_year():
+        """
+        Returns the current year
+
+        Override using the LICTOOLS_OVERRIDE_YEAR env variable
+        """
+        if DateUtils._current_year is None:
+            year = os.getenv('LICTOOLS_OVERRIDE_YEAR', datetime.date.today().year)
+            DateUtils._current_year = int(year)
+        return DateUtils._current_year
 
 
 class Style(enum.Enum):
@@ -177,16 +195,20 @@ class Author:
     """Describes an author of a file"""
 
     def __init__(self, name: str, year_from: int = None,
-                 year_to: int = datetime.date.today().year,
+                 year_to: int = None,
                  git_repo=None):
         """
         Creates a new author
         :name: The name of the author
-        :year_from: The first year the author contributed
-        :year_to: The last year the author contributed
+        :year_from: The first year the author contributed. Will default
+                  to year_to when omitted.
+        :year_to: The last year the author contributed. Will default
+                  to DateUtils.CURRENT_YEAR when omitted.
         """
         self.name = name
         self.git_repo = git_repo
+        if year_to is None:
+            year_to = DateUtils.current_year()
         self.year_to = year_to
         if year_from:
             self.year_from = year_from

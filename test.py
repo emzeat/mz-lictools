@@ -33,6 +33,11 @@ import os
 BASE = pathlib.Path(__file__).resolve().absolute().parent
 
 
+# pin the year to 2022 which is the year tests have been
+# written to match the output on
+os.putenv('LICTOOLS_OVERRIDE_YEAR', '2022')
+
+
 class TestParserCStyle(unittest.TestCase):
 
     def test_parse_1author_1year(self):
