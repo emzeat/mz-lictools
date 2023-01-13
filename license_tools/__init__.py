@@ -433,6 +433,10 @@ class Tool:
             if latest_author.name in (author.name, alias):
                 author.year_to = latest_author.year_to
                 author.name = latest_author.name
+                year_to = max(author.year_from, author.year_to)
+                year_from = min(author.year_from, author.year_to)
+                author.year_from = year_from
+                author.year_to = year_to
                 new_author = False
         if new_author:
             parsed.authors.append(latest_author)
@@ -519,6 +523,7 @@ def main():
         default_config = {
             'author': {
                 'from_git': True,
+                'years': [1970, DateUtils.current_year()],
                 'name': '<author here>',
                 'company': 'the authors',
                 'aliases': {
@@ -582,6 +587,24 @@ def main():
             logging.fatal(f"Failed to fetch author from git as configured: {error}")
             sys.exit(2)
         logging.info(f"New files will get author from git: \"{author.name}\"")
+    if 'years' in config_author:
+        years = config_author['years']
+        if len(years) < 1 or len(years) > 2:
+            logging.fatal(f"Please provide the 'years' attribute as [from] or pair [from, to]: {years}")
+            sys.exit(2)
+        try:
+            years = [int(year) for year in years]
+        except ValueError as error:
+            logging.fatal(f"Please provide the 'years' attribute as numbers: {error}")
+            sys.exit(2)
+        year_from = min(years)
+        year_to = max(years)
+        if author.git_repo:
+            author.year_from = min(year_from, author.year_from)
+            author.year_to = max(year_to, author.year_to)
+        else:
+            author.year_from = year_from
+            author.year_to = year_to
     aliases = config_author.get('aliases', {})
 
     if args.files:

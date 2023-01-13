@@ -633,6 +633,16 @@ class TestPackage(unittest.TestCase):
             subprocess.check_call(f'{BASE}/lictool', cwd=repo)
             self._diff_repo(repo, BASE / 'test/package_new_company.diff')
 
+    def test_pinned_author_years(self):
+        with self._prepare_repo(BASE / 'test/package_pinned_author_years.patch',
+                                BASE / 'test/package_pinned_author_years.json') as repo:
+            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+            self._diff_repo(repo, BASE / 'test/package_pinned_author_years.diff')
+        with self._prepare_repo(BASE / 'test/package_pinned_author_merge_years.patch',
+                                BASE / 'test/package_pinned_author_merge_years.json') as repo:
+            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+            self._diff_repo(repo, BASE / 'test/package_pinned_author_merge_years.diff')
+
     def test_apply(self):
         with self._prepare_repo(BASE / 'test/package_apply.patch',
                                 BASE / 'test/package_apply.json') as repo:

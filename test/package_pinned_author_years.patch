@@ -1,0 +1,39 @@
+From 5b43dbd60b2355884c3e5176c2c5f02ee93e6982 Mon Sep 17 00:00:00 2001
+From: Test Author <no-reply@unittest.local>
+Date: Wed, 26 Jan 2022 07:55:44 +0100
+Subject: [PATCH] Create main
+
+---
+ code.cpp | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 code.cpp
+
+diff --git a/code.cpp b/code.cpp
+new file mode 100644
+index 0000000..f53d6b0
+--- /dev/null
++++ b/code.cpp
+@@ -0,0 +1,21 @@
++/*
++ * code.cpp
++ *
++ * Copyright (c) 1989 Test Author
++ * All rights reserved.
++ *
++ * Unauthorized copying of this file, via any medium is strictly prohibited.
++ * This file is a proprietary and confidential part of a software product
++ * by Umbrella Inc or part of its connected software and documentation.
++ *
++ * ANY FILE BEARING THIS HEADER SHALL NOT BE RELEASED TO THE
++ * PUBLIC, BE USED, BE MODIFIED OR BE DISTRIBUTED IN ANY WAY
++ * WITHOUT WRITTEN PERMISSION OF UMBRELLA INC.
++ */
++
++#include <iostream>
++
++int main(int argc, char* argv[]){
++    std::cout << "Hello World" << std::endl;
++    return 0;
++}
+--
+2.34.1

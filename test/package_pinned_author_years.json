@@ -1,0 +1,12 @@
+{
+  "author": {
+    "name": "Test Author",
+    "years": [
+      1980,
+      1992
+    ],
+    "company": "Umbrella Inc"
+  },
+  "license": "Proprietary",
+  "force_license": true
+}

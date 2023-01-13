@@ -213,6 +213,12 @@ A sample configuration is given below with each option annotated for explanation
     // if both 'from_git' and 'name' have been specified, the 'name' setting
     // will take precedence
     "name": "My Awesome Company",
+    // explicitly specify the first and optionally last year an author made a change.
+    // Useful when the edit dates of a file do not reflect the copyright ownership
+    // of an author correctly.
+    // if both 'from_git' and 'years' have been specified, the 'years' ranges
+    // will be merged.
+    "years": [1970, 2023],
     // for some licenses an additional company name which is different from the
     // author may be wanted. This can be specified here.
     "company": "the authors",

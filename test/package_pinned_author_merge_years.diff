@@ -1,0 +1,13 @@
+diff --git a/code.cpp b/code.cpp
+index 57fbeb6..0c5f730 100644
+--- a/code.cpp
++++ b/code.cpp
+@@ -1,7 +1,7 @@
+ /*
+  * code.cpp
+  *
+- * Copyright (c) 1992 Test Author
++ * Copyright (c) 1992 - 2022 Test Author
+  * All rights reserved.
+  *
+  * Unauthorized copying of this file, via any medium is strictly prohibited.
