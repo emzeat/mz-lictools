@@ -6,6 +6,8 @@ v2.4.0
 * Add option to use a custom title
 * Add option to omit the license text
 * Add option to explicitly set the range of years for an author
+* Add option to use a custom license text
+* Add option to override all authors
 
 v2.3.1
 ------
