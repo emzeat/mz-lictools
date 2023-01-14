@@ -406,11 +406,12 @@ class Tool:
         self.header = Header(self.default_license)
 
     def bump(self, filename: pathlib.PurePath,
-             keep_license: bool = True) -> str:
+             keep_license: bool = True, custom_title: bool = False) -> str:
         """
         Reads a file and returns the bumped contents
         :filename: The file to be bumped
         :keep_license: If an existing license should be retained or replaced with the new default
+        :custom_title: Specifies a custom title to use instead of the filename
         returns a tuple of detected language and bumped contents
         """
         parsed = ParsedHeader(filename)
@@ -459,22 +460,28 @@ class Tool:
         if keep_license:
             license_text = parsed.license
 
+        title = custom_title
+        if not title:
+            title = filename.name
+
         # the updated output is the new header with the remainder and ensuring a single trailing newline
         output = self.header.render(
-            filename.name, parsed.authors, parsed.style, company=self.company, license=license_text)
+            title, parsed.authors, parsed.style, company=self.company, license=license_text)
         output = output + '\n' + parsed.remainder + '\n'
         if parsed.decls:
             output = '\n'.join(parsed.decls) + '\n' + output
         return parsed.style, output
 
     def bump_inplace(self, filename: pathlib.PurePath, keep_license: bool = True,
-                     simulate: bool = False) -> bool:
+                     custom_title: bool = False, simulate: bool = False) -> bool:
         """
         Bumps the license header of a given file
         :filename: The file to be bumped
         :keep_license: If an existing license should be retained or replaced with the new default
+        :custom_title: Use a custom title instead of the filename
+        :simulate: Perform a dry run not applying any changes
         """
-        _, bumped = self.bump(filename, keep_license=keep_license)
+        _, bumped = self.bump(filename, keep_license=keep_license, custom_title=custom_title)
         if bumped:
             filename = str(filename) + \
                 '.license_bumped' if simulate else filename
@@ -615,6 +622,7 @@ def main():
     if args.files:
         args.files = [file.resolve() for file in args.files]
 
+    custom_title = config.get('custom_title', False)
     company = config_author.get('company', None)
     tool = Tool(license, author, company, aliases)
     keep = not args.force_license and not config.get('force_license', False)
@@ -641,7 +649,7 @@ def main():
                 continue
             logging.debug(f"Processing '{file_rel}'")
             try:
-                if not tool.bump_inplace(file, keep_license=keep, simulate=args.dry_run):
+                if not tool.bump_inplace(file, keep_license=keep, custom_title=custom_title, simulate=args.dry_run):
                     failed = True
             except UnicodeDecodeError as error:
                 logging.warning(f"Failed to decode {file_rel}: {error}")

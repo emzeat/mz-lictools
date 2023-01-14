@@ -237,6 +237,9 @@ A sample configuration is given below with each option annotated for explanation
   // do not retain existing licenses on the header but replace all licensing
   // information with the license specified above.
   "force_license": false,
+  // specifies a custom title to put at the top of the file header.
+  // Set to false or leave out to use the filename.
+  "custom_title": false,
   // globbing expressions to specify files for which to maintain a license header
   // all expressions will be applied relative to the directory holding the config
   "include": [
