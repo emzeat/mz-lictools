@@ -533,16 +533,22 @@ class TestHeader(unittest.TestCase):
 
 
 class TestTool(unittest.TestCase):
+    pass
 
-    def test_bump(self):
-        self.maxDiff = None
-        author = license_tools.Author("Test Guy", year_to=2021)
-        license = license_tools.License("Apache-2.0")
-        tool = license_tools.Tool(
-            default_license=license, default_author=author)
-        for file in BASE.glob('test/TestTool-bump*.input.*'):
-            stem = file.name.split('.')[0]
-            style, result = tool.bump(file, keep_license=True)
+
+for file in BASE.glob('test/TestTool-bump*.input.*'):
+    author = license_tools.Author("Test Guy", year_to=2021)
+    license = license_tools.License("Apache-2.0")
+    tool = license_tools.Tool(
+        default_license=license, default_author=author)
+    name = file.name.split('.')[0]
+
+    def create_test_case():
+        input = file
+        stem = name
+
+        def test_bump(self):
+            style, result = tool.bump(input, keep_license=True)
             self.assertIsNotNone(result)
             try:
                 with open(BASE / 'test' / (stem + ".expected"), 'r') as expected:
@@ -553,6 +559,8 @@ class TestTool(unittest.TestCase):
                 with open(BASE / 'test' / (stem + ".expected"), 'w') as expected:
                     expected.write(result)
                 raise
+        return test_bump
+    setattr(TestTool, f'test_{name.replace("TestTool-","")}', create_test_case())
 
 
 class TestPackage(unittest.TestCase):
@@ -591,102 +599,52 @@ class TestPackage(unittest.TestCase):
             raise
 
     def test_bad_config(self):
-        with self._prepare_repo(BASE / 'test/package_bad_license.patch',
-                                BASE / 'test/package_bad_license.patch') as repo:
+        with self._prepare_repo(BASE / 'test/noglob_package_bad_license.patch',
+                                BASE / 'test/noglob_package_bad_license.patch') as repo:
             with self.assertRaises(subprocess.CalledProcessError):
                 subprocess.check_call(f'{BASE}/lictool', cwd=repo)
 
     def test_no_config(self):
-        with self._prepare_repo(BASE / 'test/package_bad_license.patch',
-                                BASE / 'test/package_bad_license.patch') as repo:
+        with self._prepare_repo(BASE / 'test/noglob_package_bad_license.patch',
+                                BASE / 'test/noglob_package_bad_license.patch') as repo:
             (pathlib.Path(repo) / '.license-tools-config.json').unlink()
             with self.assertRaises(subprocess.CalledProcessError):
                 subprocess.check_call(f'{BASE}/lictool', cwd=repo)
 
     def test_bad_license(self):
-        with self._prepare_repo(BASE / 'test/package_bad_license.patch',
-                                BASE / 'test/package_bad_license.json') as repo:
+        with self._prepare_repo(BASE / 'test/noglob_package_bad_license.patch',
+                                BASE / 'test/noglob_package_bad_license.json') as repo:
             with self.assertRaises(subprocess.CalledProcessError):
                 subprocess.check_call(f'{BASE}/lictool', cwd=repo)
 
-    def test_force_license(self):
-        with self._prepare_repo(BASE / 'test/package_force_license.patch',
-                                BASE / 'test/package_force_license.json') as repo:
-            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/package_force_license.diff')
-
-    def test_retain_license(self):
-        with self._prepare_repo(BASE / 'test/package_retain_license.patch',
-                                BASE / 'test/package_retain_license.json') as repo:
-            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/package_retain_license.diff')
-
-    def test_duplicate_authors(self):
-        with self._prepare_repo(BASE / 'test/package_duplicate_authors.patch',
-                                BASE / 'test/package_duplicate_authors.json') as repo:
-            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/package_duplicate_authors.diff')
-
-    def test_new_company(self):
-        with self._prepare_repo(BASE / 'test/package_new_company.patch',
-                                BASE / 'test/package_new_company.json') as repo:
-            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/package_new_company.diff')
-
-    def test_pinned_author_years(self):
-        with self._prepare_repo(BASE / 'test/package_pinned_author_years.patch',
-                                BASE / 'test/package_pinned_author_years.json') as repo:
-            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/package_pinned_author_years.diff')
-        with self._prepare_repo(BASE / 'test/package_pinned_author_merge_years.patch',
-                                BASE / 'test/package_pinned_author_merge_years.json') as repo:
-            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/package_pinned_author_merge_years.diff')
-
-    def test_apply(self):
-        with self._prepare_repo(BASE / 'test/package_apply.patch',
-                                BASE / 'test/package_apply.json') as repo:
-            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/package_apply.diff')
-
-    def test_no_changes(self):
-        with self._prepare_repo(BASE / 'test/package_no_changes.patch',
-                                BASE / 'test/package_no_changes.json') as repo:
-            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/package_no_changes.diff')
-
-    def test_from_git_apply(self):
-        with self._prepare_repo(BASE / 'test/package_from_git_apply.patch',
-                                BASE / 'test/package_from_git_apply.json') as repo:
-            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/package_from_git_apply.diff')
-
-    def test_from_git_no_changes(self):
-        with self._prepare_repo(BASE / 'test/package_from_git_no_changes.patch',
-                                BASE / 'test/package_from_git_no_changes.json') as repo:
-            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/package_from_git_no_changes.diff')
-
     def test_from_git_no_repo(self):
-        with self._prepare_repo(BASE / 'test/package_from_git_no_repo.patch',
-                                BASE / 'test/package_from_git_no_repo.json') as repo:
+        with self._prepare_repo(BASE / 'test/noglob_package_from_git_no_repo.patch',
+                                BASE / 'test/noglob_package_from_git_no_repo.json') as repo:
             shutil.rmtree(pathlib.Path(repo) / '.git')
             with self.assertRaises(subprocess.CalledProcessError):
                 subprocess.check_call(f'{BASE}/lictool', cwd=repo)
 
     def test_new_author(self):
-        with self._prepare_repo(BASE / 'test/package_from_git_new_author.patch',
-                                BASE / 'test/package_from_git_new_author.json') as repo:
+        with self._prepare_repo(BASE / 'test/noglob_package_from_git_new_author.patch',
+                                BASE / 'test/noglob_package_from_git_new_author.json') as repo:
             code = pathlib.Path(repo) / 'code.cpp'
             code.write_text(code.read_text() + "\ninline void unused(){}\n\n")
             subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/package_from_git_new_author.diff')
+            self._diff_repo(repo, BASE / 'test/noglob_package_from_git_new_author.diff')
 
-    def test_author_alias(self):
-        with self._prepare_repo(BASE / 'test/package_author_alias.patch',
-                                BASE / 'test/package_author_alias.json') as repo:
-            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/package_author_alias.diff')
+
+for file in BASE.glob('test/package_*.patch'):
+    def create_test_case():
+        patch = file
+        json = patch.with_suffix('.json')
+        diff = patch.with_suffix('.diff')
+
+        def test_glob_case(self):
+            with self._prepare_repo(patch, json) as repo:
+                subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+                self._diff_repo(repo, diff)
+        return test_glob_case
+    setattr(TestPackage, f'test_{file.stem.replace("package_", "")}', create_test_case())
 
 
 if __name__ == '__main__':
