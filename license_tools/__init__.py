@@ -365,6 +365,9 @@ class ParsedHeader:
                 # filter any leading indends
                 self.license = self.license.replace('\n ', '\n')
             self.license = self.license.strip()
+            if self.license == "":
+                # When license is an empty string reset to None
+                self.license = None
             self.remainder = match.group('body').strip()
         else:
             self.license = None

@@ -372,6 +372,22 @@ class TestParserXmlStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
+    def test_parse_no_license(self):
+        parsed = license_tools.ParsedHeader(
+            file=BASE / 'test/TestParserXmlStyle-no_license.html')
+        self.assertEqual(3, len(parsed.authors))
+        self.assertEqual("Max Muster", parsed.authors[0].name)
+        self.assertEqual(2010, parsed.authors[0].year_from)
+        self.assertEqual(2021, parsed.authors[0].year_to)
+        self.assertEqual("Awesome Limited Inc.", parsed.authors[1].name)
+        self.assertEqual(2012, parsed.authors[1].year_from)
+        self.assertEqual(2013, parsed.authors[1].year_to)
+        self.assertEqual("My Company", parsed.authors[2].name)
+        self.assertEqual(2013, parsed.authors[2].year_from)
+        self.assertEqual(2020, parsed.authors[2].year_to)
+        self.assertEqual(license_tools.Style.XML_STYLE, parsed.style)
+        self.assertEqual(None, parsed.license)
+
 
 class TestParserBatchStyle(unittest.TestCase):
 
