@@ -305,10 +305,10 @@ class Header:
         self.template = self.env.get_template('Header.j2')
         self.default_license = default_license
 
-    def render(self, filename: str, authors, style: Style, company: str = None, license: str = None) -> str:
+    def render(self, title: str, authors, style: Style, company: str = None, license: str = None) -> str:
         """
         Renders a header to a string
-        :filename: The file the header belongs to
+        :title: The title to put at the top of the file, usually the filename
         :authors: A list of authors which contributed to the file
         :style: The comment style to use when generating the header
         :company: An optional company string to be included
@@ -317,7 +317,7 @@ class Header:
         if company is None:
             company = 'the authors'
         header = self.template.render(default_license=self.default_license,
-                                      license=license, filename=filename, authors=authors, company=company)
+                                      license=license, title=title, authors=authors, company=company)
         decorators = Style.decorators(style)
         header = header.split('\n')
         header = [decorators.start] + \
