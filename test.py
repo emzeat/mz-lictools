@@ -531,6 +531,18 @@ class TestHeader(unittest.TestCase):
                     expected.write(output)
                 raise
 
+            header = license_tools.Header(None)
+            filename = f'TestHeader-no_license_{l}.expected'
+            output = header.render(
+                filename, authors, license_tools.Style.C_STYLE)
+            try:
+                with open(BASE / 'test' / filename, 'r') as expected:
+                    self.assertEqual(expected.read(), output)
+            except:
+                with open(BASE / 'test' / filename, 'w') as expected:
+                    expected.write(output)
+                raise
+
 
 class TestTool(unittest.TestCase):
     pass
