@@ -231,10 +231,11 @@ A sample configuration is given below with each option annotated for explanation
     }
   },
   // specifies the license to be put at the top of each file. Use lictool --help
-  // to get a list of supported licenses
+  // to get a list of supported licenses.
+  // Set to false or leave out to omit the license text altogether.
   "license": "GPL-2.0-or-later",
   // do not retain existing licenses on the header but replace all licensing
-  // information with the license specified above
+  // information with the license specified above.
   "force_license": false,
   // globbing expressions to specify files for which to maintain a license header
   // all expressions will be applied relative to the directory holding the config

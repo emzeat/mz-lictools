@@ -569,10 +569,12 @@ def main():
             sys.exit(2)
 
     try:
-        license = License(config.get('license', None))
+        license = config.get('license', False)
+        if license:
+            license = License(license)
     except TypeError:
         valid = "\"" + "\", \"".join(LICENSES.keys()) + "\""
-        logging.fatal(f"Invalid license, supported licenses are {valid}")
+        logging.fatal(f"Invalid license '{license}' - supported licenses are {valid}")
         sys.exit(2)
 
     config_author = config.get('author', {})

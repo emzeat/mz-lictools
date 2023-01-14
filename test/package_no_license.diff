@@ -1,0 +1,19 @@
+diff --git a/code.cpp b/code.cpp
+index a1b8312..d7f4c21 100644
+--- a/code.cpp
++++ b/code.cpp
+@@ -3,14 +3,6 @@
+  *
+  * Copyright (c) 2022 Test Author
+  * All rights reserved.
+- *
+- * Unauthorized copying of this file, via any medium is strictly prohibited.
+- * This file is a proprietary and confidential part of a software product
+- * by Umbrella Inc or part of its connected software and documentation.
+- *
+- * ANY SOURCECODE BEARING THIS HEADER SHALL NOT BE RELEASED TO THE
+- * PUBLIC, BE USED, BE MODIFIED OR BE DISTRIBUTED IN ANY WAY
+- * WITHOUT WRITTEN PERMISSION OF UMBRELLA INC.
+  */
+ 
+ #include <iostream>
