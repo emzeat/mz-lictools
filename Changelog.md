@@ -1,4 +1,12 @@
 
+v2.4.0
+------
+*WIP:* _in progress_
+
+* Add option to use a custom title
+* Add option to omit the license text
+* Add option to explicitly set the range of years for an author
+
 v2.3.1
 ------
 _22.06.2022_
