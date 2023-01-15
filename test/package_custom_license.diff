@@ -1,0 +1,20 @@
+diff --git a/code.cpp b/code.cpp
+index 932efa0..6aed4af 100644
+--- a/code.cpp
++++ b/code.cpp
+@@ -3,6 +3,15 @@
+  *
+  * Copyright (c) 2022 Test Author
+  * All rights reserved.
++ *
++ * License: Lorem Ipsum
++ *
++ * Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor
++ * incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
++ * exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute
++ * iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
++ * pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui
++ * officia deserunt mollit anim id est laborum.
+  */
+ 
+ #include <iostream>

@@ -231,9 +231,18 @@ A sample configuration is given below with each option annotated for explanation
     }
   },
   // specifies the license to be put at the top of each file. Use lictool --help
-  // to get a list of supported licenses.
+  // to get a list of builtin licenses. See 'custom_license' to add you own.
   // Set to false or leave out to omit the license text altogether.
   "license": "GPL-2.0-or-later",
+  // specifies a custom license useful in case the builtin licenses do not
+  // cover the specific needs.
+  // Lines longer than 80 characters will be wrapped automatically.
+  // When wrapping manually consider that newlines need to be explicitly written
+  // out in json notation, see https://stackoverflow.com/questions/2392766.
+  // In case both 'license' and 'custom_license' have been specified, the
+  // 'custom_license' takes precedence.
+  // Set to false or leave out to omit the license text altogether.
+  "custom_license": false,
   // do not retain existing licenses on the header but replace all licensing
   // information with the license specified above.
   "force_license": false,

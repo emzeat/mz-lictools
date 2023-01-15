@@ -554,6 +554,8 @@ def main():
             },
             'license': f'<pick one of {", ".join(LICENSES.keys())}>',
             'force_license': False,
+            "custom_license": False,
+            'custom_title': False,
             'include': [
                 '**/*'
             ],
@@ -587,14 +589,17 @@ def main():
             logging.fatal(f"Failed to parse config: {error}")
             sys.exit(2)
 
-    try:
-        license = config.get('license', False)
-        if license:
-            license = License(license)
-    except TypeError:
-        valid = "\"" + "\", \"".join(LICENSES.keys()) + "\""
-        logging.fatal(f"Invalid license '{license}' - supported licenses are {valid}")
-        sys.exit(2)
+    if 'custom_license' in config:
+        license = License(custom=config['custom_license'])
+    else:
+        try:
+            license = config.get('license', False)
+            if license:
+                license = License(builtin=license)
+        except TypeError:
+            valid = "\"" + "\", \"".join(LICENSES.keys()) + "\""
+            logging.fatal(f"Invalid license '{license}' - supported licenses are {valid}")
+            sys.exit(2)
 
     config_author = config.get('author', {})
     if 'name' in config_author:
