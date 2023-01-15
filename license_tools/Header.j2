@@ -18,5 +18,9 @@ All rights reserved.
 SPDX-License-Identifier: {{ default_license.name }}
 
 {% endif -%}
+{%- if default_license.builtin -%}
 {% include default_license.header | trim %}
+{%- else -%}
+{{ default_license.header | trim | wordwrap(80) }}
+{%- endif -%}
 {%- endif -%}

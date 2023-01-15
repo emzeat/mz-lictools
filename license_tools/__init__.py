@@ -281,18 +281,30 @@ class GitRepo:
 class License:
     """Describes a license to be added to a header"""
 
-    def __init__(self, name: str):
+    def __init__(self, builtin: str = None, custom: str = None):
         """
         Creates a new license
 
-        The name needs to be one of the supported licenses
+        Either builtin or custom need to be specified.
+
+        :builtin: One of the supported licenses, see LICENSES
+        :custom: Configures a custom license text
         """
-        self.name = name
-        self.header = LICENSES.get(name, None)
-        if self.header is None:
-            raise TypeError(f"No such license '{name}'")
-        self.spdx = self.header in SPDX_LICENSES
-        self.header = self.header.name
+        if builtin:
+            self.name = builtin
+            self.header = LICENSES.get(builtin, None)
+            if self.header is None:
+                raise TypeError(f"No such license '{builtin}'")
+            self.builtin = True
+            self.spdx = self.header in SPDX_LICENSES
+            self.header = self.header.name
+        elif custom:
+            self.name = 'custom'
+            self.header = custom
+            self.builtin = False
+            self.spdx = False
+        else:
+            raise KeyError("Need to select a 'builtin' or provide 'custom' license")
 
 
 class Header:

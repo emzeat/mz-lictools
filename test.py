@@ -479,7 +479,7 @@ class TestHeader(unittest.TestCase):
         authors = [author1, author2]
 
         for l in license_tools.LICENSES:
-            license = license_tools.License(l)
+            license = license_tools.License(builtin=l)
             header = license_tools.Header(license)
             filename = f'TestHeader-c_{l}.expected'
             output = header.render(
@@ -570,6 +570,24 @@ class TestHeader(unittest.TestCase):
                 with open(BASE / 'test' / filename, 'w') as expected:
                     expected.write(output)
                 raise
+
+        custom_license = """
+Lorem Bin Title.
+
+Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        """
+        license = license_tools.License(custom=custom_license)
+        header = license_tools.Header(license)
+        filename = f'TestHeader-c_custom.expected'
+        output = header.render(
+            filename, authors, license_tools.Style.C_STYLE)
+        try:
+            with open(BASE / 'test' / filename, 'r') as expected:
+                self.assertEqual(expected.read(), output)
+        except:
+            with open(BASE / 'test' / filename, 'w') as expected:
+                expected.write(output)
+            raise
 
 
 class TestTool(unittest.TestCase):
