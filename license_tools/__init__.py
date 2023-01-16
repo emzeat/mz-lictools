@@ -207,6 +207,7 @@ class Author:
         """
         self.name = name
         self.git_repo = git_repo
+        self.name_from_git = git_repo is not None
         if year_to is None:
             year_to = DateUtils.current_year()
         self.year_to = year_to
@@ -418,12 +419,13 @@ class Tool:
         self.header = Header(self.default_license)
 
     def bump(self, filename: pathlib.PurePath,
-             keep_license: bool = True, custom_title: bool = False) -> str:
+             keep_license: bool = True, custom_title: bool = False, keep_authors: bool = True) -> str:
         """
         Reads a file and returns the bumped contents
         :filename: The file to be bumped
         :keep_license: If an existing license should be retained or replaced with the new default
         :custom_title: Specifies a custom title to use instead of the filename
+        :keep_authors: If any existing authors should be retained or replaced with the new default
         returns a tuple of detected language and bumped contents
         """
         parsed = ParsedHeader(filename)
@@ -440,6 +442,13 @@ class Tool:
             # try to determine the author using the git history of the file
             else:
                 latest_author = git_repo.author_from_history(filename)
+
+            if latest_author:
+                # make sure to honor year_from coming from the config
+                latest_author.year_from = min(latest_author.year_from, self.default_author.year_from)
+                # make sure to honor a name override coming from the config
+                if not self.default_author.name_from_git:
+                    latest_author.name = self.default_author.name
         if latest_author is None:
             latest_author = self.default_author
 
@@ -466,7 +475,10 @@ class Tool:
                 seen.year_to = max(seen.year_to, author.year_to)
             else:
                 seen_authors[author.name] = author
-        parsed.authors = list(seen_authors.values())
+        if keep_authors:
+            parsed.authors = list(seen_authors.values())
+        else:
+            parsed.authors = [latest_author]
 
         license_text = None
         if keep_license:
@@ -485,15 +497,16 @@ class Tool:
         return parsed.style, output
 
     def bump_inplace(self, filename: pathlib.PurePath, keep_license: bool = True,
-                     custom_title: bool = False, simulate: bool = False) -> bool:
+                     custom_title: bool = False, simulate: bool = False, keep_authors: bool = True) -> bool:
         """
         Bumps the license header of a given file
         :filename: The file to be bumped
         :keep_license: If an existing license should be retained or replaced with the new default
         :custom_title: Use a custom title instead of the filename
         :simulate: Perform a dry run not applying any changes
+        :keep_authors: If any existing authors should be retained or replaced with the new default
         """
-        _, bumped = self.bump(filename, keep_license=keep_license, custom_title=custom_title)
+        _, bumped = self.bump(filename, keep_license=keep_license, custom_title=custom_title, keep_authors=keep_authors)
         if bumped:
             filename = str(filename) + \
                 '.license_bumped' if simulate else filename
@@ -552,6 +565,7 @@ def main():
                     '<old author name>': '<new author name>'
                 }
             },
+            'force_author': False,
             'license': f'<pick one of {", ".join(LICENSES.keys())}>',
             'force_license': False,
             "custom_license": False,
@@ -602,9 +616,8 @@ def main():
             sys.exit(2)
 
     config_author = config.get('author', {})
-    if 'name' in config_author:
-        author = Author(config_author['name'])
-    elif 'from_git' in config_author:
+    author = None
+    if 'from_git' in config_author:
         try:
             git_repo = GitRepo()
         except RuntimeError as error:
@@ -616,6 +629,16 @@ def main():
             logging.fatal(f"Failed to fetch author from git as configured: {error}")
             sys.exit(2)
         logging.info(f"New files will get author from git: \"{author.name}\"")
+    if 'name' in config_author:
+        if author is None:
+            author = Author(config_author['name'])
+        else:
+            logging.info(f"Author was overridden: \"{author.name}\"")
+            author.name = config_author['name']
+            author.name_from_git = False
+    if author is None:
+        logging.fatal("Please change config to explicitly specify or derive the author from git")
+        sys.exit(2)
     if 'years' in config_author:
         years = config_author['years']
         if len(years) < 1 or len(years) > 2:
@@ -642,7 +665,8 @@ def main():
     custom_title = config.get('custom_title', False)
     company = config_author.get('company', None)
     tool = Tool(license, author, company, aliases)
-    keep = not args.force_license and not config.get('force_license', False)
+    keep_license = not args.force_license and not config.get('force_license', False)
+    keep_authors = not config.get('force_author', False)
     failed = False
     excludes = [re.compile(excl) for excl in config.get('exclude', ['^\\.[^/]+', '/\\.[^/]+'])]
 
@@ -666,7 +690,7 @@ def main():
                 continue
             logging.debug(f"Processing '{file_rel}'")
             try:
-                if not tool.bump_inplace(file, keep_license=keep, custom_title=custom_title, simulate=args.dry_run):
+                if not tool.bump_inplace(file, keep_license=keep_license, keep_authors=keep_authors, custom_title=custom_title, simulate=args.dry_run):
                     failed = True
             except UnicodeDecodeError as error:
                 logging.warning(f"Failed to decode {file_rel}: {error}")

@@ -230,6 +230,9 @@ A sample configuration is given below with each option annotated for explanation
       "<old name>": "<new name"
     }
   },
+  // do not retain existing authors on the header but only use the author
+  // specified via the 'author' option.
+  "force_author": false,
   // specifies the license to be put at the top of each file. Use lictool --help
   // to get a list of builtin licenses. See 'custom_license' to add you own.
   // Set to false or leave out to omit the license text altogether.

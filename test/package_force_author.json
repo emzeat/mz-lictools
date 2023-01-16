@@ -1,0 +1,12 @@
+{
+  "author": {
+    "name": "Umbrella Inc",
+    "from_git": true,
+    "years": [
+      1999
+    ]
+  },
+  "force_author": true,
+  "license": false,
+  "custom_title": "My Project"
+}

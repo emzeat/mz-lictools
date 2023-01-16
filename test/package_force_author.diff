@@ -1,0 +1,14 @@
+diff --git a/code.cpp b/code.cpp
+index d8e5959..1553c4d 100644
+--- a/code.cpp
++++ b/code.cpp
+@@ -1,8 +1,7 @@
+ /*
+  * My Project
+  *
+- * Copyright (c) 2020 Test Author
+- * Copyright (c) 2021 Some Intern
++ * Copyright (c) 1999 - 2022 Umbrella Inc
+  * All rights reserved.
+  */
+ 
