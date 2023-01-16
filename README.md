@@ -3,7 +3,7 @@
 Have you ever been annoyed by the task of manually maintaining the licensing
 headers for your source files?
 
-The `license-tools` utility is here to safe the day for you :)
+The `license-tools` utility is here to save the day for you :)
 
 It will automate the task of adding a license header to new files and updating license headers of existing files:
 * Configure a license for the entire repository. Several FOSS licenses are packaged, closed source licenses are supported as well, see `lictool --help`.
