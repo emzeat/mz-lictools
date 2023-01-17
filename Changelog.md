@@ -1,7 +1,7 @@
 
 v2.4.0
 ------
-*WIP:* _in progress_
+_17.01.2023_
 
 * Add option to use a custom title
 * Add option to omit the license text
