@@ -100,9 +100,20 @@ class Style(enum.Enum):
             '.qrc': Style.XML_STYLE,
             '.svg': Style.XML_STYLE,
             '.bat': Style.BATCH_STYLE,
-            '.rc': Style.SLASH_STYLE
+            '.rc': Style.SLASH_STYLE,
+            '.yml': Style.POUND_STYLE,
+            '.yaml': Style.POUND_STYLE,
         }
         return mapping.get(ext, Style.UNKNOWN)
+
+    @staticmethod
+    def from_name(name):
+        """Tries to determine the style based on a file name"""
+        mapping = {
+            'CMakeLists.txt': Style.POUND_STYLE,
+            'requirements.txt': Style.POUND_STYLE
+        }
+        return mapping.get(name, Style.UNKNOWN)
 
     @staticmethod
     def patterns():
@@ -347,6 +358,8 @@ class ParsedHeader:
             contents = file_obj.read()
         # style is determined from the extension, if unknown we try a second attempt using the contents below
         self.style = Style.from_suffix(file.suffix)
+        if self.style == Style.UNKNOWN:
+            self.style = Style.from_name(file.name)
         # strip but remember any shebang, encoding or doctype at the beginning
         self.decls = []
 
