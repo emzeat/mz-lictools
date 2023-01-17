@@ -630,7 +630,7 @@ def process_file(args, file) -> bool:
         else:
             level = level.parent
     if args.config:
-        logging.info(f"Using configuration from '{args.config}'")
+        logging.debug(f"Using configuration from '{args.config}'")
     else:
         logging.fatal("Failed to discover a configuration")
         sys.exit(2)
@@ -668,12 +668,12 @@ def process_file(args, file) -> bool:
         except RuntimeError as error:
             logging.fatal(f"Failed to fetch author from git as configured: {error}")
             sys.exit(2)
-        logging.info(f"New files will get author from git: \"{author.name}\"")
+        logging.debug(f"New files will get author from git: \"{author.name}\"")
     if 'name' in config_author:
         if author is None:
             author = Author(config_author['name'])
         else:
-            logging.info(f"Author was overridden: \"{author.name}\"")
+            logging.debug(f"Author was overridden: \"{author.name}\"")
             author.name = config_author['name']
             author.name_from_git = False
     if author is None:
@@ -722,7 +722,7 @@ def process_file(args, file) -> bool:
     if not matched:
         return True
 
-    logging.info(f"Processing '{file_rel}'")
+    logging.debug(f"Processing '{file_rel}'")
     try:
         if tool.bump_inplace(file, keep_license=keep_license, keep_authors=keep_authors, custom_title=custom_title, simulate=args.dry_run):
             return True
