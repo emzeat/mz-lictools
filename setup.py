@@ -1,7 +1,7 @@
 """
  setup.py
 
- Copyright (c) 2021 - 2022 Marius Zwicker
+ Copyright (c) 2021 - 2023 Marius Zwicker
  All rights reserved.
 
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -63,6 +63,8 @@ setup(name='mz-lictools',
       url='https://github.com/emzeat/mz-lictools',
       packages=['license_tools'],
       package_data={'license_tools': ['*.license', '*.spdx', '*.j2']},
-      scripts=['lictool'],
+      entry_points={
+          'console_scripts': ['lictool=license_tools:main']
+      },
       install_requires=['jinja2']
       )
