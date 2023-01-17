@@ -34,12 +34,14 @@ import os
 from collections import namedtuple
 from operator import attrgetter
 from typing import Dict
+from fnmatch import fnmatch
 import jinja2
 
 BASE_DIR = pathlib.Path(__file__).parent
 SPDX_LICENSES = list(BASE_DIR.glob('*.spdx'))
 OTHER_LICENSES = list(BASE_DIR.glob('*.license'))
 LICENSES = {license_file.stem: license_file for license_file in SPDX_LICENSES + OTHER_LICENSES}
+LICENSE_JSON = '.license-tools-config.json'
 
 
 class DateUtils:
@@ -283,7 +285,7 @@ class GitRepo:
                 cwd=self.git_root, stderr=subprocess.STDOUT, shell=True,
                 encoding='utf-8').strip()
             if len(diff) != 0:
-                logging.debug(f"{file_rel} was just modified\": {diff}")
+                logging.debug(f"{file_rel} was just modified: {diff}")
                 return True
         except subprocess.CalledProcessError:
             pass
@@ -531,8 +533,6 @@ class Tool:
 
 def main():
     """CLI entry point"""
-    license_json = '.license-tools-config' \
-                   '.json'
     parser = argparse.ArgumentParser(
         prog='license_tools',
         description=f'Helper to maintain current code license headers ({", ".join(LICENSES)}).')
@@ -541,7 +541,7 @@ def main():
     parser.add_argument(
         '-c', '--config',
         help='Configuration to be loaded.'
-        f' Will search for {license_json} in the current working dir or its parent if omitted',
+        f' Will search for {LICENSE_JSON} in the current working dir or its parent if omitted',
         default=None)
     parser.add_argument(
         '-f', '--force-license',
@@ -591,14 +591,40 @@ def main():
                 '/\\.[^/]+'
             ]
         }
-        with open(cwd / license_json, 'w', encoding='utf-8') as configfile:
+        with open(cwd / LICENSE_JSON, 'w', encoding='utf-8') as configfile:
             configfile.write(json.dumps(default_config, indent=4))
-            logging.info(f'Wrote default config to {cwd / license_json}')
+            logging.info(f'Wrote default config to {cwd / LICENSE_JSON}')
             sys.exit(0)
 
-    level = cwd
+    if args.files:
+        handle_files(args, [file.resolve() for file in args.files])
+    else:
+        handle_files(args, cwd.rglob('*'))
+
+
+def handle_files(args, candidates):
+    """Processes a given set of candidates resolving dirs on the way"""
+    success = True
+    for candidate in candidates:
+        if candidate.is_dir():
+            success = handle_files(args, candidate.rglob('*')) and success
+        else:
+            success = process_file(args, candidate) and success
+    if not success:
+        sys.exit(1)
+
+
+def process_file(args, file) -> bool:
+    """
+    Processes a single file honoring the discovered config
+
+    Will return true on success, false on failure.
+    If the file does not match the config this is considered success.
+    """
+    logging.debug(f"Candidate '{file}'")
+    level = file.parent
     while args.config is None and level.parent != level:
-        config = level / license_json
+        config = level / LICENSE_JSON
         if config.exists():
             args.config = config
         else:
@@ -606,7 +632,8 @@ def main():
     if args.config:
         logging.info(f"Using configuration from '{args.config}'")
     else:
-        parser.error("Failed to discover a configuration")
+        logging.fatal("Failed to discover a configuration")
+        sys.exit(2)
 
     config_dir = args.config.parent
     with open(args.config, 'r', encoding='utf-8') as configfile:
@@ -672,42 +699,33 @@ def main():
             author.year_to = year_to
     aliases = config_author.get('aliases', {})
 
-    if args.files:
-        args.files = [file.resolve() for file in args.files]
-
     custom_title = config.get('custom_title', False)
     company = config_author.get('company', None)
     tool = Tool(license, author, company, aliases)
     keep_license = not args.force_license and not config.get('force_license', False)
     keep_authors = not config.get('force_author', False)
-    failed = False
     excludes = [re.compile(excl) for excl in config.get('exclude', ['^\\.[^/]+', '/\\.[^/]+'])]
 
+    matched = False
+    file_rel = file.relative_to(config_dir)
     for include in config.get('include', ['**/*']):
         logging.debug(f"Pattern '{include}'")
-        for file in config_dir.glob(include):
-            if file.is_dir():
-                continue
-            file_rel = file.relative_to(config_dir)
-            logging.debug(f"Candidate '{file_rel}'")
-            if args.files and file not in args.files:
-                logging.debug(f"Excluding '{file_rel}' because not in args")
-                continue
-            excluded = False
-            for exclude in excludes:
-                if re.search(exclude, str(file_rel)):
-                    logging.debug(f"Excluding '{file_rel}' due to '{exclude}'")
-                    excluded = True
-                    break
-            if excluded:
-                continue
-            logging.debug(f"Processing '{file_rel}'")
-            try:
-                if not tool.bump_inplace(file, keep_license=keep_license, keep_authors=keep_authors, custom_title=custom_title, simulate=args.dry_run):
-                    failed = True
-            except UnicodeDecodeError as error:
-                logging.warning(f"Failed to decode {file_rel}: {error}")
-                failed = True
+        if fnmatch(file_rel, include):
+            logging.debug(f"Including '{file_rel}' because of '{include}'")
+            matched = True
+            break
+    for exclude in excludes:
+        if re.search(exclude, str(file_rel)):
+            logging.debug(f"Excluding '{file_rel}' due to '{exclude}'")
+            matched = False
+            break
+    if not matched:
+        return True
 
-    if failed:
-        sys.exit(1)
+    logging.info(f"Processing '{file_rel}'")
+    try:
+        if tool.bump_inplace(file, keep_license=keep_license, keep_authors=keep_authors, custom_title=custom_title, simulate=args.dry_run):
+            return True
+    except UnicodeDecodeError as error:
+        logging.warning(f"Failed to decode {file_rel}: {error}")
+    return False
