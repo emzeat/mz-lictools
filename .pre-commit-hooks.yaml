@@ -3,4 +3,4 @@
     entry: lictool
     language: python
     types: [text]
-    require_serial: true
+    require_serial: false
