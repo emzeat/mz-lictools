@@ -38,6 +38,7 @@ from fnmatch import fnmatch
 import jinja2
 
 BASE_DIR = pathlib.Path(__file__).parent
+CW_DIR = pathlib.Path.cwd()
 SPDX_LICENSES = list(BASE_DIR.glob('*.spdx'))
 OTHER_LICENSES = list(BASE_DIR.glob('*.license'))
 LICENSES = {license_file.stem: license_file for license_file in SPDX_LICENSES + OTHER_LICENSES}
@@ -566,7 +567,6 @@ def main():
     else:
         logging.basicConfig(level=logging.INFO, format=format)
 
-    cwd = pathlib.Path.cwd()
     if args.sample_config:
         default_config = {
             'author': {
@@ -591,15 +591,17 @@ def main():
                 '/\\.[^/]+'
             ]
         }
-        with open(cwd / LICENSE_JSON, 'w', encoding='utf-8') as configfile:
+        with open(CW_DIR / LICENSE_JSON, 'w', encoding='utf-8') as configfile:
             configfile.write(json.dumps(default_config, indent=4))
-            logging.info(f'Wrote default config to {cwd / LICENSE_JSON}')
+            logging.info(f'Wrote default config to {CW_DIR / LICENSE_JSON}')
             sys.exit(0)
 
     if args.files:
-        handle_files(args, [file.resolve() for file in args.files])
+        ret = handle_files(args, [file.resolve() for file in args.files])
     else:
-        handle_files(args, cwd.rglob('*'))
+        ret = handle_files(args, CW_DIR.rglob('*'))
+    if not ret:
+        sys.exit(1)
 
 
 def handle_files(args, candidates):
@@ -610,8 +612,7 @@ def handle_files(args, candidates):
             success = handle_files(args, candidate.rglob('*')) and success
         else:
             success = process_file(args, candidate) and success
-    if not success:
-        sys.exit(1)
+    return success
 
 
 def process_file(args, file) -> bool:
@@ -621,7 +622,6 @@ def process_file(args, file) -> bool:
     Will return true on success, false on failure.
     If the file does not match the config this is considered success.
     """
-    logging.debug(f"Candidate '{file}'")
     level = file.parent
     while args.config is None and level.parent != level:
         config = level / LICENSE_JSON
@@ -630,9 +630,14 @@ def process_file(args, file) -> bool:
         else:
             level = level.parent
     if args.config:
-        logging.debug(f"Using configuration from '{args.config}'")
+        def try_shorten(path: pathlib.Path):
+            try:
+                return path.relative_to(CW_DIR)
+            except ValueError:
+                return path
+        logging.debug(f"Using '{try_shorten(args.config)}' to process '{try_shorten(file)}'")
     else:
-        logging.fatal("Failed to discover a configuration")
+        logging.fatal(f"Failed to discover a configuration for {file}")
         sys.exit(2)
 
     config_dir = args.config.parent
@@ -642,6 +647,24 @@ def process_file(args, file) -> bool:
         except json.JSONDecodeError as error:
             logging.fatal(f"Failed to parse config: {error}")
             sys.exit(2)
+
+    matched = False
+    match_reason = None
+    file_rel = file.relative_to(config_dir)
+    for include in config.get('include', ['**/*']):
+        if fnmatch(file_rel, include):
+            match_reason = f"Including '{file_rel}' because of '{include}'"
+            matched = True
+            break
+    for exclude in config.get('exclude', ['^\\.[^/]+', '/\\.[^/]+']):
+        if re.search(exclude, str(file_rel)):
+            match_reason = f"Excluding '{file_rel}' due to '{exclude}'"
+            matched = False
+            break
+    if match_reason:
+        logging.debug(match_reason)
+    if not matched:
+        return True
 
     if 'custom_license' in config:
         license = License(custom=config['custom_license'])
@@ -673,9 +696,9 @@ def process_file(args, file) -> bool:
         if author is None:
             author = Author(config_author['name'])
         else:
-            logging.debug(f"Author was overridden: \"{author.name}\"")
             author.name = config_author['name']
             author.name_from_git = False
+            logging.debug(f"Author was overridden: \"{author.name}\"")
     if author is None:
         logging.fatal("Please change config to explicitly specify or derive the author from git")
         sys.exit(2)
@@ -704,23 +727,6 @@ def process_file(args, file) -> bool:
     tool = Tool(license, author, company, aliases)
     keep_license = not args.force_license and not config.get('force_license', False)
     keep_authors = not config.get('force_author', False)
-    excludes = [re.compile(excl) for excl in config.get('exclude', ['^\\.[^/]+', '/\\.[^/]+'])]
-
-    matched = False
-    file_rel = file.relative_to(config_dir)
-    for include in config.get('include', ['**/*']):
-        logging.debug(f"Pattern '{include}'")
-        if fnmatch(file_rel, include):
-            logging.debug(f"Including '{file_rel}' because of '{include}'")
-            matched = True
-            break
-    for exclude in excludes:
-        if re.search(exclude, str(file_rel)):
-            logging.debug(f"Excluding '{file_rel}' due to '{exclude}'")
-            matched = False
-            break
-    if not matched:
-        return True
 
     logging.debug(f"Processing '{file_rel}'")
     try:
