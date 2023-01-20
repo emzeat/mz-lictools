@@ -599,7 +599,7 @@ def main():
     if args.files:
         ret = handle_files(args, [file.resolve() for file in args.files])
     else:
-        ret = handle_files(args, CW_DIR.rglob('*'))
+        ret = handle_files(args, CW_DIR.glob('*'))
     if not ret:
         sys.exit(1)
 
@@ -608,6 +608,8 @@ def handle_files(args, candidates):
     """Processes a given set of candidates resolving dirs on the way"""
     success = True
     for candidate in candidates:
+        if candidate.name == '.git':
+            continue
         if candidate.is_dir():
             success = handle_files(args, candidate.rglob('*')) and success
         else:
