@@ -38,6 +38,48 @@ BASE = pathlib.Path(__file__).resolve().absolute().parent
 os.putenv('LICTOOLS_OVERRIDE_YEAR', '2022')
 
 
+class TestFileFilter(unittest.TestCase):
+
+    def test_recursive_includes(self):
+        EXPRESSIONS = [
+            ('foo.txt', ['*']),
+            ('foo.txt', ['*.txt']),
+            ('asterisk?.txt', ['asterisk[?].txt']),
+            ('asterisk.txt', ['asterisk.txt']),
+            ('asteris!.txt', ['asteris!.txt']),
+            ('/foo.txt', ['/*.txt']),
+            ('foo.txt', ['**********.txt']),
+            ('foo.txt', ['**/*']),
+            ('bla/foo.txt', ['*/*.txt']),
+            ('bla/foo.txt', ['**/*.txt']),
+            ('bla/da/foo.txt', ['**/*.txt']),
+            ('bla/da/foo.txt', ['**/*[t]']),
+            ('da_foo.txt', ['[de]a_foo.txt']),
+            ('da_foo.txt', ['da_foo.t?t']),
+        ]
+        for file_rel, includes in EXPRESSIONS:
+            try:
+                self.assertTrue(license_tools.FileFilter.is_included(file_rel, includes, []))
+            except:
+                print(f"file_rel={file_rel} includes={includes}")
+                raise
+        EXPRESSIONS = [
+            ('foo/foo.txt', ['*']),
+            ('asteriskk.txt', ['asterisk[?].txt']),
+            ('foo/foo.txt', ['**.txt']),
+            ('bla/foo.doc', ['*/*.txt']),
+            ('bla/da/foo.txt', ['*/*.txt']),
+            ('da_foo.txt', ['[!de]a_foo.txt']),
+            ('da_foo.txt', ['?.txt']),
+        ]
+        for file_rel, includes in EXPRESSIONS:
+            try:
+                self.assertFalse(license_tools.FileFilter.is_included(file_rel, includes, []))
+            except:
+                print(f"file_rel={file_rel} includes={includes}")
+                raise
+
+
 class TestParserCStyle(unittest.TestCase):
 
     def test_parse_1author_1year(self):

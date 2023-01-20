@@ -24,17 +24,17 @@
 import argparse
 import datetime
 import enum
+import functools
 import json
 import logging
+import os
 import pathlib
 import re
 import subprocess
 import sys
-import os
 from collections import namedtuple
 from operator import attrgetter
 from typing import Dict
-from fnmatch import fnmatch
 import jinja2
 
 BASE_DIR = pathlib.Path(__file__).parent
@@ -532,6 +532,97 @@ class Tool:
         return False
 
 
+class FileFilter:
+    """Helper to filter against an exclude and include list"""
+
+    @staticmethod
+    @functools.lru_cache(maxsize=256, typed=True)
+    def _glob_to_re(expr: str) -> re.Pattern:
+        """
+        Converts a globbing expression to a regex
+
+        In contrast to fnmatch it supports recursive
+        globbing as well and is cached similar to
+        fnmatch.fnmatch is optimizing repeated calls.
+        """
+        class State(enum.Enum):
+            '''Enumerates parsing state'''
+            TEXT = 0
+            SEQ = 1
+            GLOB = 2
+
+        state = State.TEXT
+        pattern = '^'
+        i, n = 0, len(expr)  # pylint: disable=invalid-name
+        while i < n:
+            # when in a sequence continue
+            # up to the terminator
+            if state == State.SEQ:
+                if expr[i] == '[':
+                    raise RuntimeError(f"Character sequences cannot be nested: {expr}")
+                if expr[i] == ']':
+                    pattern += ']'
+                    state = State.TEXT
+                else:
+                    pattern += expr[i]
+            elif expr[i] == ']':
+                raise RuntimeError(f"Closing sequence not opened before: {expr}")
+            elif expr[i:2] == '[!':  # negated sequence
+                state = State.SEQ
+                pattern += '[^'
+                i += 1
+            elif expr[i] == '[':  # sequence
+                state = State.SEQ
+                pattern += '['
+            elif expr[i:3] == '**/':  # recursive glob
+                pattern += '(.+/)?'
+                i += 2
+            elif expr[i] == '?':  # single char
+                pattern += '[^/]'
+            elif expr[i] == '*':  # basic globbing
+                if state != State.GLOB:
+                    pattern += '[^/]*'
+                    state = State.GLOB
+                # else: Skip consecutive *
+            else:
+                pattern += expr[i]
+                state = State.TEXT
+            i += 1
+        pattern += '$'
+        return re.compile(pattern)
+
+    @staticmethod
+    @functools.lru_cache(maxsize=256, typed=True)
+    def _to_re(pattern: str) -> re.Pattern:
+        return re.compile(pattern)
+
+    @staticmethod
+    def is_included(file_rel: str, includes, excludes) -> bool:
+        """
+        Tests if a given relative file matches includes and not excludes
+
+        :file_rel: Relative filepath to be tested
+        :includes: List of globbing expressions noting files to includes
+        :exclude: List of regular expressions noting files to exclude
+        """
+        matched = False
+        match_reason = f"Excluding '{file_rel}' - failed to match any"
+        for include in includes:
+            include = FileFilter._glob_to_re(include)
+            if re.search(include, file_rel):
+                match_reason = f"Including '{file_rel}' because of '{include.pattern}'"
+                matched = True
+                break
+        for exclude in excludes:
+            exclude = FileFilter._to_re(exclude)
+            if re.search(exclude, file_rel):
+                match_reason = f"Excluding '{file_rel}' due to '{exclude.pattern}'"
+                matched = False
+                break
+        logging.debug(match_reason)
+        return matched
+
+
 def main():
     """CLI entry point"""
     parser = argparse.ArgumentParser(
@@ -650,22 +741,10 @@ def process_file(args, file) -> bool:
             logging.fatal(f"Failed to parse config: {error}")
             sys.exit(2)
 
-    matched = False
-    match_reason = None
-    file_rel = file.relative_to(config_dir)
-    for include in config.get('include', ['**/*']):
-        if fnmatch(file_rel, include):
-            match_reason = f"Including '{file_rel}' because of '{include}'"
-            matched = True
-            break
-    for exclude in config.get('exclude', ['^\\.[^/]+', '/\\.[^/]+']):
-        if re.search(exclude, str(file_rel)):
-            match_reason = f"Excluding '{file_rel}' due to '{exclude}'"
-            matched = False
-            break
-    if match_reason:
-        logging.debug(match_reason)
-    if not matched:
+    file_rel = file.relative_to(config_dir).as_posix()
+    includes = config.get('include', ['**/*'])
+    excludes = config.get('exclude', ['^\\.[^/]+', '/\\.[^/]+'])
+    if not FileFilter.is_included(file_rel, includes, excludes):
         return True
 
     if 'custom_license' in config:
