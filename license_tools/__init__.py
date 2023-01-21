@@ -256,6 +256,14 @@ class GitRepo:
             'git rev-parse --show-toplevel', cwd=cwd, stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
         return pathlib.Path(root.strip())
 
+    @staticmethod
+    @functools.lru_cache(maxsize=256, typed=True)
+    def author_name_from_config(cwd: pathlib.Path) -> str:
+        """Returns the author name as set via gitconfig and seen from cwd"""
+        git_author = subprocess.check_output(
+            'git config user.name', cwd=cwd, stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
+        return git_author.strip()
+
     def __init__(self, cwd=None):
         """
         Creates a repository object using the current working dir to determine the root
@@ -273,10 +281,7 @@ class GitRepo:
     def author_from_config(self) -> Author:
         """Returns the author as set via gitconfig"""
         try:
-            git_author = subprocess.check_output(
-                'git config user.name', stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
-            git_author = git_author.strip()
-            return Author(git_author, git_repo=self)
+            return Author(name=GitRepo.author_name_from_config(self.git_root), git_repo=self)
         except subprocess.CalledProcessError as error:
             logging.fatal(f"Failed to fetch author using git: {error.output}")
             return None
