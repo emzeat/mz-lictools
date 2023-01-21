@@ -129,11 +129,11 @@ class Style(enum.Enum):
         """
         style_patterns = [
             (Style.C_STYLE,
-                r"\*(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)\* +@LICENSE_HEADER_END@(?:.*?)\*/(?P<body>.*)"),
+                r"/\*(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)\* +@LICENSE_HEADER_END@(?:.*?)\*/(?P<body>.*)"),
             (Style.C_STYLE,
-                r"\*(?P<authors>.+?)@MLBA_OPEN_LICENSE_HEADER_START@(?P<license>.+?)\* +@MLBA_OPEN_LICENSE_HEADER_END@(?:.*?)\*/(?P<body>.*)"),
+                r"/\*(?P<authors>.+?)@MLBA_OPEN_LICENSE_HEADER_START@(?P<license>.+?)\* +@MLBA_OPEN_LICENSE_HEADER_END@(?:.*?)\*/(?P<body>.*)"),
             (Style.C_STYLE,
-                r"\*(?P<authors>.+?)All rights reserved\.(?P<license>.+?)\*/(?P<body>.*)"),
+                r"/\*(?P<authors>.+?)All rights reserved\.(?P<license>.+?)\*/(?P<body>.*)"),
             (Style.POUND_STYLE,
                 r"#(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)# +@LICENSE_HEADER_END@(?:.*?)#\n(?P<body>.*)"),
             (Style.POUND_STYLE,
@@ -406,7 +406,7 @@ class ParsedHeader:
             contents = extract_decl(decl, contents, flags)
         # any known license is wrapped in well-known tags
         for style, pattern in Style.patterns(self.style):
-            match = re.search(pattern, contents, re.MULTILINE | re.DOTALL)
+            match = re.match(pattern, contents, re.MULTILINE | re.DOTALL)
             if match:
                 if style != Style.UNKNOWN:
                     self.style = style
