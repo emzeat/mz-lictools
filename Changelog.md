@@ -1,4 +1,10 @@
 
+v2.4.1
+------
+*WIP:* _in progress_
+
+* Optimize performance on larger repositories
+
 v2.4.0
 ------
 _17.01.2023_
