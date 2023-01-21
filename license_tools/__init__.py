@@ -248,16 +248,25 @@ class Author:
 class GitRepo:
     """Git repository object"""
 
-    def __init__(self):
+    @staticmethod
+    @functools.lru_cache(maxsize=256, typed=True)
+    def find_git_root(cwd: pathlib.Path) -> pathlib.Path:
+        """Tries to find the git root as seen from cwd"""
+        root = subprocess.check_output(
+            'git rev-parse --show-toplevel', cwd=cwd, stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
+        return pathlib.Path(root.strip())
+
+    def __init__(self, cwd=None):
         """
         Creates a repository object using the current working dir to determine the root
 
+        :cwd: Directory to create the repo obj from, leave None to use current wkdir
         :throws RuntimeError: When failing to detect the root
         """
         try:
-            self.git_root = subprocess.check_output(
-                'git rev-parse --show-toplevel', stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
-            self.git_root = pathlib.Path(self.git_root.strip())
+            if cwd is None:
+                cwd = CW_DIR
+            self.git_root = GitRepo.find_git_root(cwd)
         except subprocess.CalledProcessError as error:
             raise RuntimeError(f"Not a git repo: {error.output}") from error
 
@@ -777,7 +786,7 @@ def process_file(args, file) -> bool:
     author = None
     if 'from_git' in config_author:
         try:
-            git_repo = GitRepo()
+            git_repo = GitRepo(cwd=config_dir)
         except RuntimeError as error:
             logging.fatal(f"Not running within a git repo: {error}")
             sys.exit(2)
