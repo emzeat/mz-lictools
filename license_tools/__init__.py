@@ -119,13 +119,15 @@ class Style(enum.Enum):
         return mapping.get(name, Style.UNKNOWN)
 
     @staticmethod
-    def patterns():
+    def patterns(style=None):
         """
         Returns a list of regex and style pairs
 
         Each regex has two match groups, one for the license and one for the remainder
+
+        :style: Use to limit the list of patterns to the given style
         """
-        return [
+        style_patterns = [
             (Style.C_STYLE,
                 r"\*(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)\* +@LICENSE_HEADER_END@(?:.*?)\*/(?P<body>.*)"),
             (Style.C_STYLE,
@@ -140,6 +142,10 @@ class Style(enum.Enum):
                 r"\"\"\"\n(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)\n\"\"\"(?P<body>.*)"),
             (Style.DOCSTRING_STYLE,
                 r"\"\"\"\n(?P<authors>.+?)All rights reserved\.(?P<license>.+?)\"\"\"\n(?P<body>.*)"),
+            (Style.DOCSTRING_STYLE,
+                r"#(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)# +@LICENSE_HEADER_END@(?:.*?)#\n(?P<body>.*)"),
+            (Style.DOCSTRING_STYLE,
+                r"#(?P<authors>.+?)All rights reserved\.(?P<license>.+?)#\n[^#](?P<body>.*)"),
             (Style.XML_STYLE,
                 r"<!--\n(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)\n-->(?P<body>.*)"),
             (Style.XML_STYLE,
@@ -159,6 +165,13 @@ class Style(enum.Enum):
             (Style.UNKNOWN,
                 r"(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?P<body>.*)"),
         ]
+        if style is None:
+            style = Style.UNKNOWN
+        if style == Style.UNKNOWN:
+            # slow path, we have to try all of the patterns
+            return style_patterns
+        # fast path, we can reduce the number of patterns
+        return [(s, p) for s, p in style_patterns if s == style]  # pylint: disable=invalid-name
 
     @staticmethod
     def declarations():
@@ -195,7 +208,8 @@ class Style(enum.Enum):
         if style == Style.POUND_STYLE:
             return Decorator('#', '#', '#', r' ?(?:#) ?')
         if style == Style.DOCSTRING_STYLE:
-            return Decorator('"""', '', '"""', None)
+            # the pattern will help to translate any #-style docstrings
+            return Decorator('"""', '', '"""', r' ?(?:#) ?')
         if style == Style.XML_STYLE:
             return Decorator('<!--', '', '-->', None)
         if style == Style.BATCH_STYLE:
@@ -377,7 +391,7 @@ class ParsedHeader:
         for decl, flags in Style.declarations():
             contents = extract_decl(decl, contents, flags)
         # any known license is wrapped in well-known tags
-        for style, pattern in Style.patterns():
+        for style, pattern in Style.patterns(self.style):
             match = re.search(pattern, contents, re.MULTILINE | re.DOTALL)
             if match:
                 if style != Style.UNKNOWN:
