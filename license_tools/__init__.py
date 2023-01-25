@@ -385,7 +385,7 @@ class ParsedHeader:
 
     def __init__(self, file: pathlib.PurePath = None):
         """Parses a header from the given file"""
-        with open(file, 'r', encoding='utf-8') as file_obj:
+        with open(file, 'r', encoding='utf-8', newline='') as file_obj:
             contents = file_obj.read()
         # style is determined from the extension, if unknown we try a second attempt using the contents below
         self.style = Style.from_suffix(file.suffix)
@@ -429,6 +429,14 @@ class ParsedHeader:
         else:
             self.license = None
             self.remainder = contents.strip()
+        # determine the line endings from the remainder or default to platform if none
+        if self.remainder:
+            if '\r\n' in self.remainder:
+                self.newline = '\r\n'
+            else:
+                self.newline = '\n'
+        else:
+            self.newline = os.linesep
         # in case we have a matched header we can use its authors group to limit our search
         # use a regex to extract existing authors, i.e. any line starting with 'Copyright'
         if match:
@@ -461,6 +469,17 @@ class Tool:
         self.aliases = aliases or {}
         self.company = company
         self.header = Header(self.default_license)
+
+    @staticmethod
+    def force_newline(input: str, newline='\n') -> str:
+        """Change input to use the given newline and return the result"""
+        if newline == '\n':
+            # fast path, simply drop any remaining dos endings
+            return input.replace('\r\n', '\n')
+        # this requires to sweep the input twice but is the most
+        # reliable way to catch all unix endings without the need
+        # to use a look-behind regex (which would be even slower)
+        return Tool.force_newline(input).replace('\n', newline)
 
     def bump(self, filename: pathlib.PurePath,
              keep_license: bool = True, custom_title: bool = False, keep_authors: bool = True) -> str:
@@ -538,6 +557,7 @@ class Tool:
         output = output + '\n' + parsed.remainder + '\n'
         if parsed.decls:
             output = '\n'.join(parsed.decls) + '\n' + output
+        output = Tool.force_newline(output, parsed.newline)
         return parsed.style, output
 
     def bump_inplace(self, filename: pathlib.PurePath, keep_license: bool = True,
@@ -554,7 +574,7 @@ class Tool:
         if bumped:
             filename = str(filename) + \
                 '.license_bumped' if simulate else filename
-            with open(filename, 'w', encoding='utf-8') as output:
+            with open(filename, 'w', encoding='utf-8', newline='') as output:
                 output.write(bumped)
                 return True
         return False
