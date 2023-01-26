@@ -612,7 +612,7 @@ class FileFilter:
                     pattern += ']'
                     state = State.TEXT
                 else:
-                    pattern += expr[i]
+                    pattern += re.escape(expr[i])
             elif expr[i] == ']':
                 raise RuntimeError(f"Closing sequence not opened before: {expr}")
             elif expr[i:i+2] == '[!':  # negated sequence
@@ -633,7 +633,7 @@ class FileFilter:
                     state = State.GLOB
                 # else: Skip consecutive *
             else:
-                pattern += expr[i]
+                pattern += re.escape(expr[i])
                 state = State.TEXT
             i += 1
         pattern += '$'

@@ -75,6 +75,7 @@ class TestFileFilter(unittest.TestCase):
             ('bla/da/foo.txt', ['*/*.txt']),
             ('da_foo.txt', ['[!de]a_foo.txt']),
             ('da_foo.txt', ['?.txt']),
+            ('bla/da/foo_txt', ['**/*.txt']),
         ]
         for file_rel, includes in EXPRESSIONS:
             try:
