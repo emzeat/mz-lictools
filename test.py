@@ -54,6 +54,10 @@ class TestFileFilter(unittest.TestCase):
             ('bla/foo.txt', ['**/*.txt']),
             ('bla/da/foo.txt', ['**/*.txt']),
             ('bla/da/foo.txt', ['**/*[t]']),
+            ('bla/da/foo.txt', ['**/*']),
+            ('bla/da/foo.txt', ['bla/**/*']),
+            ('bla/da/d1u/foo.txt', ['bla/**/*']),
+            ('bla/da/foo.txt', ['**/*.txt']),
             ('da_foo.txt', ['[de]a_foo.txt']),
             ('da_foo.txt', ['da_foo.t?t']),
         ]

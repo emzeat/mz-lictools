@@ -615,14 +615,14 @@ class FileFilter:
                     pattern += expr[i]
             elif expr[i] == ']':
                 raise RuntimeError(f"Closing sequence not opened before: {expr}")
-            elif expr[i:2] == '[!':  # negated sequence
+            elif expr[i:i+2] == '[!':  # negated sequence
                 state = State.SEQ
                 pattern += '[^'
                 i += 1
             elif expr[i] == '[':  # sequence
                 state = State.SEQ
                 pattern += '['
-            elif expr[i:3] == '**/':  # recursive glob
+            elif expr[i:i+3] == '**/':  # recursive glob
                 pattern += '(.+/)?'
                 i += 2
             elif expr[i] == '?':  # single char
@@ -657,7 +657,7 @@ class FileFilter:
         match_reason = f"Excluding '{file_rel}' - failed to match any"
         for include in includes:
             include = FileFilter._glob_to_re(include)
-            if re.search(include, file_rel):
+            if re.match(include, file_rel):
                 match_reason = f"Including '{file_rel}' because of '{include.pattern}'"
                 matched = True
                 break
