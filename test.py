@@ -397,9 +397,8 @@ class TestParserDocStringStyle(unittest.TestCase):
 
 class TestParserXmlStyle(unittest.TestCase):
 
-    def test_parse_1author_1year(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserXmlStyle-1author_1year.xml')
+    @parser_test(BASE / 'test/TestParserXmlStyle-1author_1year.xml')
+    def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -409,9 +408,8 @@ class TestParserXmlStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("<xml />", parsed.remainder)
 
-    def test_parse_1author_2years(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserXmlStyle-1author_2years.htm')
+    @parser_test(BASE / 'test/TestParserXmlStyle-1author_2years.htm')
+    def test_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -420,9 +418,8 @@ class TestParserXmlStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    def test_parse_2authors_2years(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserXmlStyle-2authors_2years.html')
+    @parser_test(BASE / 'test/TestParserXmlStyle-2authors_2years.html')
+    def test_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -437,9 +434,8 @@ class TestParserXmlStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    def test_parse_no_license(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserXmlStyle-no_license.html')
+    @parser_test(BASE / 'test/TestParserXmlStyle-no_license.html')
+    def test_no_license(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
