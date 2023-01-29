@@ -383,10 +383,16 @@ class Header:
 class ParsedHeader:
     """A license header parsed from an existing file"""
 
-    def __init__(self, file: pathlib.PurePath = None):
-        """Parses a header from the given file"""
-        with open(file, 'r', encoding='utf-8', newline='') as file_obj:
-            contents = file_obj.read()
+    def __init__(self, file: pathlib.PurePath = None, contents: str = None):
+        """
+        Parses a header from the given file
+
+        :file: The filepath of the header
+        :contenst: The contents of the header, if None this will be read from file
+        """
+        if contents is None:
+            with open(file, 'r', encoding='utf-8', newline='') as file_obj:
+                contents = file_obj.read()
         # style is determined from the extension, if unknown we try a second attempt using the contents below
         self.style = Style.from_suffix(file.suffix)
         if self.style == Style.UNKNOWN:

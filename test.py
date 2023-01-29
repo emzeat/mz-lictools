@@ -22,13 +22,14 @@
 """
 
 from asyncio import subprocess
-import shutil
-import license_tools
-import unittest
-import pathlib
-import tempfile
-import subprocess
+import functools
 import os
+import pathlib
+import shutil
+import subprocess
+import tempfile
+import unittest
+import license_tools
 
 BASE = pathlib.Path(__file__).resolve().absolute().parent
 
@@ -36,6 +37,18 @@ BASE = pathlib.Path(__file__).resolve().absolute().parent
 # pin the year to 2022 which is the year tests have been
 # written to match the output on
 os.putenv('LICTOOLS_OVERRIDE_YEAR', '2022')
+
+
+def _to_unix(input: str):
+    return input.replace('\r\n', '\n')
+
+
+def _to_dos(input: str):
+    return _to_unix(input).replace('\n', '\r\n')
+
+
+def _render_endings(input: str):
+    return input.replace('\r', '\\r').replace('\n', '\\n\n')
 
 
 class TestFileFilter(unittest.TestCase):
@@ -85,11 +98,27 @@ class TestFileFilter(unittest.TestCase):
                 raise
 
 
+def parser_test(file: pathlib.Path):
+    def file_wrapper(func):
+        @functools.wraps(func)
+        def wrapper(self):
+            # make sure any kind of line endings can be parsed
+            for contents in (_to_dos(file.read_text()), _to_unix(file.read_text())):
+                parsed = license_tools.ParsedHeader(
+                    contents=contents, file=file)
+                try:
+                    func(self, parsed)
+                except:
+                    print(f"While trying to parse: {file}\n---\n{_render_endings(contents)}\n---\n")
+                    raise
+        return wrapper
+    return file_wrapper
+
+
 class TestParserCStyle(unittest.TestCase):
 
-    def test_parse_1author_1year(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserCStyle-1author_1year.h')
+    @parser_test(BASE / 'test/TestParserCStyle-1author_1year.h')
+    def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -99,8 +128,8 @@ class TestParserCStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("#include <stdio.h>", parsed.remainder)
 
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserTaggedCStyle-1author_1year.h')
+    @parser_test(BASE / 'test/TestParserTaggedCStyle-1author_1year.h')
+    def test_tagged_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -110,9 +139,8 @@ class TestParserCStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("#include <stdio.h>", parsed.remainder)
 
-    def test_parse_copyright_caps(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserCStyle-copyright_caps.h')
+    @parser_test(BASE / 'test/TestParserCStyle-copyright_caps.h')
+    def test_copyright_caps(self, parsed):
         self.assertEqual(2, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -125,9 +153,8 @@ class TestParserCStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("#include <stdio.h>", parsed.remainder)
 
-    def test_parse_1author_1year_dash(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserCStyle-1author_1year.hpp')
+    @parser_test(BASE / 'test/TestParserCStyle-1author_1year.hpp')
+    def test_1author_1year_dash(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("AB_CD-Team", parsed.authors[0].name)
         self.assertEqual(1984, parsed.authors[0].year_from)
@@ -137,9 +164,8 @@ class TestParserCStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("#include <stdio.h>", parsed.remainder)
 
-    def test_parse_non_greedy(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserCStyle-non_greedy.hpp')
+    @parser_test(BASE / 'test/TestParserCStyle-non_greedy.hpp')
+    def test_non_greedy(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2012, parsed.authors[0].year_from)
@@ -149,8 +175,8 @@ class TestParserCStyle(unittest.TestCase):
             "Permission to use"), parsed.license)
         self.assertEqual("#ifndef GEN_NON_", parsed.remainder[:16])
 
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserTaggedCStyle-non_greedy.hpp')
+    @parser_test(file=BASE / 'test/TestParserTaggedCStyle-non_greedy.hpp')
+    def test_tagged_non_greedy(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2012, parsed.authors[0].year_from)
@@ -160,9 +186,8 @@ class TestParserCStyle(unittest.TestCase):
             "Permission to use"), parsed.license)
         self.assertEqual("#ifndef GEN_NON_", parsed.remainder[:16])
 
-    def test_parse_1author_2years(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserCStyle-1author_2years.cxx')
+    @parser_test(BASE / 'test/TestParserCStyle-1author_2years.cxx')
+    def test_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -171,8 +196,8 @@ class TestParserCStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserTaggedCStyle-1author_2years.cxx')
+    @parser_test(BASE / 'test/TestParserTaggedCStyle-1author_2years.cxx')
+    def test_tagged_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -181,9 +206,8 @@ class TestParserCStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    def test_parse_2authors_2years(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserCStyle-2authors_2years.c')
+    @parser_test(BASE / 'test/TestParserCStyle-2authors_2years.c')
+    def test_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -198,8 +222,8 @@ class TestParserCStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserTaggedCStyle-2authors_2years.c')
+    @parser_test(BASE / 'test/TestParserTaggedCStyle-2authors_2years.c')
+    def test_tagged_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
