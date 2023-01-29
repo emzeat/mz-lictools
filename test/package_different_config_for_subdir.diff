@@ -1,0 +1,44 @@
+diff --git a/code.cpp b/code.cpp
+index 9114b7f..d7fbb85 100644
+--- a/code.cpp
++++ b/code.cpp
+@@ -1,3 +1,17 @@
++/*
++ * Toplevel Project
++ *
++ * Copyright (c) 1980 - 2020 Test Author
++ * All rights reserved.
++ *
++ * Unauthorized copying of this file, via any medium is strictly prohibited.
++ * This file is a proprietary and confidential part of a software product
++ * by Umbrella Inc or part of its connected software and documentation.
++ *
++ * ANY FILE BEARING THIS HEADER SHALL NOT BE RELEASED TO THE
++ * PUBLIC, BE USED, BE MODIFIED OR BE DISTRIBUTED IN ANY WAY
++ * WITHOUT WRITTEN PERMISSION OF UMBRELLA INC.
++ */
+ 
+ #include <iostream>
+ 
+diff --git a/subdir/code.cpp b/subdir/code.cpp
+index 9114b7f..f2bab3d 100644
+--- a/subdir/code.cpp
++++ b/subdir/code.cpp
+@@ -1,3 +1,17 @@
++/*
++ * Subdirectory Project
++ *
++ * Copyright (c) 1994 - 2020 Test Author
++ * All rights reserved.
++ *
++ * Unauthorized copying of this file, via any medium is strictly prohibited.
++ * This file is a proprietary and confidential part of a software product
++ * by Umbrella Inc or part of its connected software and documentation.
++ *
++ * ANY FILE BEARING THIS HEADER SHALL NOT BE RELEASED TO THE
++ * PUBLIC, BE USED, BE MODIFIED OR BE DISTRIBUTED IN ANY WAY
++ * WITHOUT WRITTEN PERMISSION OF UMBRELLA INC.
++ */
+ 
+ #include <iostream>
+ 

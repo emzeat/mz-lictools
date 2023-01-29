@@ -1,0 +1,60 @@
+From a072d34c8c7946999930686678129e8137608362 Mon Sep 17 00:00:00 2001
+From: Test Author <no-reply@unittest.local>
+Date: Wed, 26 Jan 2020 07:55:44 +0100
+Subject: [PATCH] Create main
+
+---
+ code.cpp                          |  7 +++++++
+ subdir/.license-tools-config.json | 12 ++++++++++++
+ subdir/code.cpp                   |  7 +++++++
+ 3 files changed, 26 insertions(+)
+ create mode 100644 code.cpp
+ create mode 100644 subdir/.license-tools-config.json
+ create mode 100644 subdir/code.cpp
+
+diff --git a/code.cpp b/code.cpp
+new file mode 100644
+index 0000000..9114b7f
+--- /dev/null
++++ b/code.cpp
+@@ -0,0 +1,7 @@
++
++#include <iostream>
++
++int main(int argc, char* argv[]){
++    std::cout << "Hello World" << std::endl;
++    return 0;
++}
+diff --git a/subdir/.license-tools-config.json b/subdir/.license-tools-config.json
+new file mode 100644
+index 0000000..1ea0cf3
+--- /dev/null
++++ b/subdir/.license-tools-config.json
+@@ -0,0 +1,12 @@
++{
++  "author": {
++    "years": [
++      1994
++    ],
++    "from_git": true,
++    "company": "Umbrella Inc"
++  },
++  "license": "Proprietary",
++  "force_license": true,
++  "custom_title": "Subdirectory Project"
++}
+diff --git a/subdir/code.cpp b/subdir/code.cpp
+new file mode 100644
+index 0000000..9114b7f
+--- /dev/null
++++ b/subdir/code.cpp
+@@ -0,0 +1,7 @@
++
++#include <iostream>
++
++int main(int argc, char* argv[]){
++    std::cout << "Hello World" << std::endl;
++    return 0;
++}
+--
+2.38.1

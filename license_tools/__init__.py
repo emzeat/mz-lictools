@@ -33,6 +33,7 @@ import re
 import subprocess
 import sys
 from collections import namedtuple
+from copy import copy
 from operator import attrgetter
 from typing import Dict
 import jinja2
@@ -758,7 +759,7 @@ def handle_files(args, candidates):
         if candidate.is_dir():
             success = handle_files(args, candidate.rglob('*')) and success
         else:
-            success = process_file(args, candidate) and success
+            success = process_file(copy(args), candidate) and success
     return success
 
 
