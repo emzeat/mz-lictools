@@ -159,9 +159,9 @@ class Style(enum.Enum):
             (Style.BATCH_STYLE,
                 r"::(?P<authors>.+?)All rights reserved\.(?P<license>.+?)::\r?\n(?!::)(?P<body>.*)"),
             (Style.SLASH_STYLE,
-                r"//(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)// +@LICENSE_HEADER_END@(?:.*?)//\n(?P<body>.*)"),
+                r"//(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)// +@LICENSE_HEADER_END@(?:.*?)//\r?\n(?P<body>.*)"),
             (Style.SLASH_STYLE,
-                r"//(?P<authors>.+?)All rights reserved\.(?P<license>.+?)//\n[^//](?P<body>.*)"),
+                r"//(?P<authors>.+?)All rights reserved\.(?P<license>.+?)//\r?\n[^//](?P<body>.*)"),
             (Style.UNKNOWN,
                 r"(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?P<body>.*)"),
         ]
