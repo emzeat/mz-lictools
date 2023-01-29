@@ -320,9 +320,8 @@ class TestParserPoundStyle(unittest.TestCase):
 
 class TestParserDocStringStyle(unittest.TestCase):
 
-    def test_parse_1author_1year(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserDocStringStyle-1author_1year.py')
+    @parser_test(BASE / 'test/TestParserDocStringStyle-1author_1year.py')
+    def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -332,8 +331,8 @@ class TestParserDocStringStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("import unittest", parsed.remainder)
 
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserTaggedDocStringStyle-1author_1year.py')
+    @parser_test(BASE / 'test/TestParserTaggedDocStringStyle-1author_1year.py')
+    def test_tagged_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -343,9 +342,8 @@ class TestParserDocStringStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("import unittest", parsed.remainder)
 
-    def test_parse_1author_2years(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserDocStringStyle-1author_2years.py')
+    @parser_test(BASE / 'test/TestParserDocStringStyle-1author_2years.py')
+    def test_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -354,8 +352,8 @@ class TestParserDocStringStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserTaggedDocStringStyle-1author_2years.py')
+    @parser_test(BASE / 'test/TestParserTaggedDocStringStyle-1author_2years.py')
+    def test_tagged_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -364,9 +362,8 @@ class TestParserDocStringStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    def test_parse_2authors_2years(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserDocStringStyle-2authors_2years')
+    @parser_test(BASE / 'test/TestParserDocStringStyle-2authors_2years')
+    def test_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -381,8 +378,8 @@ class TestParserDocStringStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserTaggedDocStringStyle-2authors_2years')
+    @parser_test(BASE / 'test/TestParserTaggedDocStringStyle-2authors_2years')
+    def test_tagged_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
