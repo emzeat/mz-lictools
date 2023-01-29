@@ -452,9 +452,8 @@ class TestParserXmlStyle(unittest.TestCase):
 
 class TestParserBatchStyle(unittest.TestCase):
 
-    def test_parse_1author_1year(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserBatchStyle-1author_1year.bat')
+    @parser_test(BASE / 'test/TestParserBatchStyle-1author_1year.bat')
+    def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -465,8 +464,8 @@ class TestParserBatchStyle(unittest.TestCase):
         self.assertEqual(
             "echo.Hello World", parsed.remainder)
 
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserTaggedBatchStyle-1author_1year.bat')
+    @parser_test(BASE / 'test/TestParserTaggedBatchStyle-1author_1year.bat')
+    def test_tagged_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -477,9 +476,8 @@ class TestParserBatchStyle(unittest.TestCase):
         self.assertEqual(
             "echo.Hello World", parsed.remainder)
 
-    def test_parse_1author_2years(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserBatchStyle-1author_2years.bat')
+    @parser_test(BASE / 'test/TestParserBatchStyle-1author_2years.bat')
+    def test_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -490,8 +488,8 @@ class TestParserBatchStyle(unittest.TestCase):
         self.assertEqual(
             "echo.Hello World", parsed.remainder)
 
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserTaggedBatchStyle-1author_2years.bat')
+    @parser_test(BASE / 'test/TestParserTaggedBatchStyle-1author_2years.bat')
+    def test_tagged_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
