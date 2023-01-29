@@ -241,9 +241,8 @@ class TestParserCStyle(unittest.TestCase):
 
 class TestParserPoundStyle(unittest.TestCase):
 
-    def test_parse_1author_1year(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserPoundStyle-1author_1year.cmake')
+    @parser_test(BASE / 'test/TestParserPoundStyle-1author_1year.cmake')
+    def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -254,8 +253,8 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertEqual(
             "cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)", parsed.remainder)
 
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserTaggedPoundStyle-1author_1year.cmake')
+    @parser_test(BASE / 'test/TestParserTaggedPoundStyle-1author_1year.cmake')
+    def test_tagged_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -266,9 +265,8 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertEqual(
             "cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)", parsed.remainder)
 
-    def test_parse_1author_2years(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserPoundStyle-1author_2years.sh')
+    @parser_test(BASE / 'test/TestParserPoundStyle-1author_2years.sh')
+    def test_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -277,8 +275,8 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserTaggedPoundStyle-1author_2years.sh')
+    @parser_test(BASE / 'test/TestParserTaggedPoundStyle-1author_2years.sh')
+    def test_tagged_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -287,9 +285,8 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    def test_parse_2authors_2years(self):
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserPoundStyle-2authors_2years')
+    @parser_test(BASE / 'test/TestParserPoundStyle-2authors_2years')
+    def test_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
@@ -304,8 +301,8 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-        parsed = license_tools.ParsedHeader(
-            file=BASE / 'test/TestParserTaggedPoundStyle-2authors_2years')
+    @parser_test(BASE / 'test/TestParserTaggedPoundStyle-2authors_2years')
+    def test_tagged_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
         self.assertEqual(2010, parsed.authors[0].year_from)
