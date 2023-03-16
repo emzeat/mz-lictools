@@ -693,6 +693,7 @@ def main():
         '-c', '--config',
         help='Configuration to be loaded.'
         f' Will search for {LICENSE_JSON} in the current working dir or its parent if omitted',
+        type=pathlib.Path,
         default=None)
     parser.add_argument(
         '-f', '--force-license',
@@ -767,6 +768,35 @@ def handle_files(args, candidates):
     return success
 
 
+@functools.lru_cache(maxsize=256, typed=True)
+def discover_config(level: pathlib.Path) -> pathlib.Path:
+    """
+    Searches the given level and any directories
+    above for a LICENSE_JSON configuration file
+    """
+    config = None
+    while config is None and level.parent != level:
+        candidate = level / LICENSE_JSON
+        if candidate.exists():
+            config = candidate
+        else:
+            level = level.parent
+    return config
+
+
+@functools.lru_cache(maxsize=256, typed=True)
+def parse_config(config: pathlib.Path) -> dict:
+    """
+    Tries to parse the given config
+    """
+    with open(config, 'r', encoding='utf-8') as configfile:
+        try:
+            return json.load(configfile)
+        except json.JSONDecodeError as error:
+            logging.fatal(f"Failed to parse config: {error}")
+            sys.exit(2)
+
+
 def process_file(args, file) -> bool:
     """
     Processes a single file honoring the discovered config
@@ -774,31 +804,22 @@ def process_file(args, file) -> bool:
     Will return true on success, false on failure.
     If the file does not match the config this is considered success.
     """
-    level = file.parent
-    while args.config is None and level.parent != level:
-        config = level / LICENSE_JSON
-        if config.exists():
-            args.config = config
-        else:
-            level = level.parent
+    if args.config is None:
+        args.config = discover_config(file.parent)
     if args.config:
         def try_shorten(path: pathlib.Path):
             try:
                 return path.relative_to(CW_DIR)
             except ValueError:
                 return path
-        logging.debug(f"Using '{try_shorten(args.config)}' to process '{try_shorten(file)}'")
+        if logging.getLogger().isEnabledFor(logging.DEBUG):
+            logging.debug(f"Using '{try_shorten(args.config)}' to process '{try_shorten(file)}'")
     else:
         logging.fatal(f"Failed to discover a configuration for {file}")
         sys.exit(2)
 
     config_dir = args.config.parent
-    with open(args.config, 'r', encoding='utf-8') as configfile:
-        try:
-            config = json.load(configfile)
-        except json.JSONDecodeError as error:
-            logging.fatal(f"Failed to parse config: {error}")
-            sys.exit(2)
+    config = parse_config(args.config)
 
     file_rel = file.relative_to(config_dir).as_posix()
     includes = config.get('include', ['**/*'])
