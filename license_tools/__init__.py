@@ -1,24 +1,28 @@
+#
+# __init__.py
+#
+# Copyright (c) 2012 - 2023 Marius Zwicker
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
 """
- __init__.py
-
- Copyright (c) 2012 - 2023 Marius Zwicker
- All rights reserved.
-
- SPDX-License-Identifier: GPL-2.0-or-later
-
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU Library General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+See README.md for detail and documentation
 """
 
 import argparse
@@ -209,8 +213,8 @@ class Style(enum.Enum):
         if style == Style.POUND_STYLE:
             return Decorator('#', '#', '#', r' ?(?:#) ?')
         if style == Style.DOCSTRING_STYLE:
-            # the pattern will help to translate any #-style docstrings
-            return Decorator('"""', '', '"""', r' ?(?:#) ?')
+            # the pattern will help to translate any #-style and """-style docstrings
+            return Decorator('#', '#', '#', r' ?(?:#) ?')
         if style == Style.XML_STYLE:
             return Decorator('<!--', '', '-->', None)
         if style == Style.BATCH_STYLE:
