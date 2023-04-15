@@ -2,9 +2,15 @@ name: Build & Test
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches:
+      - 'master'
+      - 'main'
+    tags:
+      - 'v**'
   pull_request:
-    branches: [ $default-branch ]
+    branches:
+      - 'master'
+      - 'main'
 
 jobs:
   build:
