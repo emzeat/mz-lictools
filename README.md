@@ -262,6 +262,9 @@ A sample configuration is given below with each option annotated for explanation
   // specifies a custom title to put at the top of the file header.
   // Set to false or leave out to use the filename.
   "custom_title": false,
+  // controls the number of lines put after the license and before the rest of
+  // the file's contents. Defaults to the supported minimum of 1 if left out.
+  "lines_after_license": 1,
   // globbing expressions to specify files for which to maintain a license header
   // all expressions will be applied relative to the directory holding the config
   "include": [

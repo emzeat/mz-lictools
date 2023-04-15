@@ -356,12 +356,13 @@ class License:
 class Header:
     """Describes a header to be rendered with license and authors"""
 
-    def __init__(self, default_license):
+    def __init__(self, default_license, lines_after_license: int = 1):
         """Creates a new header using given default license"""
         loader = jinja2.FileSystemLoader(BASE_DIR)
         self.env = jinja2.Environment(loader=loader)
         self.template = self.env.get_template('Header.j2')
         self.default_license = default_license
+        self.lines_after_license = lines_after_license
 
     def render(self, title: str, authors, style: Style, company: str = None, license: str = None) -> str:
         """
@@ -380,7 +381,7 @@ class Header:
         header = header.split('\n')
         header = [decorators.start] + \
                  [f'{decorators.prefix} ' + h if h.strip() else decorators.prefix for h in header] + [decorators.end, '']
-        return '\n'.join(header)
+        return '\n'.join(header) + '\n' * max(self.lines_after_license - 1, 0)
 
 
 class ParsedHeader:
@@ -471,13 +472,13 @@ class Tool:
     """The license tool"""
 
     def __init__(self, default_license: License, default_author: Author,
-                 company: str = None, aliases: Dict[str, str] = None):
+                 company: str = None, aliases: Dict[str, str] = None, lines_after_license: int = 1):
         """Creates a new tool instance with default license and author"""
         self.default_license = default_license
         self.default_author = default_author
         self.aliases = aliases or {}
         self.company = company
-        self.header = Header(self.default_license)
+        self.header = Header(self.default_license, lines_after_license)
 
     @staticmethod
     def force_newline(input: str, newline='\n') -> str:
@@ -732,6 +733,7 @@ def main():
             'force_license': False,
             "custom_license": False,
             'custom_title': False,
+            'lines_after_license': 1,
             'include': [
                 '**/*'
             ],
@@ -881,9 +883,15 @@ def process_file(args, file) -> bool:
             author.year_to = year_to
     aliases = config_author.get('aliases', {})
 
+    try:
+        lines_after_license = int(config.get('lines_after_license', 1))
+    except ValueError as error:
+        logging.fatal(f"Please provide the 'lines_after_license' attribute as integer: {error}")
+        sys.exit(2)
+
     custom_title = config.get('custom_title', False)
     company = config_author.get('company', None)
-    tool = Tool(license, author, company, aliases)
+    tool = Tool(license, author, company, aliases, lines_after_license)
     keep_license = not args.force_license and not config.get('force_license', False)
     keep_authors = not config.get('force_author', False)
 
