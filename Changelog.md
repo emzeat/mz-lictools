@@ -1,3 +1,12 @@
+v2.5.0
+------
+*WIP:* _in progress_
+
+* Add BSD-3-Clause license support - thanks to Daniel Andrlik
+* Relicense from GPL 3.0 to Apache 2.0 in order to simplify use
+  in commercial environments
+* Configurable whitespace between license and file contents
+
 v2.4.4
 ------
 _18.03.2023_
