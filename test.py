@@ -262,6 +262,17 @@ class TestParserPoundStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("import unittest", parsed.remainder)
 
+    @parser_test(BASE / 'test/TestParserPoundStyle-no_content.py')
+    def test_no_content(self, parsed):
+        self.assertEqual(1, len(parsed.authors))
+        self.assertEqual("Max Muster", parsed.authors[0].name)
+        self.assertEqual(2010, parsed.authors[0].year_from)
+        self.assertEqual(2010, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.DOCSTRING_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith(
+            "This library is"), parsed.license)
+        self.assertEqual("", parsed.remainder)
+
     @parser_test(BASE / 'test/TestParserTaggedPoundStyle-1author_1year.cmake')
     def test_tagged_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))

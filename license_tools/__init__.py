@@ -140,7 +140,7 @@ class Style(enum.Enum):
             (Style.POUND_STYLE,
                 r"#(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)# +@LICENSE_HEADER_END@(?:.*?)#\r?\n(?P<body>.*)"),
             (Style.POUND_STYLE,
-                r"#(?P<authors>.+?)All rights reserved\.(?P<license>.+?)#\r?\n(?P<body>[^#].*)"),
+                r"#(?P<authors>.+?)All rights reserved\.(?P<license>.+?)#\r?\n(?P<body>([^#].*)|$)"),
             (Style.DOCSTRING_STYLE,
                 r"\"\"\"\r?\n(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)\r?\n\"\"\"(?P<body>.*)"),
             (Style.DOCSTRING_STYLE,
@@ -148,7 +148,7 @@ class Style(enum.Enum):
             (Style.DOCSTRING_STYLE,
                 r"#(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)# +@LICENSE_HEADER_END@(?:.*?)#\r?\n(?P<body>.*)"),
             (Style.DOCSTRING_STYLE,
-                r"#(?P<authors>.+?)All rights reserved\.(?P<license>.+?)#\r?\n(?P<body>[^#].*)"),
+                r"#(?P<authors>.+?)All rights reserved\.(?P<license>.+?)#\r?\n(?P<body>([^#].*)|$)"),
             (Style.XML_STYLE,
                 r"<!--\r?\n(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)\r?\n-->(?P<body>.*)"),
             (Style.XML_STYLE,
@@ -564,7 +564,10 @@ class Tool:
         # the updated output is the new header with the remainder and ensuring a single trailing newline
         output = self.header.render(
             title, parsed.authors, parsed.style, company=self.company, license=license_text)
-        output = output + '\n' + parsed.remainder + '\n'
+        if parsed.remainder:
+            output = output + '\n' + parsed.remainder + '\n'
+        else:
+            output = output.strip() + '\n'
         if parsed.decls:
             output = '\n'.join(parsed.decls) + '\n' + output
         output = Tool.force_newline(output, parsed.newline)
