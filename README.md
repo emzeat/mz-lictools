@@ -254,13 +254,17 @@ A sample configuration is given below with each option annotated for explanation
   // out in json notation, see https://stackoverflow.com/questions/2392766.
   // In case both 'license' and 'custom_license' have been specified, the
   // 'custom_license' takes precedence.
-  // Set to false or leave out to omit the license text altogether.
   "custom_license": false,
   // do not retain existing licenses on the header but replace all licensing
   // information with the license specified above.
   "force_license": false,
+  // specifies the title to put at the top of each file. Only choice right now
+  // is "filename".
+  // Set to false to leave out the title altogether.
+    "title": "filename",
   // specifies a custom title to put at the top of the file header.
-  // Set to false or leave out to use the filename.
+  // In case both 'title' and 'custom_title' have been specified, the
+  // 'custom_title' takes precedence.
   "custom_title": false,
   // controls the number of lines put after the license and before the rest of
   // the file's contents. Defaults to the supported minimum of 1 if left out.

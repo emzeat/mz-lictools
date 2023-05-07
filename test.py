@@ -682,6 +682,7 @@ class TestTool(unittest.TestCase):
     def test_retain_newline(self):
         author = license_tools.Author("Test Guy", year_to=2021)
         license = license_tools.License("Apache-2.0")
+        title = license_tools.Title("filename")
         tool = license_tools.Tool(
             default_license=license, default_author=author)
         input = BASE / 'test/TestTool-bump_old_copyright_year.input.cxx'
@@ -693,7 +694,7 @@ class TestTool(unittest.TestCase):
             expected_unix = self._to_unix(expected.read_text())
             with open(dut, mode='w', newline='', encoding='utf8') as dut_io:
                 dut_io.write(input_unix)
-            _, result = tool.bump(dut, keep_license=True)
+            _, result = tool.bump(dut, keep_license=True, title=title)
             self.assertEqual(expected_unix, result,
                              f"\nACTUAL ---\n{self._render_endings(result)}\nWANT ---\n{self._render_endings(expected_unix)}\n---")
             # verify dos line endings get retained
@@ -701,7 +702,7 @@ class TestTool(unittest.TestCase):
             expected_dos = self._to_dos(expected.read_text())
             with open(dut, mode='w', newline='', encoding='utf8') as dut_io:
                 dut_io.write(input_dos)
-            _, result = tool.bump(dut, keep_license=True)
+            _, result = tool.bump(dut, keep_license=True, title=title)
             self.assertEqual(expected_dos, result,
                              f"\nACTUAL ---\n{self._render_endings(result)}\nWANT ---\n{self._render_endings(expected_dos)}\n---")
 
@@ -709,6 +710,7 @@ class TestTool(unittest.TestCase):
 for file in BASE.glob('test/TestTool-bump*.input.*'):
     author = license_tools.Author("Test Guy", year_to=2021)
     license = license_tools.License("Apache-2.0")
+    title = license_tools.Title("filename")
     tool = license_tools.Tool(
         default_license=license, default_author=author)
     name = file.name.split('.')[0]
@@ -718,7 +720,7 @@ for file in BASE.glob('test/TestTool-bump*.input.*'):
         stem = name
 
         def test_bump(self):
-            style, result = tool.bump(input, keep_license=True)
+            style, result = tool.bump(input, title=title, keep_license=True)
             self.assertIsNotNone(result)
             try:
                 with open(BASE / 'test' / (stem + ".expected"), 'r') as expected:

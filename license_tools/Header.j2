@@ -1,6 +1,8 @@
+{%- if title -%}
 {{ title }}
 
-{% for author in authors -%}
+{% endif %}
+{%- for author in authors -%}
     {% if author.year_from == author.year_to -%}
         Copyright (c) {{ author.year_to }} {{ author.name }}
     {%- else -%}

@@ -586,7 +586,9 @@ class Tool:
         if keep_license:
             license_text = parsed.license
 
-        title_text = title.get(filename)
+        title_text = None
+        if title:
+            title_text = title.get(filename)
 
         # the updated output is the new header with the remainder and ensuring a single trailing newline
         output = self.header.render(
@@ -762,6 +764,7 @@ def main():
             'license': f'<pick one of {", ".join(LICENSES.keys())}>',
             'force_license': False,
             "custom_license": False,
+            'title': f'<pick one of {", ".join(Title.BUILTINS)} or leave out>',
             'custom_title': False,
             'lines_after_license': 1,
             'include': [
@@ -872,7 +875,15 @@ def process_file(args, file) -> bool:
     if 'custom_title' in config:
         title = Title(custom=config['custom_title'])
     else:
-        title = Title(builtin='filename')
+        try:
+            title = config.get('title', 'filename')
+            if title:
+                title = Title(builtin=title)
+        except TypeError:
+            valid = "\"" + "\", \"".join(Title.BUILTINS) + "\""
+            logging.fatal(f"Invalid title '{title}' - supported titles are {valid}")
+            sys.exit(2)
+
     config_author = config.get('author', {})
     author = None
     if 'from_git' in config_author:

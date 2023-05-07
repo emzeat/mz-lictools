@@ -1,0 +1,11 @@
+diff --git a/code.cpp b/code.cpp
+index a1b8312..392d901 100644
+--- a/code.cpp
++++ b/code.cpp
+@@ -1,6 +1,4 @@
+ /*
+- * code.cpp
+- *
+  * Copyright (c) 2022 Test Author
+  * All rights reserved.
+  *
