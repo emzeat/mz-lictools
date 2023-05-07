@@ -75,8 +75,13 @@ class Style(enum.Enum):
     BATCH_STYLE = 6
     SLASH_STYLE = 7
 
-    @staticmethod
-    def from_suffix(ext):
+    @classmethod
+    def set_overrides(cls, suffix_overrides=None):
+        """Assigns custom mappings of file suffix to style"""
+        setattr(cls, '__suffix_overrides', suffix_overrides)
+
+    @classmethod
+    def from_suffix(cls, ext):
         """Tries to determine the style based on a file suffix"""
         mapping = {
             '.cc': Style.C_STYLE,
@@ -110,6 +115,9 @@ class Style(enum.Enum):
             '.yml': Style.POUND_STYLE,
             '.yaml': Style.POUND_STYLE,
         }
+        suffix_overrides = getattr(cls, '__suffix_overrides', None)
+        if suffix_overrides and ext in suffix_overrides:  # pylint: disable=unsupported-membership-test
+            return Style[suffix_overrides[ext]]  # pylint: disable=unsubscriptable-object
         return mapping.get(ext, Style.UNKNOWN)
 
     @staticmethod
@@ -767,6 +775,9 @@ def main():
             'title': f'<pick one of {", ".join(Title.BUILTINS)} or leave out>',
             'custom_title': False,
             'lines_after_license': 1,
+            'style_for_suffix': {
+                ".cpp": f'<pick one of {", ".join([s.name for s in list(Style)])} or leave out>',
+            },
             'include': [
                 '**/*'
             ],
@@ -883,6 +894,11 @@ def process_file(args, file) -> bool:
             valid = "\"" + "\", \"".join(Title.BUILTINS) + "\""
             logging.fatal(f"Invalid title '{title}' - supported titles are {valid}")
             sys.exit(2)
+
+    if 'style_for_suffix' in config:
+        Style.set_overrides(config['style_for_suffix'])
+    else:
+        Style.set_overrides(None)
 
     config_author = config.get('author', {})
     author = None

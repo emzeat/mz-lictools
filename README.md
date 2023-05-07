@@ -269,6 +269,17 @@ A sample configuration is given below with each option annotated for explanation
   // controls the number of lines put after the license and before the rest of
   // the file's contents. Defaults to the supported minimum of 1 if left out.
   "lines_after_license": 1,
+  // a dictionary to override the comment style used for a certain file extension
+  // Available comment styles is
+  //     C_STYLE -> /* ... */
+  //     POUND_STYLE -> # ...
+  //     DOCSTRING_STYLE -> """ ... """
+  //     XML_STYLE -> <!-- ... -->
+  //     BATCH_STYLE -> REM ...
+  //     SLASH_STYLE -> // ...
+  "style_for_suffix": {
+    ".cpp": "C_STYLE"
+  },
   // globbing expressions to specify files for which to maintain a license header
   // all expressions will be applied relative to the directory holding the config
   "include": [
