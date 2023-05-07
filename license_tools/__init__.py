@@ -353,6 +353,35 @@ class License:
             raise KeyError("Need to select a 'builtin' or provide 'custom' license")
 
 
+class Title:
+    """Describes the title to be added to a header"""
+
+    BUILTINS = ['filename']
+
+    def __init__(self, builtin: str = None, custom: str = None):
+        """
+        Creates a new title
+
+        Either builtin or custom need to be specified.
+
+        :builtin: One of the builtin titles, see BUILTINS
+        :custom: Configures a custom title text
+        """
+        self.filename = False
+        if builtin == 'filename':
+            self.filename = True
+        elif custom:
+            self.custom = custom
+        else:
+            raise KeyError("Need to select a 'builtin' or provide 'custom' title")
+
+    def get(self, file: pathlib.Path) -> str:
+        '''Determines the title for the given file'''
+        if self.filename:
+            return file.name
+        return self.custom
+
+
 class Header:
     """Describes a header to be rendered with license and authors"""
 
@@ -492,12 +521,12 @@ class Tool:
         return Tool.force_newline(input).replace('\n', newline)
 
     def bump(self, filename: pathlib.PurePath,
-             keep_license: bool = True, custom_title: bool = False, keep_authors: bool = True) -> str:
+             keep_license: bool = True, title: Title = None, keep_authors: bool = True) -> str:
         """
         Reads a file and returns the bumped contents
         :filename: The file to be bumped
         :keep_license: If an existing license should be retained or replaced with the new default
-        :custom_title: Specifies a custom title to use instead of the filename
+        :title: The title to use in the header
         :keep_authors: If any existing authors should be retained or replaced with the new default
         returns a tuple of detected language and bumped contents
         """
@@ -557,13 +586,11 @@ class Tool:
         if keep_license:
             license_text = parsed.license
 
-        title = custom_title
-        if not title:
-            title = filename.name
+        title_text = title.get(filename)
 
         # the updated output is the new header with the remainder and ensuring a single trailing newline
         output = self.header.render(
-            title, parsed.authors, parsed.style, company=self.company, license=license_text)
+            title=title_text, authors=parsed.authors, style=parsed.style, company=self.company, license=license_text)
         if parsed.remainder:
             output = output + '\n' + parsed.remainder + '\n'
         else:
@@ -574,16 +601,16 @@ class Tool:
         return parsed.style, output
 
     def bump_inplace(self, filename: pathlib.PurePath, keep_license: bool = True,
-                     custom_title: bool = False, simulate: bool = False, keep_authors: bool = True) -> bool:
+                     title: Title = None, simulate: bool = False, keep_authors: bool = True) -> bool:
         """
         Bumps the license header of a given file
         :filename: The file to be bumped
         :keep_license: If an existing license should be retained or replaced with the new default
-        :custom_title: Use a custom title instead of the filename
+        :title: The title to use in the header
         :simulate: Perform a dry run not applying any changes
         :keep_authors: If any existing authors should be retained or replaced with the new default
         """
-        _, bumped = self.bump(filename, keep_license=keep_license, custom_title=custom_title, keep_authors=keep_authors)
+        _, bumped = self.bump(filename, keep_license=keep_license, title=title, keep_authors=keep_authors)
         if bumped:
             filename = str(filename) + \
                 '.license_bumped' if simulate else filename
@@ -842,6 +869,10 @@ def process_file(args, file) -> bool:
             logging.fatal(f"Invalid license '{license}' - supported licenses are {valid}")
             sys.exit(2)
 
+    if 'custom_title' in config:
+        title = Title(custom=config['custom_title'])
+    else:
+        title = Title(builtin='filename')
     config_author = config.get('author', {})
     author = None
     if 'from_git' in config_author:
@@ -892,7 +923,6 @@ def process_file(args, file) -> bool:
         logging.fatal(f"Please provide the 'lines_after_license' attribute as integer: {error}")
         sys.exit(2)
 
-    custom_title = config.get('custom_title', False)
     company = config_author.get('company', None)
     tool = Tool(license, author, company, aliases, lines_after_license)
     keep_license = not args.force_license and not config.get('force_license', False)
@@ -900,7 +930,7 @@ def process_file(args, file) -> bool:
 
     logging.debug(f"Processing '{file_rel}'")
     try:
-        if tool.bump_inplace(file, keep_license=keep_license, keep_authors=keep_authors, custom_title=custom_title, simulate=args.dry_run):
+        if tool.bump_inplace(file, keep_license=keep_license, keep_authors=keep_authors, title=title, simulate=args.dry_run):
             return True
     except UnicodeDecodeError as error:
         logging.warning(f"Failed to decode {file_rel}: {error}")
