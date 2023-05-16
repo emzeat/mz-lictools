@@ -181,8 +181,8 @@ class Style(enum.Enum):
         if style == Style.UNKNOWN:
             # slow path, we have to try all of the patterns
             return style_patterns
-        # fast path, we can reduce the number of patterns
-        return [(s, p) for s, p in style_patterns if s == style]  # pylint: disable=invalid-name
+        # fast path, move the expected style to the front
+        return sorted(style_patterns, key=lambda s: s[0] != style)
 
     @staticmethod
     def declarations():
@@ -455,13 +455,14 @@ class ParsedHeader:
         for style, pattern in Style.patterns(self.style):
             match = re.match(pattern, contents, re.MULTILINE | re.DOTALL)
             if match:
-                if style != Style.UNKNOWN:
+                match_style = style
+                if self.style == Style.UNKNOWN:
                     self.style = style
                 break
         if match:
             # grab the matched license but remove any # or * per line prefix decorators
             self.license = match.group('license')
-            decorators = Style.decorators(self.style)
+            decorators = Style.decorators(match_style)
             if decorators.pattern:
                 self.license = re.sub(decorators.pattern, '', self.license, flags=re.MULTILINE)
             self.license = self.license.strip('\n\r')
