@@ -775,7 +775,7 @@ def main():
             'title': f'<pick one of {", ".join(Title.BUILTINS)} or leave out>',
             'custom_title': False,
             'lines_after_license': 1,
-            'style_for_suffix': {
+            'style_override_for_suffix': {
                 ".cpp": f'<pick one of {", ".join([s.name for s in list(Style)])} or leave out>',
             },
             'include': [
@@ -895,8 +895,8 @@ def process_file(args, file) -> bool:
             logging.fatal(f"Invalid title '{title}' - supported titles are {valid}")
             sys.exit(2)
 
-    if 'style_for_suffix' in config:
-        Style.set_overrides(config['style_for_suffix'])
+    if 'style_override_for_suffix' in config:
+        Style.set_overrides(config['style_override_for_suffix'])
     else:
         Style.set_overrides(None)
 

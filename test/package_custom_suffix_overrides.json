@@ -4,7 +4,7 @@
   },
   "license": false,
   "title": false,
-  "style_for_suffix": {
+  "style_override_for_suffix": {
     ".cpp": "SLASH_STYLE",
     ".hpp": "SLASH_STYLE"
   }

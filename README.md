@@ -277,7 +277,7 @@ A sample configuration is given below with each option annotated for explanation
   //     XML_STYLE -> <!-- ... -->
   //     BATCH_STYLE -> REM ...
   //     SLASH_STYLE -> // ...
-  "style_for_suffix": {
+  "style_override_for_suffix": {
     ".cpp": "C_STYLE"
   },
   // globbing expressions to specify files for which to maintain a license header
