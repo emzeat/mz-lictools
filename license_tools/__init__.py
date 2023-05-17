@@ -1,4 +1,3 @@
-#
 # __init__.py
 #
 # Copyright (c) 2012 - 2023 Marius Zwicker
@@ -17,7 +16,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
 """
 See README.md for detail and documentation
@@ -148,7 +146,7 @@ class Style(enum.Enum):
             (Style.POUND_STYLE,
                 r"#(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)# +@LICENSE_HEADER_END@(?:.*?)#\r?\n(?P<body>.*)"),
             (Style.POUND_STYLE,
-                r"#(?P<authors>.+?)All rights reserved\.(?P<license>.+?)#\r?\n(?P<body>([^#].*)|$)"),
+                r"#(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^#?\r?\n(?P<body>([^#].*)|$)"),
             (Style.DOCSTRING_STYLE,
                 r"\"\"\"\r?\n(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)\r?\n\"\"\"(?P<body>.*)"),
             (Style.DOCSTRING_STYLE,
@@ -156,7 +154,7 @@ class Style(enum.Enum):
             (Style.DOCSTRING_STYLE,
                 r"#(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)# +@LICENSE_HEADER_END@(?:.*?)#\r?\n(?P<body>.*)"),
             (Style.DOCSTRING_STYLE,
-                r"#(?P<authors>.+?)All rights reserved\.(?P<license>.+?)#\r?\n(?P<body>([^#].*)|$)"),
+                r"#(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^#?\r?\n(?P<body>([^#].*)|$)"),
             (Style.XML_STYLE,
                 r"<!--\r?\n(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)\r?\n-->(?P<body>.*)"),
             (Style.XML_STYLE,
@@ -164,15 +162,15 @@ class Style(enum.Enum):
             (Style.BATCH_STYLE,
                 r"REM(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)REM\r?\n(?!REM)(?P<body>.*)"),
             (Style.BATCH_STYLE,
-                r"REM(?P<authors>.+?)All rights reserved\.(?P<license>.+?)REM\r?\n(?!REM)(?P<body>.*)"),
+                r"REM(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^(REM)?\r?\n(?!REM)(?P<body>.*)"),
             (Style.BATCH_STYLE,
                 r"::(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)::\r?\n(?!::)(?P<body>.*)"),
             (Style.BATCH_STYLE,
-                r"::(?P<authors>.+?)All rights reserved\.(?P<license>.+?)::\r?\n(?!::)(?P<body>.*)"),
+                r"::(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^(::)?\r?\n(?!::)(?P<body>.*)"),
             (Style.SLASH_STYLE,
                 r"//(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)// +@LICENSE_HEADER_END@(?:.*?)//\r?\n(?P<body>.*)"),
             (Style.SLASH_STYLE,
-                r"//(?P<authors>.+?)All rights reserved\.(?P<license>.+?)//\r?\n(?P<body>([^//].*)|$)"),
+                r"//(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^(//)?\r?\n(?P<body>([^//].*)|$)"),
             (Style.UNKNOWN,
                 r"(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?P<body>.*)"),
         ]
@@ -217,16 +215,16 @@ class Style(enum.Enum):
         if style == Style.C_STYLE:
             return Decorator('/*', ' *', ' */', r' ?(?:\*) ?')
         if style == Style.POUND_STYLE:
-            return Decorator('#', '#', '#', r' ?(?:#) ?')
+            return Decorator(None, '#', None, r' ?(?:#) ?')
         if style == Style.DOCSTRING_STYLE:
             # the pattern will help to translate any #-style and """-style docstrings
-            return Decorator('#', '#', '#', r' ?(?:#) ?')
+            return Decorator(None, '#', None, r' ?(?:#) ?')
         if style == Style.XML_STYLE:
             return Decorator('<!--', '', '-->', None)
         if style == Style.BATCH_STYLE:
-            return Decorator('REM', 'REM', 'REM', r' ?(?:REM|::) ?')
+            return Decorator(None, 'REM', None, r' ?(?:REM|::) ?')
         if style == Style.SLASH_STYLE:
-            return Decorator('//', '//', '//', r' ?(?://) ?')
+            return Decorator(None, '//', None, r' ?(?://) ?')
         return Decorator('', '', '', None)
 
 
@@ -254,6 +252,9 @@ class Author:
             self.year_from = year_from
         else:
             self.year_from = year_to
+
+    def __repr__(self) -> str:
+        return f"({self.name} {self.year_from}-{self.year_to})"
 
 
 class GitRepo:
@@ -416,9 +417,12 @@ class Header:
                                       license=license, title=title, authors=authors, company=company)
         decorators = Style.decorators(style)
         header = header.split('\n')
-        header = [decorators.start] + \
-                 [f'{decorators.prefix} ' + h if h.strip() else decorators.prefix for h in header] + [decorators.end, '']
-        return '\n'.join(header) + '\n' * max(self.lines_after_license - 1, 0)
+        header = [f'{decorators.prefix} ' + h if h.strip() else decorators.prefix for h in header]
+        if decorators.start:
+            header = [decorators.start] + header
+        if decorators.end:
+            header = header + [decorators.end]
+        return '\n'.join(header) + '\n' * max(self.lines_after_license, 1)
 
 
 class ParsedHeader:

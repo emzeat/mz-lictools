@@ -1,4 +1,3 @@
-#
 # __main__.py
 #
 # Copyright (c) 2012 - 2023 Marius Zwicker
@@ -17,7 +16,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
 """
 See README.md for detail and documentation

@@ -1,8 +1,8 @@
 diff --git a/code.cpp b/code.cpp
-index a1b8312..8011766 100644
+index a1b8312..1065e60 100644
 --- a/code.cpp
 +++ b/code.cpp
-@@ -1,17 +1,15 @@
+@@ -1,17 +1,13 @@
 -/*
 - * code.cpp
 - *
@@ -17,7 +17,6 @@ index a1b8312..8011766 100644
 - * PUBLIC, BE USED, BE MODIFIED OR BE DISTRIBUTED IN ANY WAY
 - * WITHOUT WRITTEN PERMISSION OF UMBRELLA INC.
 - */
-+//
 +// Copyright (c) 2022 Test Author
 +// All rights reserved.
 +//
@@ -28,7 +27,6 @@ index a1b8312..8011766 100644
 +// ANY SOURCECODE BEARING THIS HEADER SHALL NOT BE RELEASED TO THE
 +// PUBLIC, BE USED, BE MODIFIED OR BE DISTRIBUTED IN ANY WAY
 +// WITHOUT WRITTEN PERMISSION OF UMBRELLA INC.
-+//
  
  #include <iostream>
  
