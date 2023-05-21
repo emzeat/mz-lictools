@@ -1,3 +1,11 @@
+v2.6.0
+------
+_21.05.2023_
+
+* Add option to override the comment style per extension
+* Add option to omit the header title
+* Remove unecessary empty lines in comment headers
+
 v2.5.0
 ------
 _19.04.2023_
