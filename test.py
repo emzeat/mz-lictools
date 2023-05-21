@@ -545,6 +545,18 @@ class TestParserSlashStyle(unittest.TestCase):
         self.assertEqual(
             "#include <stdio.h>", parsed.remainder)
 
+    @parser_test(BASE / 'test/TestParserSlashStyle-multiline_author.rc')
+    def test_1author_1year(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Office of code", parsed.authors[0].name)
+        self.assertEqual(2003, parsed.authors[0].year_from)
+        self.assertEqual(2023, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.SLASH_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith(
+            "This library is"), parsed.license)
+        self.assertEqual(
+            "#include <stdio.h>", parsed.remainder)
+
 
 class TestHeader(unittest.TestCase):
 
