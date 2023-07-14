@@ -24,7 +24,7 @@ Setup description for license_tools.
 See README.md for detail and documentation.
 """
 
-from distutils.core import setup
+from distutils.core import setup  # pylint: disable=deprecated-module
 from subprocess import check_output, CalledProcessError
 import re
 import os
