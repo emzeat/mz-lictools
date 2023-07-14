@@ -1,3 +1,9 @@
+v2.6.1
+------
+_14.07.2023_
+
+* Fix greedy parsing of comments after license header
+
 v2.6.0
 ------
 _21.05.2023_
