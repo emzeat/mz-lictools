@@ -557,6 +557,36 @@ class TestParserSlashStyle(unittest.TestCase):
         self.assertEqual(
             "#include <stdio.h>", parsed.remainder)
 
+    @parser_test(BASE / 'test/TestParserSlashStyle-comment_after_license.c')
+    def test_comment_after_license(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Test Author", parsed.authors[0].name)
+        self.assertEqual(2022, parsed.authors[0].year_from)
+        self.assertEqual(2022, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.C_STYLE, parsed.style)
+        self.assertEqual(None, parsed.license)
+        self.assertTrue(parsed.remainder.startswith('// System'), parsed.remainder)
+
+    @parser_test(BASE / 'test/TestParserSlashStyle-no_newline_after_license.c')
+    def test_no_newline_after_license(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Test Author", parsed.authors[0].name)
+        self.assertEqual(2022, parsed.authors[0].year_from)
+        self.assertEqual(2022, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.C_STYLE, parsed.style)
+        self.assertEqual(None, parsed.license)
+        self.assertTrue(parsed.remainder.startswith('#include'), parsed.remainder)
+
+    @parser_test(BASE / 'test/TestParserSlashStyle-no_newline_after_license_extra_slash.c')
+    def test_no_newline_after_license_extra_slash(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Test Author", parsed.authors[0].name)
+        self.assertEqual(2022, parsed.authors[0].year_from)
+        self.assertEqual(2022, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.C_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith('SPDX-License-Identifier:'), parsed.license)
+        self.assertTrue(parsed.remainder.startswith('#include'), parsed.remainder)
+
 
 class TestHeader(unittest.TestCase):
 
