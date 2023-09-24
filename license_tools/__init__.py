@@ -154,7 +154,7 @@ class Style(enum.Enum):
             (Style.DOCSTRING_STYLE,
                 r"#(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)# +@LICENSE_HEADER_END@(?:.*?)#\r?\n(?P<body>.*)"),
             (Style.DOCSTRING_STYLE,
-                r"#(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^#?\r?\n(?P<body>([^#].*)|$)"),
+                r"#(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^(?P<body>[^#](.*)|$)"),
             (Style.XML_STYLE,
                 r"<!--\r?\n(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)\r?\n-->(?P<body>.*)"),
             (Style.XML_STYLE,
