@@ -1,8 +1,14 @@
+v2.6.2
+------
+_24.09.2023_
+
+* Fix greedy parsing of pound-style comments after license header
+
 v2.6.1
 ------
 _14.07.2023_
 
-* Fix greedy parsing of comments after license header
+* Fix greedy parsing of slash-style comments after license header
 
 v2.6.0
 ------
