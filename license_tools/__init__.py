@@ -113,7 +113,9 @@ class Style(enum.Enum):
             '.rc': Style.SLASH_STYLE,
             '.yml': Style.POUND_STYLE,
             '.yaml': Style.POUND_STYLE,
-            '.lua': Style.DASH_STYLE
+            '.lua': Style.DASH_STYLE,
+            '.rs': Style.SLASH_STYLE,
+            '.toml': Style.POUND_STYLE
         }
         suffix_overrides = getattr(cls, '__suffix_overrides', None)
         if suffix_overrides and ext in suffix_overrides:  # pylint: disable=unsupported-membership-test
@@ -125,7 +127,9 @@ class Style(enum.Enum):
         """Tries to determine the style based on a file name"""
         mapping = {
             'CMakeLists.txt': Style.POUND_STYLE,
-            'requirements.txt': Style.POUND_STYLE
+            'requirements.txt': Style.POUND_STYLE,
+            'Cargo.lock': Style.POUND_STYLE,
+            'Cargo.toml': Style.POUND_STYLE
         }
         return mapping.get(name, Style.UNKNOWN)
 

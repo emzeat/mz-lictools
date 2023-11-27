@@ -3,6 +3,8 @@ v2.7.0
 _WIP_
 
 * Add support for dash style comments to support lua files
+* Predefine comment style for rust rst files
+* Predefine comment style for toml files
 
 v2.6.2
 ------
