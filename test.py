@@ -648,6 +648,39 @@ class TestParserSlashStyle(unittest.TestCase):
         self.assertTrue(parsed.remainder.startswith('set(CMAKE_MACOSX_RPATH ON)'), parsed.remainder)
 
 
+class TestParserDashStyle(unittest.TestCase):
+
+    @parser_test(BASE / 'test/TestParserDashStyle-comment_after_license.lua')
+    def test_comment_after_license(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Test Author", parsed.authors[0].name)
+        self.assertEqual(2022, parsed.authors[0].year_from)
+        self.assertEqual(2022, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.DASH_STYLE, parsed.style)
+        self.assertEqual(None, parsed.license)
+        self.assertTrue(parsed.remainder.startswith('-- defines'), parsed.remainder)
+
+    @parser_test(BASE / 'test/TestParserDashStyle-no_newline_after_license.lua')
+    def test_no_newline_after_license(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Test Author", parsed.authors[0].name)
+        self.assertEqual(2022, parsed.authors[0].year_from)
+        self.assertEqual(2022, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.DASH_STYLE, parsed.style)
+        self.assertEqual(None, parsed.license)
+        self.assertTrue(parsed.remainder.startswith('print'), parsed.remainder)
+
+    @parser_test(BASE / 'test/TestParserDashStyle-no_newline_after_license_extra_dash.lua')
+    def test_no_newline_after_license_extra_slash(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Test Author", parsed.authors[0].name)
+        self.assertEqual(2022, parsed.authors[0].year_from)
+        self.assertEqual(2022, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.DASH_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith('SPDX-License-Identifier:'), parsed.license)
+        self.assertTrue(parsed.remainder.startswith('print'), parsed.remainder)
+
+
 class TestHeader(unittest.TestCase):
 
     def test_generator(self):
@@ -717,6 +750,17 @@ class TestHeader(unittest.TestCase):
             filename = f'TestHeader-slash_{l}.expected'
             output = header.render(
                 filename, authors, license_tools.Style.SLASH_STYLE)
+            try:
+                with open(BASE / 'test' / filename, 'r') as expected:
+                    self.assertEqual(expected.read(), output)
+            except:
+                with open(BASE / 'test' / filename, 'w') as expected:
+                    expected.write(output)
+                raise
+
+            filename = f'TestHeader-dash_{l}.expected'
+            output = header.render(
+                filename, authors, license_tools.Style.DASH_STYLE)
             try:
                 with open(BASE / 'test' / filename, 'r') as expected:
                     self.assertEqual(expected.read(), output)

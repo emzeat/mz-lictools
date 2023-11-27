@@ -1,3 +1,9 @@
+v2.7.0
+------
+_WIP_
+
+* Add support for dash style comments to support lua files
+
 v2.6.2
 ------
 _24.09.2023_
