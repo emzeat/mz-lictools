@@ -567,6 +567,16 @@ class TestParserSlashStyle(unittest.TestCase):
         self.assertEqual(None, parsed.license)
         self.assertTrue(parsed.remainder.startswith('// System'), parsed.remainder)
 
+    @parser_test(BASE / 'test/TestParserSlashStyle-brief_spdx.c')
+    def test_brief_spdx(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Test Author", parsed.authors[0].name)
+        self.assertEqual(2022, parsed.authors[0].year_from)
+        self.assertEqual(2022, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.C_STYLE, parsed.style)
+        self.assertEqual("SPDX-License-Identifier: Apache-2.0", parsed.license)
+        self.assertTrue(parsed.remainder.startswith('// System'), parsed.remainder)
+
     @parser_test(BASE / 'test/TestParserDocStringStyle-comment_after_license.py')
     def test_comment_after_license(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
