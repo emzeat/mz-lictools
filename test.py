@@ -237,6 +237,26 @@ class TestParserCStyle(unittest.TestCase):
 
 class TestParserPoundStyle(unittest.TestCase):
 
+    @parser_test(BASE / 'test/TestParserPoundStyle-no_newline_after_license_extra_pound.cmake')
+    def test_no_newline_after_license_extra_slash(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Test Author", parsed.authors[0].name)
+        self.assertEqual(2022, parsed.authors[0].year_from)
+        self.assertEqual(2022, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.POUND_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith('SPDX-License-Identifier:'), parsed.license)
+        self.assertTrue(parsed.remainder.startswith('set(CMAKE_MACOSX_RPATH ON)'), parsed.remainder)
+
+    @parser_test(BASE / 'test/TestParserPoundStyle-no_newline_after_license.cmake')
+    def test_no_newline_after_license(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Test Author", parsed.authors[0].name)
+        self.assertEqual(2022, parsed.authors[0].year_from)
+        self.assertEqual(2022, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.POUND_STYLE, parsed.style)
+        self.assertEqual(None, parsed.license)
+        self.assertTrue(parsed.remainder.startswith('set(CMAKE_MACOSX_RPATH ON)'), parsed.remainder)
+
     @parser_test(BASE / 'test/TestParserPoundStyle-1author_1year.cmake')
     def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
@@ -248,6 +268,16 @@ class TestParserPoundStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual(
             "cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)", parsed.remainder)
+
+    @parser_test(BASE / 'test/TestParserPoundStyle-comment_after_license.cmake')
+    def test_comment_after_license(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Test Author", parsed.authors[0].name)
+        self.assertEqual(2022, parsed.authors[0].year_from)
+        self.assertEqual(2022, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.POUND_STYLE, parsed.style)
+        self.assertEqual(None, parsed.license)
+        self.assertTrue(parsed.remainder.startswith('# rpath handling on OSX'), parsed.remainder)
 
     @parser_test(BASE / 'test/TestParserPoundStyle-no_space.py')
     def test_no_space(self, parsed):
@@ -338,6 +368,26 @@ class TestParserPoundStyle(unittest.TestCase):
 
 class TestParserDocStringStyle(unittest.TestCase):
 
+    @parser_test(BASE / 'test/TestParserDocStringStyle-no_newline_after_license_extra_pound.py')
+    def test_no_newline_after_license_extra_slash(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Test Author", parsed.authors[0].name)
+        self.assertEqual(2022, parsed.authors[0].year_from)
+        self.assertEqual(2022, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.DOCSTRING_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith('SPDX-License-Identifier:'), parsed.license)
+        self.assertTrue(parsed.remainder.startswith('import sys'), parsed.remainder)
+
+    @parser_test(BASE / 'test/TestParserDocStringStyle-no_newline_after_license.py')
+    def test_no_newline_after_license(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Test Author", parsed.authors[0].name)
+        self.assertEqual(2022, parsed.authors[0].year_from)
+        self.assertEqual(2022, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.DOCSTRING_STYLE, parsed.style)
+        self.assertEqual(None, parsed.license)
+        self.assertTrue(parsed.remainder.startswith('import sys'), parsed.remainder)
+
     @parser_test(BASE / 'test/TestParserDocStringStyle-1author_1year.py')
     def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
@@ -379,6 +429,16 @@ class TestParserDocStringStyle(unittest.TestCase):
         self.assertEqual(license_tools.Style.DOCSTRING_STYLE, parsed.style)
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
+
+    @parser_test(BASE / 'test/TestParserDocStringStyle-comment_after_license.py')
+    def test_comment_after_license(self, parsed):
+        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
+        self.assertEqual("Test Author", parsed.authors[0].name)
+        self.assertEqual(2022, parsed.authors[0].year_from)
+        self.assertEqual(2022, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.DOCSTRING_STYLE, parsed.style)
+        self.assertEqual(None, parsed.license)
+        self.assertTrue(parsed.remainder.startswith('# System'), parsed.remainder)
 
     @parser_test(BASE / 'test/TestParserDocStringStyle-2authors_2years')
     def test_2authors_2years(self, parsed):
@@ -577,26 +637,6 @@ class TestParserSlashStyle(unittest.TestCase):
         self.assertEqual("SPDX-License-Identifier: Apache-2.0", parsed.license)
         self.assertTrue(parsed.remainder.startswith('// System'), parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserDocStringStyle-comment_after_license.py')
-    def test_comment_after_license(self, parsed):
-        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
-        self.assertEqual("Test Author", parsed.authors[0].name)
-        self.assertEqual(2022, parsed.authors[0].year_from)
-        self.assertEqual(2022, parsed.authors[0].year_to)
-        self.assertEqual(license_tools.Style.DOCSTRING_STYLE, parsed.style)
-        self.assertEqual(None, parsed.license)
-        self.assertTrue(parsed.remainder.startswith('# System'), parsed.remainder)
-
-    @parser_test(BASE / 'test/TestParserPoundStyle-comment_after_license.cmake')
-    def test_comment_after_license(self, parsed):
-        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
-        self.assertEqual("Test Author", parsed.authors[0].name)
-        self.assertEqual(2022, parsed.authors[0].year_from)
-        self.assertEqual(2022, parsed.authors[0].year_to)
-        self.assertEqual(license_tools.Style.POUND_STYLE, parsed.style)
-        self.assertEqual(None, parsed.license)
-        self.assertTrue(parsed.remainder.startswith('# rpath handling on OSX'), parsed.remainder)
-
     @parser_test(BASE / 'test/TestParserSlashStyle-no_newline_after_license.c')
     def test_no_newline_after_license(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
@@ -607,26 +647,6 @@ class TestParserSlashStyle(unittest.TestCase):
         self.assertEqual(None, parsed.license)
         self.assertTrue(parsed.remainder.startswith('#include'), parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserDocStringStyle-no_newline_after_license.py')
-    def test_no_newline_after_license(self, parsed):
-        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
-        self.assertEqual("Test Author", parsed.authors[0].name)
-        self.assertEqual(2022, parsed.authors[0].year_from)
-        self.assertEqual(2022, parsed.authors[0].year_to)
-        self.assertEqual(license_tools.Style.DOCSTRING_STYLE, parsed.style)
-        self.assertEqual(None, parsed.license)
-        self.assertTrue(parsed.remainder.startswith('import sys'), parsed.remainder)
-
-    @parser_test(BASE / 'test/TestParserPoundStyle-no_newline_after_license.cmake')
-    def test_no_newline_after_license(self, parsed):
-        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
-        self.assertEqual("Test Author", parsed.authors[0].name)
-        self.assertEqual(2022, parsed.authors[0].year_from)
-        self.assertEqual(2022, parsed.authors[0].year_to)
-        self.assertEqual(license_tools.Style.POUND_STYLE, parsed.style)
-        self.assertEqual(None, parsed.license)
-        self.assertTrue(parsed.remainder.startswith('set(CMAKE_MACOSX_RPATH ON)'), parsed.remainder)
-
     @parser_test(BASE / 'test/TestParserSlashStyle-no_newline_after_license_extra_slash.c')
     def test_no_newline_after_license_extra_slash(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
@@ -636,26 +656,6 @@ class TestParserSlashStyle(unittest.TestCase):
         self.assertEqual(license_tools.Style.C_STYLE, parsed.style)
         self.assertTrue(parsed.license.startswith('SPDX-License-Identifier:'), parsed.license)
         self.assertTrue(parsed.remainder.startswith('#include'), parsed.remainder)
-
-    @parser_test(BASE / 'test/TestParserDocStringStyle-no_newline_after_license_extra_pound.py')
-    def test_no_newline_after_license_extra_slash(self, parsed):
-        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
-        self.assertEqual("Test Author", parsed.authors[0].name)
-        self.assertEqual(2022, parsed.authors[0].year_from)
-        self.assertEqual(2022, parsed.authors[0].year_to)
-        self.assertEqual(license_tools.Style.DOCSTRING_STYLE, parsed.style)
-        self.assertTrue(parsed.license.startswith('SPDX-License-Identifier:'), parsed.license)
-        self.assertTrue(parsed.remainder.startswith('import sys'), parsed.remainder)
-
-    @parser_test(BASE / 'test/TestParserPoundStyle-no_newline_after_license_extra_pound.cmake')
-    def test_no_newline_after_license_extra_slash(self, parsed):
-        self.assertEqual(1, len(parsed.authors), str(parsed.authors))
-        self.assertEqual("Test Author", parsed.authors[0].name)
-        self.assertEqual(2022, parsed.authors[0].year_from)
-        self.assertEqual(2022, parsed.authors[0].year_to)
-        self.assertEqual(license_tools.Style.POUND_STYLE, parsed.style)
-        self.assertTrue(parsed.license.startswith('SPDX-License-Identifier:'), parsed.license)
-        self.assertTrue(parsed.remainder.startswith('set(CMAKE_MACOSX_RPATH ON)'), parsed.remainder)
 
 
 class TestParserDashStyle(unittest.TestCase):
