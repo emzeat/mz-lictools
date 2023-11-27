@@ -164,7 +164,7 @@ class Style(enum.Enum):
             (Style.BATCH_STYLE,
                 r"REM(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)REM\r?\n(?!REM)(?P<body>.*)"),
             (Style.BATCH_STYLE,
-                r"REM(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^(REM)?\r?\n(?!REM)(?P<body>.*)"),
+                r"REM(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^(?P<body>(?!REM)(.*)|$)"),
             (Style.BATCH_STYLE,
                 r"::(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)::\r?\n(?!::)(?P<body>.*)"),
             (Style.BATCH_STYLE,
@@ -261,6 +261,9 @@ class Author:
 
     def __repr__(self) -> str:
         return f"({self.name} {self.year_from}-{self.year_to})"
+
+    def __eq__(self, other: object) -> bool:
+        return self.name == other.name and self.year_from == other.year_from and self.year_to == other.year_to
 
 
 class GitRepo:
@@ -444,6 +447,8 @@ class ParsedHeader:
         if contents is None:
             with open(file, 'r', encoding='utf-8', newline='') as file_obj:
                 contents = file_obj.read()
+        if isinstance(file, str):
+            file = pathlib.Path(file)
         # style is determined from the extension, if unknown we try a second attempt using the contents below
         self.style = Style.from_suffix(file.suffix)
         if self.style == Style.UNKNOWN:

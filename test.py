@@ -698,6 +698,9 @@ class TestHeader(unittest.TestCase):
             try:
                 with open(BASE / 'test' / filename, 'r') as expected:
                     self.assertEqual(expected.read(), output)
+                parsed = license_tools.ParsedHeader(
+                    contents=output, file=filename)
+                self.assertListEqual(authors, parsed.authors)
             except:
                 with open(BASE / 'test' / filename, 'w') as expected:
                     expected.write(output)
@@ -709,6 +712,9 @@ class TestHeader(unittest.TestCase):
             try:
                 with open(BASE / 'test' / filename, 'r') as expected:
                     self.assertEqual(expected.read(), output)
+                parsed = license_tools.ParsedHeader(
+                    contents=output, file=filename)
+                self.assertListEqual(authors, parsed.authors)
             except:
                 with open(BASE / 'test' / filename, 'w') as expected:
                     expected.write(output)
@@ -720,6 +726,9 @@ class TestHeader(unittest.TestCase):
             try:
                 with open(BASE / 'test' / filename, 'r') as expected:
                     self.assertEqual(expected.read(), output)
+                parsed = license_tools.ParsedHeader(
+                    contents=output, file=filename)
+                self.assertListEqual(authors, parsed.authors)
             except:
                 with open(BASE / 'test' / filename, 'w') as expected:
                     expected.write(output)
@@ -731,6 +740,9 @@ class TestHeader(unittest.TestCase):
             try:
                 with open(BASE / 'test' / filename, 'r') as expected:
                     self.assertEqual(expected.read(), output)
+                parsed = license_tools.ParsedHeader(
+                    contents=output, file=filename)
+                self.assertListEqual(authors, parsed.authors)
             except:
                 with open(BASE / 'test' / filename, 'w') as expected:
                     expected.write(output)
@@ -742,6 +754,9 @@ class TestHeader(unittest.TestCase):
             try:
                 with open(BASE / 'test' / filename, 'r') as expected:
                     self.assertEqual(expected.read(), output)
+                parsed = license_tools.ParsedHeader(
+                    contents=output, file=filename)
+                self.assertListEqual(authors, parsed.authors)
             except:
                 with open(BASE / 'test' / filename, 'w') as expected:
                     expected.write(output)
@@ -753,6 +768,9 @@ class TestHeader(unittest.TestCase):
             try:
                 with open(BASE / 'test' / filename, 'r') as expected:
                     self.assertEqual(expected.read(), output)
+                parsed = license_tools.ParsedHeader(
+                    contents=output, file=filename)
+                self.assertListEqual(authors, parsed.authors)
             except:
                 with open(BASE / 'test' / filename, 'w') as expected:
                     expected.write(output)
@@ -764,6 +782,9 @@ class TestHeader(unittest.TestCase):
             try:
                 with open(BASE / 'test' / filename, 'r') as expected:
                     self.assertEqual(expected.read(), output)
+                parsed = license_tools.ParsedHeader(
+                    contents=output, file=filename)
+                self.assertListEqual(authors, parsed.authors)
             except:
                 with open(BASE / 'test' / filename, 'w') as expected:
                     expected.write(output)
@@ -776,6 +797,9 @@ class TestHeader(unittest.TestCase):
             try:
                 with open(BASE / 'test' / filename, 'r') as expected:
                     self.assertEqual(expected.read(), output)
+                parsed = license_tools.ParsedHeader(
+                    contents=output, file=filename)
+                self.assertListEqual(authors, parsed.authors)
             except:
                 with open(BASE / 'test' / filename, 'w') as expected:
                     expected.write(output)
@@ -788,6 +812,9 @@ class TestHeader(unittest.TestCase):
             try:
                 with open(BASE / 'test' / filename, 'r') as expected:
                     self.assertEqual(expected.read(), output)
+                parsed = license_tools.ParsedHeader(
+                    contents=output, file=filename)
+                self.assertListEqual(authors, parsed.authors)
             except:
                 with open(BASE / 'test' / filename, 'w') as expected:
                     expected.write(output)
