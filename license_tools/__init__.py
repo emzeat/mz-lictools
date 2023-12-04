@@ -120,7 +120,7 @@ class Style(enum.Enum):
         suffix_overrides = getattr(cls, '__suffix_overrides', None)
         if suffix_overrides and ext in suffix_overrides:  # pylint: disable=unsupported-membership-test
             return Style[suffix_overrides[ext]]  # pylint: disable=unsubscriptable-object
-        return mapping.get(ext, Style.UNKNOWN)
+        return mapping.get(ext, None) or mapping.get(ext.lower(), Style.UNKNOWN)
 
     @staticmethod
     def from_name(name):
