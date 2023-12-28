@@ -702,105 +702,33 @@ class TestHeader(unittest.TestCase):
         for l in license_tools.LICENSES:
             license = license_tools.License(builtin=l)
             header = license_tools.Header(license)
-            filename = f'TestHeader-c_{l}.expected'
-            output = header.render(
-                filename, authors, license_tools.Style.C_STYLE)
-            try:
-                with open(BASE / 'test' / filename, 'r') as expected:
-                    self.assertEqual(expected.read(), output)
-                parsed = license_tools.ParsedHeader(
-                    contents=output, file=filename)
-                self.assertListEqual(authors, parsed.authors)
-            except:
-                with open(BASE / 'test' / filename, 'w') as expected:
-                    expected.write(output)
-                raise
 
-            filename = f'TestHeader-pound_{l}.expected'
-            output = header.render(
-                filename, authors, license_tools.Style.POUND_STYLE)
-            try:
-                with open(BASE / 'test' / filename, 'r') as expected:
-                    self.assertEqual(expected.read(), output)
-                parsed = license_tools.ParsedHeader(
-                    contents=output, file=filename)
-                self.assertListEqual(authors, parsed.authors)
-            except:
-                with open(BASE / 'test' / filename, 'w') as expected:
-                    expected.write(output)
-                raise
+            for style in license_tools.Style:
+                if license_tools.Style.UNKNOWN == style:
+                    continue
+                candidates = {
+                    license_tools.Style.C_STYLE: f'TestHeader-c_{l}.expected',
+                    license_tools.Style.POUND_STYLE: f'TestHeader-pound_{l}.expected',
+                    license_tools.Style.DOCSTRING_STYLE: f'TestHeader-docstring_{l}.expected',
+                    license_tools.Style.XML_STYLE: f'TestHeader-xml_{l}.expected',
+                    license_tools.Style.BATCH_STYLE: f'TestHeader-batch_{l}.expected',
+                    license_tools.Style.SLASH_STYLE: f'TestHeader-slash_{l}.expected',
+                    license_tools.Style.DASH_STYLE: f'TestHeader-dash_{l}.expected'
+                }
+                filename = candidates[style]
+                output = header.render(
+                    filename, authors, style)
+                try:
+                    with open(BASE / 'test' / filename, 'r') as expected:
+                        self.assertEqual(expected.read(), output)
+                    parsed = license_tools.ParsedHeader(
+                        contents=output, file=filename)
+                    self.assertListEqual(authors, parsed.authors)
+                except:
+                    with open(BASE / 'test' / filename, 'w') as expected:
+                        expected.write(output)
+                    raise
 
-            filename = f'TestHeader-docstring_{l}.expected'
-            output = header.render(
-                filename, authors, license_tools.Style.DOCSTRING_STYLE)
-            try:
-                with open(BASE / 'test' / filename, 'r') as expected:
-                    self.assertEqual(expected.read(), output)
-                parsed = license_tools.ParsedHeader(
-                    contents=output, file=filename)
-                self.assertListEqual(authors, parsed.authors)
-            except:
-                with open(BASE / 'test' / filename, 'w') as expected:
-                    expected.write(output)
-                raise
-
-            filename = f'TestHeader-xml_{l}.expected'
-            output = header.render(
-                filename, authors, license_tools.Style.XML_STYLE)
-            try:
-                with open(BASE / 'test' / filename, 'r') as expected:
-                    self.assertEqual(expected.read(), output)
-                parsed = license_tools.ParsedHeader(
-                    contents=output, file=filename)
-                self.assertListEqual(authors, parsed.authors)
-            except:
-                with open(BASE / 'test' / filename, 'w') as expected:
-                    expected.write(output)
-                raise
-
-            filename = f'TestHeader-batch_{l}.expected'
-            output = header.render(
-                filename, authors, license_tools.Style.BATCH_STYLE)
-            try:
-                with open(BASE / 'test' / filename, 'r') as expected:
-                    self.assertEqual(expected.read(), output)
-                parsed = license_tools.ParsedHeader(
-                    contents=output, file=filename)
-                self.assertListEqual(authors, parsed.authors)
-            except:
-                with open(BASE / 'test' / filename, 'w') as expected:
-                    expected.write(output)
-                raise
-
-            filename = f'TestHeader-slash_{l}.expected'
-            output = header.render(
-                filename, authors, license_tools.Style.SLASH_STYLE)
-            try:
-                with open(BASE / 'test' / filename, 'r') as expected:
-                    self.assertEqual(expected.read(), output)
-                parsed = license_tools.ParsedHeader(
-                    contents=output, file=filename)
-                self.assertListEqual(authors, parsed.authors)
-            except:
-                with open(BASE / 'test' / filename, 'w') as expected:
-                    expected.write(output)
-                raise
-
-            filename = f'TestHeader-dash_{l}.expected'
-            output = header.render(
-                filename, authors, license_tools.Style.DASH_STYLE)
-            try:
-                with open(BASE / 'test' / filename, 'r') as expected:
-                    self.assertEqual(expected.read(), output)
-                parsed = license_tools.ParsedHeader(
-                    contents=output, file=filename)
-                self.assertListEqual(authors, parsed.authors)
-            except:
-                with open(BASE / 'test' / filename, 'w') as expected:
-                    expected.write(output)
-                raise
-
-            header = license_tools.Header(None)
             filename = f'TestHeader-no_license_{l}.expected'
             output = header.render(
                 filename, authors, license_tools.Style.C_STYLE)

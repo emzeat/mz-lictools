@@ -1,0 +1,22 @@
+REM TestHeader-batch_LGPL-2.0-or-later.expected
+REM
+REM Copyright (c) 2013 - 2020 Max Muster
+REM Copyright (c) 2021 Umbrella Inc
+REM All rights reserved.
+REM
+REM SPDX-License-Identifier: LGPL-2.0-or-later
+REM
+REM This library is free software; you can redistribute it and/or modify it
+REM under the terms of the GNU Library General Public License as published
+REM by the Free Software Foundation; either version 2 of the License, or (at
+REM your option) any later version.
+REM
+REM This library is distributed in the hope that it will be useful, but
+REM WITHOUT ANY WARRANTY; without even the implied warranty of
+REM MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+REM General Public License for more details.
+REM
+REM You should have received a copy of the GNU Library General Public
+REM License along with this library; if not, write to the Free Software
+REM Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301,
+REM USA.
