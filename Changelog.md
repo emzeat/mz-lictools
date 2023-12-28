@@ -5,6 +5,8 @@ _WIP_
 * Add support for dash style comments to support lua files
 * Predefine comment style for rust rst files
 * Predefine comment style for toml files
+* Extend list of available SPDX licenses will all OSI approved licenses
+  using headers as defined for the licenses
 * Make detection of comment style based on suffix case insensitive
 
 v2.6.2
