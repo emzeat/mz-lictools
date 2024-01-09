@@ -24,6 +24,7 @@ import pathlib
 import shutil
 import subprocess
 import tempfile
+import textwrap
 import unittest
 import license_tools
 
@@ -926,6 +927,35 @@ class TestPackage(unittest.TestCase):
             code.write_text(code.read_text() + "\ninline void unused(){}\n\n")
             subprocess.check_call(f'{BASE}/lictool', cwd=repo)
             self._diff_repo(repo, BASE / 'test/noglob_package_from_git_new_author.diff')
+
+    def test_commit_amend(self):
+        with self._prepare_repo(BASE / 'test/noglob_package_commit_amend.patch',
+                                BASE / 'test/noglob_package_commit_amend.json') as repo:
+            # trigger a change
+            code = pathlib.Path(repo) / 'code.cpp'
+            code.write_text(code.read_text() + "\ninline void unused(){}\n")
+            # enable pre-commit
+            precommit = pathlib.Path(repo) / '.pre-commit-config.yaml'
+            precommit.write_text(textwrap.dedent(f'''
+                                 repos:
+                                 -   repo: local
+                                     hooks:
+                                     - id: license-tools
+                                       name: Check license headers
+                                       entry: {BASE}/lictool
+                                       language: python
+                                       types: [text]
+                                       additional_dependencies: ['jinja2']
+                                       verbose: true
+                                '''))
+            subprocess.check_call(['pre-commit', 'install'], cwd=repo)
+            # amend the change, pre-commit should run lictool and continue as there is no changes
+            subprocess.check_call(['git', 'add', '.pre-commit-config.yaml'], cwd=repo)
+            subprocess.check_call(['git', 'commit', '--amend', '-a', '-m', 'Amended Message'], cwd=repo)
+            self._diff_repo(repo, BASE / 'test/noglob_package_commit_amend.diff')
+            # running lictool directly should not register changes either
+            subprocess.check_call(f'{BASE}/lictool', cwd=repo)
+            self._diff_repo(repo, BASE / 'test/noglob_package_commit_amend.diff')
 
 
 for file in BASE.glob('test/package_*.patch'):
