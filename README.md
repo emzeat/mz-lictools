@@ -228,7 +228,10 @@ A sample configuration is given below with each option annotated for explanation
     // of an author correctly.
     // if both 'from_git' and 'years' have been specified, the 'years' ranges
     // will be merged.
+    // if 'latest_year_only' is true only the latest year in the range will be used
     "years": [1970, 2023],
+    // only list the latest year an author made a change not the range of years
+    "latest_year_only": false,
     // for some licenses an additional company name which is different from the
     // author may be wanted. This can be specified here.
     "company": "the authors",
@@ -261,7 +264,7 @@ A sample configuration is given below with each option annotated for explanation
   // specifies the title to put at the top of each file. Only choice right now
   // is "filename".
   // Set to false to leave out the title altogether.
-    "title": "filename",
+  "title": "filename",
   // specifies a custom title to put at the top of the file header.
   // In case both 'title' and 'custom_title' have been specified, the
   // 'custom_title' takes precedence.

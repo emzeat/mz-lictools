@@ -9,6 +9,7 @@ _WIP_
   using headers as defined for the licenses
 * Make detection of comment style based on suffix case insensitive
 * Fix handling of files with unicode BOM
+* Allow selection of latest year vs range of years
 
 v2.6.2
 ------

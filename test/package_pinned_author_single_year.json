@@ -1,0 +1,12 @@
+{
+  "author": {
+    "years": [
+      1980
+    ],
+    "latest_year_only": true,
+    "from_git": true,
+    "company": "Umbrella Inc"
+  },
+  "license": "Proprietary",
+  "force_license": true
+}

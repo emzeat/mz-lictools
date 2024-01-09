@@ -551,13 +551,14 @@ class Tool:
         return Tool.force_newline(input).replace('\n', newline)
 
     def bump(self, filename: pathlib.PurePath,
-             keep_license: bool = True, title: Title = None, keep_authors: bool = True) -> str:
+             keep_license: bool = True, title: Title = None, keep_authors: bool = True, latest_year_only: bool = False) -> str:
         """
         Reads a file and returns the bumped contents
         :filename: The file to be bumped
         :keep_license: If an existing license should be retained or replaced with the new default
         :title: The title to use in the header
         :keep_authors: If any existing authors should be retained or replaced with the new default
+        :latest_year_only: Only lists the last year a file was touched
         returns a tuple of detected language and bumped contents
         """
         parsed = ParsedHeader(filename)
@@ -611,6 +612,9 @@ class Tool:
             parsed.authors = list(seen_authors.values())
         else:
             parsed.authors = [latest_author]
+        if latest_year_only:
+            for author in parsed.authors:
+                author.year_from = author.year_to
 
         license_text = None
         if keep_license:
@@ -633,7 +637,7 @@ class Tool:
         return parsed.style, output
 
     def bump_inplace(self, filename: pathlib.PurePath, keep_license: bool = True,
-                     title: Title = None, simulate: bool = False, keep_authors: bool = True) -> bool:
+                     title: Title = None, simulate: bool = False, keep_authors: bool = True, latest_year_only: bool = False) -> bool:
         """
         Bumps the license header of a given file
         :filename: The file to be bumped
@@ -641,8 +645,10 @@ class Tool:
         :title: The title to use in the header
         :simulate: Perform a dry run not applying any changes
         :keep_authors: If any existing authors should be retained or replaced with the new default
+        :latest_year_only: Only lists the last year a file was touched
         """
-        _, bumped = self.bump(filename, keep_license=keep_license, title=title, keep_authors=keep_authors)
+        _, bumped = self.bump(filename, keep_license=keep_license, title=title,
+                              keep_authors=keep_authors, latest_year_only=latest_year_only)
         if bumped:
             filename = str(filename) + \
                 '.license_bumped' if simulate else filename
@@ -784,6 +790,7 @@ def main():
             'author': {
                 'from_git': True,
                 'years': [1970, DateUtils.current_year()],
+                'latest_year_only': False,
                 'name': '<author here>',
                 'company': 'the authors',
                 'aliases': {
@@ -948,7 +955,7 @@ def process_file(args, file) -> bool:
         sys.exit(2)
     if 'years' in config_author:
         years = config_author['years']
-        if len(years) < 1 or len(years) > 2:
+        if not isinstance(years, list) or len(years) < 1 or len(years) > 2:
             logging.fatal(f"Please provide the 'years' attribute as [from] or pair [from, to]: {years}")
             sys.exit(2)
         try:
@@ -976,10 +983,11 @@ def process_file(args, file) -> bool:
     tool = Tool(license, author, company, aliases, lines_after_license)
     keep_license = not args.force_license and not config.get('force_license', False)
     keep_authors = not config.get('force_author', False)
+    latest_year_only = config_author.get('latest_year_only', False)
 
     logging.debug(f"Processing '{file_rel}'")
     try:
-        if tool.bump_inplace(file, keep_license=keep_license, keep_authors=keep_authors, title=title, simulate=args.dry_run):
+        if tool.bump_inplace(file, keep_license=keep_license, keep_authors=keep_authors, latest_year_only=latest_year_only, title=title, simulate=args.dry_run):
             return True
     except UnicodeDecodeError as error:
         logging.warning(f"Failed to decode {file_rel}: {error}")
