@@ -10,6 +10,7 @@ _WIP_
 * Make detection of comment style based on suffix case insensitive
 * Fix handling of files with unicode BOM
 * Allow selection of latest year vs range of years
+* Fix handling of author years when amending a commit
 
 v2.6.2
 ------

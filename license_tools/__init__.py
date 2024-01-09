@@ -62,6 +62,46 @@ class DateUtils:
             DateUtils._current_year = int(year)
         return DateUtils._current_year
 
+    @staticmethod
+    def parse_git_date(git_date: str) -> datetime.datetime:
+        """
+        Returns a datetime parsed from a git date string
+        as documented at https://git-scm.com/docs/git-commit/2.24.0#_date_formats
+        """
+        # Git internal format
+        try:
+            if git_date.startswith('@'):
+                unix_timestamp, tz_offset = git_date[1:].split(' ', maxsplit=1)
+                unix_timestamp = int(unix_timestamp)
+                timezone = datetime.timezone(datetime.datetime.strptime(tz_offset, '%z').utcoffset())
+                return datetime.datetime.fromtimestamp(unix_timestamp, tz=timezone)
+        except:  # pylint: disable=bare-except
+            pass
+
+        # RFC 2822
+        try:
+            from email.utils import parsedate_to_datetime  # pylint: disable=import-outside-toplevel
+            author_date = parsedate_to_datetime(git_date)
+            if author_date:
+                return author_date
+        except:  # pylint: disable=bare-except
+            pass
+
+        # ISO 8601
+        try:
+            return datetime.datetime.fromisoformat(git_date)
+        except:  # pylint: disable=bare-except
+            pass
+
+        # plain formats
+        for format in ['%Y.%m.%d', '%m/%d/%Y', '%d.%m.%Y']:
+            try:
+                return datetime.datetime.strptime(git_date, format)
+            except:  # pylint: disable=bare-except
+                pass
+
+        raise RuntimeError(f"Not a supported git date format: {git_date}")
+
 
 class Style(enum.Enum):
     """Enumerates the different known comment styles"""
@@ -258,7 +298,11 @@ class Author:
         self.git_repo = git_repo
         self.name_from_git = git_repo is not None
         if year_to is None:
-            year_to = DateUtils.current_year()
+            git_author_date = os.environ.get('GIT_AUTHOR_DATE', None)
+            if self.name_from_git and git_author_date:
+                year_to = DateUtils.parse_git_date(git_author_date).year
+            else:
+                year_to = DateUtils.current_year()
         self.year_to = year_to
         if year_from:
             self.year_from = year_from

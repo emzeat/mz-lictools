@@ -18,6 +18,7 @@
 # limitations under the License.
 
 from asyncio import subprocess
+import datetime
 import functools
 import os
 import pathlib
@@ -93,6 +94,23 @@ class TestFileFilter(unittest.TestCase):
             except:
                 print(f"file_rel={file_rel} includes={includes}")
                 raise
+
+
+class TestDateUtils(unittest.TestCase):
+
+    def test_git_date_format(self):
+        EXPRESSIONS = [
+            ('Thu, 07 Apr 2005 22:13:13 +0200', 2005, 4, 7),  # RFC 2822
+            ('2005-04-07T22:13:13', 2005, 4, 7),  # ISO 8601
+            ('1998.02.01', 1998, 2, 1),
+            ('01/02/1987', 1987, 1, 2),
+            ('@1453791344 +0100', 2016, 1, 26),  # git internal format
+        ]
+        for expression, year, month, day in EXPRESSIONS:
+            date = license_tools.DateUtils.parse_git_date(expression)
+            self.assertEqual(date.year, year)
+            self.assertEqual(date.month, month)
+            self.assertEqual(date.day, day)
 
 
 def parser_test(file: pathlib.Path):
