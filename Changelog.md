@@ -8,6 +8,7 @@ _WIP_
 * Extend list of available SPDX licenses will all OSI approved licenses
   using headers as defined for the licenses
 * Make detection of comment style based on suffix case insensitive
+* Fix handling of files with unicode BOM
 
 v2.6.2
 ------

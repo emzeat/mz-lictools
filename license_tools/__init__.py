@@ -1,6 +1,6 @@
 # __init__.py
 #
-# Copyright (c) 2012 - 2023 Marius Zwicker
+# Copyright (c) 2012 - 2024 Marius Zwicker
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -198,6 +198,8 @@ class Style(enum.Enum):
         Each entry is a pair of matching regex and additional flags required
         """
         return [
+            # unicode bom marker
+            (r'\uFEFF', 0),
             # something like '#!/usr/bin/env bash'
             (r'^#!.+', 0),
             # something like '# -*- coding: utf-8 -*-'

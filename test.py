@@ -1,6 +1,6 @@
 # test.py
 #
-# Copyright (c) 2021 - 2023 Marius Zwicker
+# Copyright (c) 2021 - 2024 Marius Zwicker
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -485,6 +485,21 @@ class TestParserXmlStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
         self.assertEqual("<xml />", parsed.remainder)
+
+    @parser_test(BASE / 'test/TestParserXmlStyle-unicode_marker.xml')
+    def test_unicode_marker(self, parsed):
+        self.assertEqual(1, len(parsed.authors))
+        self.assertEqual("Max Muster", parsed.authors[0].name)
+        self.assertEqual(2010, parsed.authors[0].year_from)
+        self.assertEqual(2020, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.XML_STYLE, parsed.style)
+        self.assertListEqual(['\uFEFF', '<?xml version="1.0" encoding="utf-8"?>'], parsed.decls)
+        if '\r' in parsed.remainder:
+            self.assertEqual("<rcc>\r\n    <!-- qrc sample -->\r\n    <qresource", parsed.remainder[:46])
+        else:
+            self.assertEqual("<rcc>\n    <!-- qrc sample -->\n    <qresource", parsed.remainder[:44])
+        self.assertTrue(parsed.license.startswith(
+            "This library is"), parsed.license)
 
     @parser_test(BASE / 'test/TestParserXmlStyle-1author_2years.htm')
     def test_1author_2years(self, parsed):
