@@ -1,6 +1,6 @@
 v2.7.0
 ------
-_WIP_
+_09.01.2024_
 
 * Add support for dash style comments to support lua files
 * Predefine comment style for rust rst files
