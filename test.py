@@ -1,6 +1,6 @@
 # test.py
 #
-# Copyright (c) 2021 - 2024 Marius Zwicker
+# Copyright (c) 2021 - 2025 Marius Zwicker
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -132,7 +132,7 @@ def parser_test(file: pathlib.Path):
 
 class TestParserCStyle(unittest.TestCase):
 
-    @parser_test(BASE / 'test/TestParserCStyle-1author_1year.h')
+    @parser_test(BASE / 'test/parser/TestParserCStyle-1author_1year.h')
     def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -143,7 +143,7 @@ class TestParserCStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("#include <stdio.h>", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserTaggedCStyle-1author_1year.h')
+    @parser_test(BASE / 'test/parser/TestParserTaggedCStyle-1author_1year.h')
     def test_tagged_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -154,7 +154,7 @@ class TestParserCStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("#include <stdio.h>", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserCStyle-copyright_caps.h')
+    @parser_test(BASE / 'test/parser/TestParserCStyle-copyright_caps.h')
     def test_copyright_caps(self, parsed):
         self.assertEqual(2, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -168,7 +168,7 @@ class TestParserCStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("#include <stdio.h>", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserCStyle-1author_1year.hpp')
+    @parser_test(BASE / 'test/parser/TestParserCStyle-1author_1year.hpp')
     def test_1author_1year_dash(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("AB_CD-Team", parsed.authors[0].name)
@@ -179,7 +179,7 @@ class TestParserCStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("#include <stdio.h>", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserCStyle-non_greedy.hpp')
+    @parser_test(BASE / 'test/parser/TestParserCStyle-non_greedy.hpp')
     def test_non_greedy(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -190,7 +190,7 @@ class TestParserCStyle(unittest.TestCase):
             "Permission to use"), parsed.license)
         self.assertEqual("#ifndef GEN_NON_", parsed.remainder[:16])
 
-    @parser_test(file=BASE / 'test/TestParserTaggedCStyle-non_greedy.hpp')
+    @parser_test(file=BASE / 'test/parser/TestParserTaggedCStyle-non_greedy.hpp')
     def test_tagged_non_greedy(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -201,7 +201,7 @@ class TestParserCStyle(unittest.TestCase):
             "Permission to use"), parsed.license)
         self.assertEqual("#ifndef GEN_NON_", parsed.remainder[:16])
 
-    @parser_test(BASE / 'test/TestParserCStyle-1author_2years.cxx')
+    @parser_test(BASE / 'test/parser/TestParserCStyle-1author_2years.cxx')
     def test_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -211,7 +211,7 @@ class TestParserCStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    @parser_test(BASE / 'test/TestParserTaggedCStyle-1author_2years.cxx')
+    @parser_test(BASE / 'test/parser/TestParserTaggedCStyle-1author_2years.cxx')
     def test_tagged_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -221,7 +221,7 @@ class TestParserCStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    @parser_test(BASE / 'test/TestParserCStyle-2authors_2years.c')
+    @parser_test(BASE / 'test/parser/TestParserCStyle-2authors_2years.c')
     def test_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -237,7 +237,7 @@ class TestParserCStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    @parser_test(BASE / 'test/TestParserTaggedCStyle-2authors_2years.c')
+    @parser_test(BASE / 'test/parser/TestParserTaggedCStyle-2authors_2years.c')
     def test_tagged_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -256,7 +256,7 @@ class TestParserCStyle(unittest.TestCase):
 
 class TestParserPoundStyle(unittest.TestCase):
 
-    @parser_test(BASE / 'test/TestParserPoundStyle-no_newline_after_license_extra_pound.cmake')
+    @parser_test(BASE / 'test/parser/TestParserPoundStyle-no_newline_after_license_extra_pound.cmake')
     def test_no_newline_after_license_extra_slash(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Test Author", parsed.authors[0].name)
@@ -266,7 +266,7 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith('SPDX-License-Identifier:'), parsed.license)
         self.assertTrue(parsed.remainder.startswith('set(CMAKE_MACOSX_RPATH ON)'), parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserPoundStyle-no_newline_after_license.cmake')
+    @parser_test(BASE / 'test/parser/TestParserPoundStyle-no_newline_after_license.cmake')
     def test_no_newline_after_license(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Test Author", parsed.authors[0].name)
@@ -276,7 +276,7 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertEqual(None, parsed.license)
         self.assertTrue(parsed.remainder.startswith('set(CMAKE_MACOSX_RPATH ON)'), parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserPoundStyle-1author_1year.cmake')
+    @parser_test(BASE / 'test/parser/TestParserPoundStyle-1author_1year.cmake')
     def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -288,7 +288,7 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertEqual(
             "cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserPoundStyle-comment_after_license.cmake')
+    @parser_test(BASE / 'test/parser/TestParserPoundStyle-comment_after_license.cmake')
     def test_comment_after_license(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Test Author", parsed.authors[0].name)
@@ -298,7 +298,7 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertEqual(None, parsed.license)
         self.assertTrue(parsed.remainder.startswith('# rpath handling on OSX'), parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserPoundStyle-no_space.py')
+    @parser_test(BASE / 'test/parser/TestParserPoundStyle-no_space.py')
     def test_no_space(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -309,7 +309,7 @@ class TestParserPoundStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("import unittest", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserPoundStyle-no_content.py')
+    @parser_test(BASE / 'test/parser/TestParserPoundStyle-no_content.py')
     def test_no_content(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -320,7 +320,7 @@ class TestParserPoundStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserTaggedPoundStyle-1author_1year.cmake')
+    @parser_test(BASE / 'test/parser/TestParserTaggedPoundStyle-1author_1year.cmake')
     def test_tagged_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -332,7 +332,7 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertEqual(
             "cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserPoundStyle-1author_2years.sh')
+    @parser_test(BASE / 'test/parser/TestParserPoundStyle-1author_2years.sh')
     def test_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -342,7 +342,7 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    @parser_test(BASE / 'test/TestParserTaggedPoundStyle-1author_2years.sh')
+    @parser_test(BASE / 'test/parser/TestParserTaggedPoundStyle-1author_2years.sh')
     def test_tagged_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -352,7 +352,7 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    @parser_test(BASE / 'test/TestParserPoundStyle-2authors_2years')
+    @parser_test(BASE / 'test/parser/TestParserPoundStyle-2authors_2years')
     def test_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -368,7 +368,7 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    @parser_test(BASE / 'test/TestParserTaggedPoundStyle-2authors_2years')
+    @parser_test(BASE / 'test/parser/TestParserTaggedPoundStyle-2authors_2years')
     def test_tagged_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -387,7 +387,7 @@ class TestParserPoundStyle(unittest.TestCase):
 
 class TestParserDocStringStyle(unittest.TestCase):
 
-    @parser_test(BASE / 'test/TestParserDocStringStyle-no_newline_after_license_extra_pound.py')
+    @parser_test(BASE / 'test/parser/TestParserDocStringStyle-no_newline_after_license_extra_pound.py')
     def test_no_newline_after_license_extra_slash(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Test Author", parsed.authors[0].name)
@@ -397,7 +397,7 @@ class TestParserDocStringStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith('SPDX-License-Identifier:'), parsed.license)
         self.assertTrue(parsed.remainder.startswith('import sys'), parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserDocStringStyle-no_newline_after_license.py')
+    @parser_test(BASE / 'test/parser/TestParserDocStringStyle-no_newline_after_license.py')
     def test_no_newline_after_license(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Test Author", parsed.authors[0].name)
@@ -407,7 +407,7 @@ class TestParserDocStringStyle(unittest.TestCase):
         self.assertEqual(None, parsed.license)
         self.assertTrue(parsed.remainder.startswith('import sys'), parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserDocStringStyle-1author_1year.py')
+    @parser_test(BASE / 'test/parser/TestParserDocStringStyle-1author_1year.py')
     def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -418,7 +418,7 @@ class TestParserDocStringStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("import unittest", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserTaggedDocStringStyle-1author_1year.py')
+    @parser_test(BASE / 'test/parser/TestParserTaggedDocStringStyle-1author_1year.py')
     def test_tagged_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -429,7 +429,7 @@ class TestParserDocStringStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("import unittest", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserDocStringStyle-1author_2years.py')
+    @parser_test(BASE / 'test/parser/TestParserDocStringStyle-1author_2years.py')
     def test_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -439,7 +439,7 @@ class TestParserDocStringStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    @parser_test(BASE / 'test/TestParserTaggedDocStringStyle-1author_2years.py')
+    @parser_test(BASE / 'test/parser/TestParserTaggedDocStringStyle-1author_2years.py')
     def test_tagged_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -449,7 +449,7 @@ class TestParserDocStringStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    @parser_test(BASE / 'test/TestParserDocStringStyle-comment_after_license.py')
+    @parser_test(BASE / 'test/parser/TestParserDocStringStyle-comment_after_license.py')
     def test_comment_after_license(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Test Author", parsed.authors[0].name)
@@ -459,7 +459,7 @@ class TestParserDocStringStyle(unittest.TestCase):
         self.assertEqual(None, parsed.license)
         self.assertTrue(parsed.remainder.startswith('# System'), parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserDocStringStyle-2authors_2years')
+    @parser_test(BASE / 'test/parser/TestParserDocStringStyle-2authors_2years')
     def test_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -475,7 +475,7 @@ class TestParserDocStringStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    @parser_test(BASE / 'test/TestParserTaggedDocStringStyle-2authors_2years')
+    @parser_test(BASE / 'test/parser/TestParserTaggedDocStringStyle-2authors_2years')
     def test_tagged_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -494,7 +494,7 @@ class TestParserDocStringStyle(unittest.TestCase):
 
 class TestParserXmlStyle(unittest.TestCase):
 
-    @parser_test(BASE / 'test/TestParserXmlStyle-1author_1year.xml')
+    @parser_test(BASE / 'test/parser/TestParserXmlStyle-1author_1year.xml')
     def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -505,7 +505,7 @@ class TestParserXmlStyle(unittest.TestCase):
             "This library is"), parsed.license)
         self.assertEqual("<xml />", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserXmlStyle-unicode_marker.xml')
+    @parser_test(BASE / 'test/parser/TestParserXmlStyle-unicode_marker.xml')
     def test_unicode_marker(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -520,7 +520,7 @@ class TestParserXmlStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    @parser_test(BASE / 'test/TestParserXmlStyle-1author_2years.htm')
+    @parser_test(BASE / 'test/parser/TestParserXmlStyle-1author_2years.htm')
     def test_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -530,7 +530,7 @@ class TestParserXmlStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    @parser_test(BASE / 'test/TestParserXmlStyle-2authors_2years.html')
+    @parser_test(BASE / 'test/parser/TestParserXmlStyle-2authors_2years.html')
     def test_2authors_2years(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -546,7 +546,7 @@ class TestParserXmlStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
-    @parser_test(BASE / 'test/TestParserXmlStyle-no_license.html')
+    @parser_test(BASE / 'test/parser/TestParserXmlStyle-no_license.html')
     def test_no_license(self, parsed):
         self.assertEqual(3, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -564,7 +564,7 @@ class TestParserXmlStyle(unittest.TestCase):
 
 class TestParserBatchStyle(unittest.TestCase):
 
-    @parser_test(BASE / 'test/TestParserBatchStyle-1author_1year.bat')
+    @parser_test(BASE / 'test/parser/TestParserBatchStyle-1author_1year.bat')
     def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -576,7 +576,7 @@ class TestParserBatchStyle(unittest.TestCase):
         self.assertEqual(
             "echo.Hello World", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserTaggedBatchStyle-1author_1year.bat')
+    @parser_test(BASE / 'test/parser/TestParserTaggedBatchStyle-1author_1year.bat')
     def test_tagged_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -588,7 +588,7 @@ class TestParserBatchStyle(unittest.TestCase):
         self.assertEqual(
             "echo.Hello World", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserBatchStyle-1author_2years.bat')
+    @parser_test(BASE / 'test/parser/TestParserBatchStyle-1author_2years.bat')
     def test_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -600,7 +600,7 @@ class TestParserBatchStyle(unittest.TestCase):
         self.assertEqual(
             "echo.Hello World", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserTaggedBatchStyle-1author_2years.bat')
+    @parser_test(BASE / 'test/parser/TestParserTaggedBatchStyle-1author_2years.bat')
     def test_tagged_1author_2years(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -615,7 +615,7 @@ class TestParserBatchStyle(unittest.TestCase):
 
 class TestParserSlashStyle(unittest.TestCase):
 
-    @parser_test(BASE / 'test/TestParserSlashStyle-1author_1year.rc')
+    @parser_test(BASE / 'test/parser/TestParserSlashStyle-1author_1year.rc')
     def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -627,7 +627,7 @@ class TestParserSlashStyle(unittest.TestCase):
         self.assertEqual(
             "#include <stdio.h>", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserTaggedSlashStyle-1author_1year.rc')
+    @parser_test(BASE / 'test/parser/TestParserTaggedSlashStyle-1author_1year.rc')
     def test_tagged_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors))
         self.assertEqual("Max Muster", parsed.authors[0].name)
@@ -639,7 +639,7 @@ class TestParserSlashStyle(unittest.TestCase):
         self.assertEqual(
             "#include <stdio.h>", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserSlashStyle-multiline_author.rc')
+    @parser_test(BASE / 'test/parser/TestParserSlashStyle-multiline_author.rc')
     def test_1author_1year(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Office of code", parsed.authors[0].name)
@@ -651,7 +651,7 @@ class TestParserSlashStyle(unittest.TestCase):
         self.assertEqual(
             "#include <stdio.h>", parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserSlashStyle-comment_after_license.c')
+    @parser_test(BASE / 'test/parser/TestParserSlashStyle-comment_after_license.c')
     def test_comment_after_license(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Test Author", parsed.authors[0].name)
@@ -661,7 +661,7 @@ class TestParserSlashStyle(unittest.TestCase):
         self.assertEqual(None, parsed.license)
         self.assertTrue(parsed.remainder.startswith('// System'), parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserSlashStyle-brief_spdx.c')
+    @parser_test(BASE / 'test/parser/TestParserSlashStyle-brief_spdx.c')
     def test_brief_spdx(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Test Author", parsed.authors[0].name)
@@ -671,7 +671,7 @@ class TestParserSlashStyle(unittest.TestCase):
         self.assertEqual("SPDX-License-Identifier: Apache-2.0", parsed.license)
         self.assertTrue(parsed.remainder.startswith('// System'), parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserSlashStyle-no_newline_after_license.c')
+    @parser_test(BASE / 'test/parser/TestParserSlashStyle-no_newline_after_license.c')
     def test_no_newline_after_license(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Test Author", parsed.authors[0].name)
@@ -681,7 +681,7 @@ class TestParserSlashStyle(unittest.TestCase):
         self.assertEqual(None, parsed.license)
         self.assertTrue(parsed.remainder.startswith('#include'), parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserSlashStyle-no_newline_after_license_extra_slash.c')
+    @parser_test(BASE / 'test/parser/TestParserSlashStyle-no_newline_after_license_extra_slash.c')
     def test_no_newline_after_license_extra_slash(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Test Author", parsed.authors[0].name)
@@ -694,7 +694,7 @@ class TestParserSlashStyle(unittest.TestCase):
 
 class TestParserDashStyle(unittest.TestCase):
 
-    @parser_test(BASE / 'test/TestParserDashStyle-comment_after_license.lua')
+    @parser_test(BASE / 'test/parser/TestParserDashStyle-comment_after_license.lua')
     def test_comment_after_license(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Test Author", parsed.authors[0].name)
@@ -704,7 +704,7 @@ class TestParserDashStyle(unittest.TestCase):
         self.assertEqual(None, parsed.license)
         self.assertTrue(parsed.remainder.startswith('-- defines'), parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserDashStyle-no_newline_after_license.lua')
+    @parser_test(BASE / 'test/parser/TestParserDashStyle-no_newline_after_license.lua')
     def test_no_newline_after_license(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Test Author", parsed.authors[0].name)
@@ -714,7 +714,7 @@ class TestParserDashStyle(unittest.TestCase):
         self.assertEqual(None, parsed.license)
         self.assertTrue(parsed.remainder.startswith('print'), parsed.remainder)
 
-    @parser_test(BASE / 'test/TestParserDashStyle-no_newline_after_license_extra_dash.lua')
+    @parser_test(BASE / 'test/parser/TestParserDashStyle-no_newline_after_license_extra_dash.lua')
     def test_no_newline_after_license_extra_slash(self, parsed):
         self.assertEqual(1, len(parsed.authors), str(parsed.authors))
         self.assertEqual("Test Author", parsed.authors[0].name)
@@ -753,13 +753,13 @@ class TestHeader(unittest.TestCase):
                 output = header.render(
                     filename, authors, style)
                 try:
-                    with open(BASE / 'test' / filename, 'r') as expected:
+                    with open(BASE / 'test/generation' / filename, 'r') as expected:
                         self.assertEqual(expected.read(), output)
                     parsed = license_tools.ParsedHeader(
                         contents=output, file=filename)
                     self.assertListEqual(authors, parsed.authors)
                 except:
-                    with open(BASE / 'test' / filename, 'w') as expected:
+                    with open(BASE / 'test/generation' / filename, 'w') as expected:
                         expected.write(output)
                     raise
 
@@ -767,13 +767,13 @@ class TestHeader(unittest.TestCase):
             output = header.render(
                 filename, authors, license_tools.Style.C_STYLE)
             try:
-                with open(BASE / 'test' / filename, 'r') as expected:
+                with open(BASE / 'test/generation' / filename, 'r') as expected:
                     self.assertEqual(expected.read(), output)
                 parsed = license_tools.ParsedHeader(
                     contents=output, file=filename)
                 self.assertListEqual(authors, parsed.authors)
             except:
-                with open(BASE / 'test' / filename, 'w') as expected:
+                with open(BASE / 'test/generation' / filename, 'w') as expected:
                     expected.write(output)
                 raise
 
@@ -782,13 +782,13 @@ class TestHeader(unittest.TestCase):
             output = header.render(
                 'My Project', authors, license_tools.Style.C_STYLE)
             try:
-                with open(BASE / 'test' / filename, 'r') as expected:
+                with open(BASE / 'test/generation' / filename, 'r') as expected:
                     self.assertEqual(expected.read(), output)
                 parsed = license_tools.ParsedHeader(
                     contents=output, file=filename)
                 self.assertListEqual(authors, parsed.authors)
             except:
-                with open(BASE / 'test' / filename, 'w') as expected:
+                with open(BASE / 'test/generation' / filename, 'w') as expected:
                     expected.write(output)
                 raise
 
@@ -803,10 +803,10 @@ Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incid
         output = header.render(
             filename, authors, license_tools.Style.C_STYLE)
         try:
-            with open(BASE / 'test' / filename, 'r') as expected:
+            with open(BASE / 'test/generation' / filename, 'r') as expected:
                 self.assertEqual(expected.read(), output)
         except:
-            with open(BASE / 'test' / filename, 'w') as expected:
+            with open(BASE / 'test/generation' / filename, 'w') as expected:
                 expected.write(output)
             raise
 
@@ -828,8 +828,8 @@ class TestTool(unittest.TestCase):
         title = license_tools.Title("filename")
         tool = license_tools.Tool(
             default_license=license, default_author=author)
-        input = BASE / 'test/TestTool-bump_old_copyright_year.input.cxx'
-        expected = BASE / 'test/TestTool-bump_old_copyright_year.expected'
+        input = BASE / 'test/tool/TestTool-bump_old_copyright_year.input.cxx'
+        expected = BASE / 'test/tool/TestTool-bump_old_copyright_year.expected'
         with tempfile.TemporaryDirectory() as wkdir:
             dut = pathlib.Path(wkdir) / input.name
             # verify unix line endings get retained
@@ -850,7 +850,7 @@ class TestTool(unittest.TestCase):
                              f"\nACTUAL ---\n{self._render_endings(result)}\nWANT ---\n{self._render_endings(expected_dos)}\n---")
 
 
-for file in BASE.glob('test/TestTool-bump*.input.*'):
+for file in BASE.glob('test/tool/TestTool-bump*.input.*'):
     author = license_tools.Author("Test Guy", year_to=2021)
     license = license_tools.License("Apache-2.0")
     title = license_tools.Title("filename")
@@ -866,11 +866,11 @@ for file in BASE.glob('test/TestTool-bump*.input.*'):
             style, result = tool.bump(input, title=title, keep_license=True)
             self.assertIsNotNone(result)
             try:
-                with open(BASE / 'test' / (stem + ".expected"), 'r') as expected:
+                with open(BASE / 'test/tool' / (stem + ".expected"), 'r') as expected:
                     self.assertEqual(expected.read(), result)
             except:
                 print(f"{file}, style={style}\nACTUAL ---\n{result}\nWANT ---")
-                with open(BASE / 'test' / (stem + ".expected"), 'w') as expected:
+                with open(BASE / 'test/tool' / (stem + ".expected"), 'w') as expected:
                     expected.write(result)
                 raise
         return test_bump
@@ -913,42 +913,42 @@ class TestPackage(unittest.TestCase):
             raise
 
     def test_bad_config(self):
-        with self._prepare_repo(BASE / 'test/noglob_package_bad_license.patch',
-                                BASE / 'test/noglob_package_bad_license.patch') as repo:
+        with self._prepare_repo(BASE / 'test/package/noglob_package_bad_license.patch',
+                                BASE / 'test/package/noglob_package_bad_license.patch') as repo:
             with self.assertRaises(subprocess.CalledProcessError):
                 subprocess.check_call(f'{BASE}/lictool', cwd=repo)
 
     def test_no_config(self):
-        with self._prepare_repo(BASE / 'test/noglob_package_bad_license.patch',
-                                BASE / 'test/noglob_package_bad_license.patch') as repo:
+        with self._prepare_repo(BASE / 'test/package/noglob_package_bad_license.patch',
+                                BASE / 'test/package/noglob_package_bad_license.patch') as repo:
             (pathlib.Path(repo) / '.license-tools-config.json').unlink()
             with self.assertRaises(subprocess.CalledProcessError):
                 subprocess.check_call(f'{BASE}/lictool', cwd=repo)
 
     def test_bad_license(self):
-        with self._prepare_repo(BASE / 'test/noglob_package_bad_license.patch',
-                                BASE / 'test/noglob_package_bad_license.json') as repo:
+        with self._prepare_repo(BASE / 'test/package/noglob_package_bad_license.patch',
+                                BASE / 'test/package/noglob_package_bad_license.json') as repo:
             with self.assertRaises(subprocess.CalledProcessError):
                 subprocess.check_call(f'{BASE}/lictool', cwd=repo)
 
     def test_from_git_no_repo(self):
-        with self._prepare_repo(BASE / 'test/noglob_package_from_git_no_repo.patch',
-                                BASE / 'test/noglob_package_from_git_no_repo.json') as repo:
+        with self._prepare_repo(BASE / 'test/package/noglob_package_from_git_no_repo.patch',
+                                BASE / 'test/package/noglob_package_from_git_no_repo.json') as repo:
             shutil.rmtree(pathlib.Path(repo) / '.git')
             with self.assertRaises(subprocess.CalledProcessError):
                 subprocess.check_call(f'{BASE}/lictool', cwd=repo)
 
     def test_new_author(self):
-        with self._prepare_repo(BASE / 'test/noglob_package_from_git_new_author.patch',
-                                BASE / 'test/noglob_package_from_git_new_author.json') as repo:
+        with self._prepare_repo(BASE / 'test/package/noglob_package_from_git_new_author.patch',
+                                BASE / 'test/package/noglob_package_from_git_new_author.json') as repo:
             code = pathlib.Path(repo) / 'code.cpp'
             code.write_text(code.read_text() + "\ninline void unused(){}\n\n")
             subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/noglob_package_from_git_new_author.diff')
+            self._diff_repo(repo, BASE / 'test/package/noglob_package_from_git_new_author.diff')
 
     def test_commit_amend(self):
-        with self._prepare_repo(BASE / 'test/noglob_package_commit_amend.patch',
-                                BASE / 'test/noglob_package_commit_amend.json') as repo:
+        with self._prepare_repo(BASE / 'test/package/noglob_package_commit_amend.patch',
+                                BASE / 'test/package/noglob_package_commit_amend.json') as repo:
             # trigger a change
             code = pathlib.Path(repo) / 'code.cpp'
             code.write_text(code.read_text() + "\ninline void unused(){}\n")
@@ -970,13 +970,13 @@ class TestPackage(unittest.TestCase):
             # amend the change, pre-commit should run lictool and continue as there is no changes
             subprocess.check_call(['git', 'add', '.pre-commit-config.yaml'], cwd=repo)
             subprocess.check_call(['git', 'commit', '--amend', '-a', '-m', 'Amended Message'], cwd=repo)
-            self._diff_repo(repo, BASE / 'test/noglob_package_commit_amend.diff')
+            self._diff_repo(repo, BASE / 'test/package/noglob_package_commit_amend.diff')
             # running lictool directly should not register changes either
             subprocess.check_call(f'{BASE}/lictool', cwd=repo)
-            self._diff_repo(repo, BASE / 'test/noglob_package_commit_amend.diff')
+            self._diff_repo(repo, BASE / 'test/package/noglob_package_commit_amend.diff')
 
 
-for file in BASE.glob('test/package_*.patch'):
+for file in BASE.glob('test/package/package_*.patch'):
     def create_test_case():
         patch = file
         json = patch.with_suffix('.json')
