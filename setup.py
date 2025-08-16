@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # setup.py
 #
-# Copyright (c) 2021 - 2023 Marius Zwicker
+# Copyright (c) 2021 - 2025 Marius Zwicker
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -63,7 +63,7 @@ setup(name='mz-lictools',
       author_email='marius@numlz.de',
       url='https://github.com/emzeat/mz-lictools',
       packages=['license_tools'],
-      package_data={'license_tools': ['*.license', '*.spdx', '*.j2']},
+      package_data={'license_tools': ['other_licenses/*.license', 'spdx_licenses/*.spdx', '*.j2']},
       entry_points={
           'console_scripts': ['lictool=license_tools:main']
       },

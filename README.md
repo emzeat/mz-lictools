@@ -310,6 +310,14 @@ using the English language.
 
 Any changes to this repository get done via GitHub's standard workflow. See GitHub's [First Contributions document](https://github.com/firstcontributions/first-contributions) for an introduction.
 
+### Adding new licenses
+
+SPDX licenses get pulled directly from spdx.org by help of the `update_spdx.py` script:
+
+1. Execute `python3 ./update_spdx.py` to automatically pull missing licenses and add generate missing test assets.
+2. Missing expected output in the test assets will automatically be added and should be inspected for correctness manually. Future runs of the tests will track regressions against those assets.
+3. Open an MR with the changes.
+
 
 ## Acknowledgements
 

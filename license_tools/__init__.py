@@ -1,6 +1,6 @@
 # __init__.py
 #
-# Copyright (c) 2012 - 2024 Marius Zwicker
+# Copyright (c) 2012 - 2025 Marius Zwicker
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -40,8 +40,8 @@ import jinja2
 
 BASE_DIR = pathlib.Path(__file__).parent
 CW_DIR = pathlib.Path.cwd()
-SPDX_LICENSES = list(BASE_DIR.glob('*.spdx'))
-OTHER_LICENSES = list(BASE_DIR.glob('*.license'))
+SPDX_LICENSES = list(BASE_DIR.glob('spdx_licenses/*.spdx'))
+OTHER_LICENSES = list(BASE_DIR.glob('other_licenses/*.license'))
 LICENSES = {license_file.stem: license_file for license_file in SPDX_LICENSES + OTHER_LICENSES}
 LICENSE_JSON = '.license-tools-config.json'
 
@@ -411,7 +411,7 @@ class License:
                 raise TypeError(f"No such license '{builtin}'")
             self.builtin = True
             self.spdx = self.header in SPDX_LICENSES
-            self.header = self.header.name
+            self.header = self.header.parent.name + '/' + self.header.name
         elif custom:
             self.name = 'custom'
             self.header = custom

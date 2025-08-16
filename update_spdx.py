@@ -1,6 +1,6 @@
 # update_spdx.py
 #
-# Copyright (c) 2023 Marius Zwicker
+# Copyright (c) 2023 - 2025 Marius Zwicker
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -24,11 +24,13 @@ https://github.com/spdx/license-list-data/blob/main/accessingLicenses.md#program
 '''
 
 import pathlib
+import subprocess
+import sys
 import textwrap
 import requests
 
 LICENSE_LIST_DATA_REPO = 'https://github.com/spdx/license-list-data'
-SPDX_FOLDER = pathlib.Path(__file__).parent / 'license_tools'
+SPDX_FOLDER = pathlib.Path(__file__).parent / 'license_tools/spdx_licenses'
 BLACKLIST = {
     'CPAL-1.0'  # using too many variables to be added automatically
     'CUA-OPL-1.0',
@@ -45,6 +47,7 @@ BLACKLIST = {
 licenses = requests.get(f'{LICENSE_LIST_DATA_REPO}/raw/main/json/licenses.json')
 licenses = licenses.json()
 
+# generate additional licenses
 for license in licenses['licenses']:
     id = license['licenseId']
     if id in BLACKLIST:
@@ -103,3 +106,12 @@ for license in licenses['licenses']:
         print(f"-- {id}")
         TEMPLATE_HEADER = '\n'.join(header)
         license_spdx.write_text(TEMPLATE_HEADER.strip() + '\n')
+
+# add test assets
+while True:
+    try:
+        subprocess.check_call([sys.executable, '-m', 'test', '-k', 'test_generator'],
+                              stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+        break
+    except subprocess.CalledProcessError:
+        continue
