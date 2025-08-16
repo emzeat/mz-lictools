@@ -68,6 +68,10 @@ for license in licenses['licenses']:
             # no standard header defined, use name
             header = [f"Licensed under the {detail['name']}"]
         else:
+            if '<<var;' in header:
+                print(f"!! Skipping {id} due to use of <<var;...> tags")
+                continue
+
             header = header.strip('"\n\r')
             header = header.split('\n')
 
