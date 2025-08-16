@@ -38,7 +38,7 @@ jobs:
       run: |
         git config --global user.email "mz-lictools@ci"
         git config --global user.name "mz-lictools CI"
-        python3 ./test.py
+        python3 -m test
 
 
   precommit:
