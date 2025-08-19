@@ -1,3 +1,10 @@
+ v2.8.0
+ ------
+-_WIP_
+
+* Refactoring to get loc per file down to a manageable level again
+* Added option "ignore" to "lines_after_license" option to let other tools handle whitespace
+
 v2.7.0
 ------
 _09.01.2024_

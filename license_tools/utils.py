@@ -175,3 +175,39 @@ class FileFilter:
                 break
         logging.debug(match_reason)
         return matched
+
+
+class TextUtils:
+    """Utilities for text functions used in this package"""
+
+    @staticmethod
+    def force_newline(input: str, newline='\n') -> str:
+        """Change input to use the given newline and return the result"""
+        if newline == '\n':
+            # fast path, simply drop any remaining dos endings
+            return input.replace('\r\n', '\n')
+        # this requires to sweep the input twice but is the most
+        # reliable way to catch all unix endings without the need
+        # to use a look-behind regex (which would be even slower)
+        return TextUtils.force_newline(input).replace('\n', newline)
+
+    @staticmethod
+    def is_different_ignoring_ws(lhs: str, rhs: str) -> bool:
+        """Compare two strings ignoring lines with no contents but whitespace"""
+        i = 0
+        j = 0
+        while i < len(lhs) and j < len(rhs):
+            line_lhs = lhs[i].strip()
+            if not line_lhs:
+                i += 1  # whitespace, skip
+                continue
+            line_rhs = rhs[j].strip()
+            if not line_rhs:
+                j += 1  # whitespace, skip
+                continue
+            if line_lhs != line_rhs:
+                print(f"'{line_lhs}' != '{line_rhs}'")
+                return True
+            i += 1
+            j += 1
+        return False

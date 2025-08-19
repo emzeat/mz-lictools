@@ -31,7 +31,7 @@ from copy import copy
 from typing import Dict
 
 from .style import Style
-from .utils import DateUtils, FileFilter
+from .utils import DateUtils, FileFilter, TextUtils
 from .license import License, LICENSES
 from .git import GitRepo
 from .header import Header, ParsedHeader, Author, Title
@@ -52,17 +52,7 @@ class Tool:
         self.aliases = aliases or {}
         self.company = company
         self.header = Header(self.default_license, lines_after_license)
-
-    @staticmethod
-    def force_newline(input: str, newline='\n') -> str:
-        """Change input to use the given newline and return the result"""
-        if newline == '\n':
-            # fast path, simply drop any remaining dos endings
-            return input.replace('\r\n', '\n')
-        # this requires to sweep the input twice but is the most
-        # reliable way to catch all unix endings without the need
-        # to use a look-behind regex (which would be even slower)
-        return Tool.force_newline(input).replace('\n', newline)
+        self.ignore_whitespace = lines_after_license < 0
 
     def bump(self, filename: pathlib.PurePath,
              keep_license: bool = True, title: Title = None, keep_authors: bool = True, latest_year_only: bool = False) -> str:
@@ -147,7 +137,12 @@ class Tool:
             output = output.strip() + '\n'
         if parsed.decls:
             output = '\n'.join(parsed.decls) + '\n' + output
-        output = Tool.force_newline(output, parsed.newline)
+        output = TextUtils.force_newline(output, parsed.newline)
+
+        # compare old and new contents optionally ignoring any change in pure whitespace
+        # so we play more nice with other linting tools
+        if self.ignore_whitespace and not TextUtils.is_different_ignoring_ws(parsed.orig_contents, output):
+            return parsed.style, parsed.orig_contents
         return parsed.style, output
 
     def bump_inplace(self, filename: pathlib.PurePath, keep_license: bool = True,
@@ -397,9 +392,13 @@ def process_file(args, file) -> bool:
     aliases = config_author.get('aliases', {})
 
     try:
-        lines_after_license = int(config.get('lines_after_license', 1))
+        lines_after_license = config.get('lines_after_license', 1)
+        if 'ignore' == lines_after_license:
+            lines_after_license = -1
+        else:
+            lines_after_license = int(lines_after_license)
     except ValueError as error:
-        logging.fatal(f"Please provide the 'lines_after_license' attribute as integer: {error}")
+        logging.fatal(f"Please provide the 'lines_after_license' attribute as integer or use 'ignore': {error}")
         sys.exit(2)
 
     company = config_author.get('company', None)

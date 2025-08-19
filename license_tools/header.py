@@ -146,6 +146,8 @@ class ParsedHeader:
                 contents = file_obj.read()
         if isinstance(file, str):
             file = pathlib.Path(file)
+        # keep the original contents for book keeping
+        self.orig_contents = contents
         # style is determined from the extension, if unknown we try a second attempt using the contents below
         self.style = Style.from_suffix(file.suffix)
         if self.style == Style.UNKNOWN:

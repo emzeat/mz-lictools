@@ -271,6 +271,8 @@ A sample configuration is given below with each option annotated for explanation
   "custom_title": false,
   // controls the number of lines put after the license and before the rest of
   // the file's contents. Defaults to the supported minimum of 1 if left out.
+  // Set to 'ignore' to not consider any changes in whitespace / lines at all,
+  // e.g. when those get corrected by a separate linter
   "lines_after_license": 1,
   // a dictionary to override the comment style used for a certain file extension
   // Available comment styles is
