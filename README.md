@@ -261,8 +261,10 @@ A sample configuration is given below with each option annotated for explanation
   // do not retain existing licenses on the header but replace all licensing
   // information with the license specified above.
   "force_license": false,
-  // specifies the title to put at the top of each file. Only choice right now
-  // is "filename".
+  // specifies the title to put at the top of each file. Available options:
+  // "filename": Puts the file's name at the top
+  // "@file": Puts the file's name and an "@file" prefix to the top
+  // "\\file": Puts the file's name and an "\\file" prefix to the top
   // Set to false to leave out the title altogether.
   "title": "filename",
   // specifies a custom title to put at the top of the file header.

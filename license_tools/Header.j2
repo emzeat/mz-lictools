@@ -2,6 +2,23 @@
 {{ title }}
 
 {% endif %}
+{%- if title and '@file' in title %}
+{%- for author in authors -%}
+    {% if author.year_from == author.year_to -%}
+        @copyright Copyright (c) {{ author.year_to }} {{ author.name }}. All rights reserved.
+    {%- else -%}
+        @copyright Copyright (c) {{ author.year_from }} - {{ author.year_to }} {{ author.name }}. All rights reserved.
+    {%- endif %}
+{% endfor -%}
+{%- elif title and '\\file' in title %}
+{%- for author in authors -%}
+    {% if author.year_from == author.year_to -%}
+        \copyright Copyright (c) {{ author.year_to }} {{ author.name }}. All rights reserved.
+    {%- else -%}
+        \copyright Copyright (c) {{ author.year_from }} - {{ author.year_to }} {{ author.name }}. All rights reserved.
+    {%- endif %}
+{% endfor -%}
+{%- else %}
 {%- for author in authors -%}
     {% if author.year_from == author.year_to -%}
         Copyright (c) {{ author.year_to }} {{ author.name }}
@@ -11,6 +28,7 @@
 {% endfor -%}
 All rights reserved.
 
+{%- endif %}
 {%- if license %}
 
 {{ license }}

@@ -1,0 +1,11 @@
+{
+  "author": {
+    "name": "Test Author"
+  },
+  "license": "Proprietary",
+  "lines_after_license": 1,
+  "title": "\\file",
+  "style_override_for_suffix": {
+    ".cpp": "TRIPLE_SLASH_STYLE"
+  }
+}

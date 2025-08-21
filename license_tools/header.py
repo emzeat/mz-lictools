@@ -71,7 +71,7 @@ class Author:
 class Title:
     """Describes the title to be added to a header"""
 
-    BUILTINS = ['filename']
+    BUILTINS = ['filename', 'at_file_filename', 'backslash_file_filename']
 
     def __init__(self, builtin: str = None, custom: str = None):
         """
@@ -83,8 +83,15 @@ class Title:
         :custom: Configures a custom title text
         """
         self.filename = False
+        self.prefix = None
         if builtin == 'filename':
             self.filename = True
+        elif builtin == '@file':
+            self.filename = True
+            self.prefix = '@file '
+        elif builtin == '\\file':
+            self.filename = True
+            self.prefix = '\\file '
         elif custom:
             self.custom = custom
         else:
@@ -93,8 +100,12 @@ class Title:
     def get(self, file: pathlib.Path) -> str:
         '''Determines the title for the given file'''
         if self.filename:
-            return file.name
-        return self.custom
+            title = file.name
+        else:
+            title = self.custom
+        if self.prefix:
+            title = self.prefix + title
+        return title
 
 
 class Header:

@@ -6,6 +6,7 @@
 * Added option "ignore" to "lines_after_license" option to let other tools handle whitespace
 * Fixed retention of mixed line endings in file
 * Added support for triple "///" slash comment style
+* Added support for doxygen style @file and @copyright annotations
 
 v2.7.0
 ------
