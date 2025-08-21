@@ -5,6 +5,7 @@
 * Refactoring to get loc per file down to a manageable level again
 * Added option "ignore" to "lines_after_license" option to let other tools handle whitespace
 * Fixed retention of mixed line endings in file
+* Added support for triple "///" slash comment style
 
 v2.7.0
 ------

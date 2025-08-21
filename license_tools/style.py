@@ -35,6 +35,7 @@ class Style(enum.Enum):
     BATCH_STYLE = 6
     SLASH_STYLE = 7
     DASH_STYLE = 8
+    TRIPLE_SLASH_STYLE = 9
 
     @classmethod
     def set_overrides(cls, suffix_overrides=None):
@@ -137,6 +138,8 @@ class Style(enum.Enum):
                 r"::(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^(::)?\r?\n(?!::)(?P<body>.*)"),
             (Style.SLASH_STYLE,
                 r"//(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)// +@LICENSE_HEADER_END@(?:.*?)//\r?\n(?P<body>.*)"),
+            (Style.TRIPLE_SLASH_STYLE,
+                r"///(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^(?P<body>[^/](.*)|$)"),
             (Style.SLASH_STYLE,
                 r"//(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^(?P<body>[^/](.*)|$)"),
             (Style.DASH_STYLE,
@@ -199,4 +202,6 @@ class Style(enum.Enum):
             return Decorator(None, '//', None, r' ?(?://) ?')
         if style == Style.DASH_STYLE:
             return Decorator(None, '--', None, r' ?(?:--) ?')
+        if style == Style.TRIPLE_SLASH_STYLE:
+            return Decorator(None, '///', None, r' ?(?:///) ?')
         return Decorator('', '', '', None)
