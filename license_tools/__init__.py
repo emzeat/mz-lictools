@@ -132,12 +132,14 @@ class Tool:
         output = self.header.render(
             title=title_text, authors=parsed.authors, style=parsed.style, company=self.company, license=license_text)
         if parsed.remainder:
-            output = output + '\n' + parsed.remainder + '\n'
+            output = output + '\n'
         else:
             output = output.strip() + '\n'
         if parsed.decls:
             output = '\n'.join(parsed.decls) + '\n' + output
         output = TextUtils.force_newline(output, parsed.newline)
+        if parsed.remainder:
+            output = output + parsed.remainder + parsed.newline
 
         # compare old and new contents optionally ignoring any change in pure whitespace
         # so we play more nice with other linting tools
