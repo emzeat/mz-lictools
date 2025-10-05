@@ -1,6 +1,7 @@
 # style.py
 #
 # Copyright (c) 2012 - 2025 Marius Zwicker
+# Copyright (c) 2025 François Bastien
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -199,7 +200,7 @@ class Style(enum.Enum):
         if style == Style.BATCH_STYLE:
             return Decorator(None, 'REM', None, r' ?(?:REM|::) ?')
         if style == Style.SLASH_STYLE:
-            return Decorator(None, '//', None, r' ?(?://) ?')
+            return Decorator(None, '//', None, r'^ ?(?://) ?')
         if style == Style.DASH_STYLE:
             return Decorator(None, '--', None, r' ?(?:--) ?')
         if style == Style.TRIPLE_SLASH_STYLE:
