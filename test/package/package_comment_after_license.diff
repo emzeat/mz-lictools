@@ -1,0 +1,10 @@
+diff --git a/code.cpp b/code.cpp
+index 07e5518..7126517 100644
+--- a/code.cpp
++++ b/code.cpp
+@@ -1,4 +1,4 @@
+-// Copyright (c) 2022 Test Author
++// Copyright (c) 2022 - 2025 Test Author
+ // All rights reserved.
+ 
+ // STL

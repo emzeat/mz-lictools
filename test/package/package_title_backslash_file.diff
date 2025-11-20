@@ -1,5 +1,5 @@
 diff --git a/code.cpp b/code.cpp
-index fa946d3..27b0706 100644
+index fa946d3..5aea919 100644
 --- a/code.cpp
 +++ b/code.cpp
 @@ -1,18 +1,16 @@
@@ -21,7 +21,7 @@ index fa946d3..27b0706 100644
 +/// \file code.cpp
 +///
 +/// \copyright Copyright (c) 2021 John Doe. All rights reserved.
-+/// \copyright Copyright (c) 2022 Test Author. All rights reserved.
++/// \copyright Copyright (c) 2022 - 2025 Test Author. All rights reserved.
 +///
 +///
 +/// Unauthorized copying of this file, via any medium is strictly prohibited.

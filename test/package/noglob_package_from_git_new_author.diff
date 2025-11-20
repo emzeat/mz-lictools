@@ -1,5 +1,5 @@
 diff --git a/code.cpp b/code.cpp
-index 0f068e5..97883a4 100644
+index 0f068e5..b364c7b 100644
 --- a/code.cpp
 +++ b/code.cpp
 @@ -1,7 +1,8 @@
@@ -8,7 +8,7 @@ index 0f068e5..97883a4 100644
 + * code.cpp
   *
   * Copyright (c) 2018 Peter Pan
-+ * Copyright (c) 2022 Lictools Unittest
++ * Copyright (c) 2025 Lictools Unittest
   * All rights reserved.
   *
   * Unauthorized copying of this file, via any medium is strictly prohibited.

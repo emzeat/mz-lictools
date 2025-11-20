@@ -1,5 +1,5 @@
 diff --git a/code.cpp b/code.cpp
-index a1b8312..1065e60 100644
+index a1b8312..7fb9a54 100644
 --- a/code.cpp
 +++ b/code.cpp
 @@ -1,17 +1,13 @@
@@ -17,7 +17,7 @@ index a1b8312..1065e60 100644
 - * PUBLIC, BE USED, BE MODIFIED OR BE DISTRIBUTED IN ANY WAY
 - * WITHOUT WRITTEN PERMISSION OF UMBRELLA INC.
 - */
-+// Copyright (c) 2022 Test Author
++// Copyright (c) 2022 - 2025 Test Author
 +// All rights reserved.
 +//
 +// Unauthorized copying of this file, via any medium is strictly prohibited.
