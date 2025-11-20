@@ -1,3 +1,9 @@
+v2.9.0
+------
+_WIP_
+
+* Added support for Go text/template commenting style, used e.g. by Helm charts
+
 v2.8.0
 ------
 _21.08.2025_
