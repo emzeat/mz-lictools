@@ -48,6 +48,7 @@ class TestHeader(unittest.TestCase):
                     license_tools.Style.SLASH_STYLE: f'TestHeader-slash_{l}.expected',
                     license_tools.Style.DASH_STYLE: f'TestHeader-dash_{l}.expected',
                     license_tools.Style.TRIPLE_SLASH_STYLE: f'TestHeader-triple_slash_{l}.expected',
+                    license_tools.Style.GO_TEXT_TEMPLATE_STYLE: f'TestHeader-go_text_template_{l}.expected',
                 }
                 filename = candidates[style]
                 output = header.render(

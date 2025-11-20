@@ -647,3 +647,42 @@ class TestParserDashStyle(unittest.TestCase):
         self.assertEqual(license_tools.Style.DASH_STYLE, parsed.style)
         self.assertTrue(parsed.license.startswith('SPDX-License-Identifier:'), parsed.license)
         self.assertTrue(parsed.remainder.startswith('print'), parsed.remainder)
+
+
+class TestParserGoTextTemplateStyle(unittest.TestCase):
+
+    @parser_test(BASE / 'test/parser/TestParserGoTextTemplateStyle-1author_1year.tpl')
+    def test_1author_1year(self, parsed):
+        self.assertEqual(1, len(parsed.authors))
+        self.assertEqual("Max Muster", parsed.authors[0].name)
+        self.assertEqual(2010, parsed.authors[0].year_from)
+        self.assertEqual(2010, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.GO_TEXT_TEMPLATE_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith(
+            "This library is"), parsed.license)
+        self.assertTrue(parsed.remainder.startswith('{{ define'), parsed.remainder)
+
+    @parser_test(BASE / 'test/parser/TestParserGoTextTemplateStyle-1author_2years.tpl')
+    def test_1author_2years(self, parsed):
+        self.assertEqual(1, len(parsed.authors))
+        self.assertEqual("Max Muster", parsed.authors[0].name)
+        self.assertEqual(2010, parsed.authors[0].year_from)
+        self.assertEqual(2013, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.GO_TEXT_TEMPLATE_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith(
+            "This library is"), parsed.license)
+        self.assertTrue(parsed.remainder.startswith('{{ define'), parsed.remainder)
+
+    @parser_test(BASE / 'test/parser/TestParserGoTextTemplateStyle-2authors_2years.tpl')
+    def test_2authors_2years(self, parsed):
+        self.assertEqual(2, len(parsed.authors))
+        self.assertEqual("Max Muster", parsed.authors[0].name)
+        self.assertEqual(2010, parsed.authors[0].year_from)
+        self.assertEqual(2013, parsed.authors[0].year_to)
+        self.assertEqual("Susi Sorglos", parsed.authors[1].name)
+        self.assertEqual(2013, parsed.authors[1].year_from)
+        self.assertEqual(2016, parsed.authors[1].year_to)
+        self.assertEqual(license_tools.Style.GO_TEXT_TEMPLATE_STYLE, parsed.style)
+        self.assertTrue(parsed.license.startswith(
+            "This library is"), parsed.license)
+        self.assertTrue(parsed.remainder.startswith('{{ define'), parsed.remainder)

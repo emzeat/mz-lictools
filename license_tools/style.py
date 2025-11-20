@@ -37,6 +37,7 @@ class Style(enum.Enum):
     SLASH_STYLE = 7
     DASH_STYLE = 8
     TRIPLE_SLASH_STYLE = 9
+    GO_TEXT_TEMPLATE_STYLE = 10
 
     @classmethod
     def set_overrides(cls, suffix_overrides=None):
@@ -79,7 +80,8 @@ class Style(enum.Enum):
             '.yaml': Style.POUND_STYLE,
             '.lua': Style.DASH_STYLE,
             '.rs': Style.SLASH_STYLE,
-            '.toml': Style.POUND_STYLE
+            '.toml': Style.POUND_STYLE,
+            '.tpl': Style.GO_TEXT_TEMPLATE_STYLE
         }
         suffix_overrides = getattr(cls, '__suffix_overrides', None)
         if suffix_overrides and ext in suffix_overrides:  # pylint: disable=unsupported-membership-test
@@ -145,6 +147,10 @@ class Style(enum.Enum):
                 r"//(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^(?P<body>[^/](.*)|$)"),
             (Style.DASH_STYLE,
                 r"--(?P<authors>.+?)All rights reserved\.(?P<license>.+?)^(?P<body>[^-](.*)|$)"),
+            (Style.GO_TEXT_TEMPLATE_STYLE,
+                r"\{\{/\*\r?\n(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?:.*?)\r?\n\*/\}\}(?P<body>.*)"),
+            (Style.GO_TEXT_TEMPLATE_STYLE,
+                r"\{\{/\*\r?\n(?P<authors>.+?)All rights reserved\.(?P<license>.+?)\*/\}\}\r?\n(?P<body>.*)"),
             (Style.UNKNOWN,
                 r"(?P<authors>.+?)@LICENSE_HEADER_START@(?P<license>.+?)@LICENSE_HEADER_END@(?P<body>.*)"),
         ]
@@ -205,4 +211,6 @@ class Style(enum.Enum):
             return Decorator(None, '--', None, r' ?(?:--) ?')
         if style == Style.TRIPLE_SLASH_STYLE:
             return Decorator(None, '///', None, r' ?(?:///) ?')
+        if style == Style.GO_TEXT_TEMPLATE_STYLE:
+            return Decorator('{{/*', '', '*/}}', None)
         return Decorator('', '', '', None)
