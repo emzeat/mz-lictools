@@ -299,6 +299,9 @@ def process_file(args, file) -> bool:
     """
     if args.config is None:
         args.config = discover_config(file.parent)
+    else:
+        # Resolve relative config paths to absolute paths
+        args.config = args.config.resolve()
     if args.config:
         def try_shorten(path: pathlib.Path):
             try:
