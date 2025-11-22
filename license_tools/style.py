@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2012 - 2025 Marius Zwicker
 # Copyright (c) 2025 François Bastien
+# Copyright (c) 2025 Alberto Chiusole
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
