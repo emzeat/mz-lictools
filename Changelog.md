@@ -3,6 +3,7 @@ v2.9.0
 _WIP_
 
 * Added support for Go text/template commenting style, used e.g. by Helm charts
+* Fixed issue causing relative config paths to get resolved incorrectly
 * Made sure to discover config for each file individually
 
 v2.8.0

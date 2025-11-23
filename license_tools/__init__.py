@@ -205,6 +205,9 @@ def main():
     else:
         logging.basicConfig(level=logging.INFO, format=format)
 
+    if args.config:
+        args.config = args.config.resolve()
+
     if args.sample_config:
         default_config = {
             'author': {
