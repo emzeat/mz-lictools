@@ -297,22 +297,23 @@ def process_file(args, file) -> bool:
     Will return true on success, false on failure.
     If the file does not match the config this is considered success.
     """
-    if args.config is None:
-        args.config = discover_config(file.parent)
-    if args.config:
+    config_path = args.config
+    if config_path is None:
+        config_path = discover_config(file.parent)
+    if config_path:
         def try_shorten(path: pathlib.Path):
             try:
                 return path.relative_to(CW_DIR)
             except ValueError:
                 return path
         if logging.getLogger().isEnabledFor(logging.DEBUG):
-            logging.debug(f"Using '{try_shorten(args.config)}' to process '{try_shorten(file)}'")
+            logging.debug(f"Using '{try_shorten(config_path)}' to process '{try_shorten(file)}'")
     else:
         logging.fatal(f"Failed to discover a configuration for {file}")
         sys.exit(2)
 
-    config_dir = args.config.parent
-    config = parse_config(args.config)
+    config_dir = config_path.parent
+    config = parse_config(config_path)
 
     file_rel = file.relative_to(config_dir).as_posix()
     includes = config.get('include', ['**/*'])
