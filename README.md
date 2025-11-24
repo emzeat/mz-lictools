@@ -53,6 +53,7 @@ int main(int argc, char* argv[])
 }
 ```
 I will be using the following minimal `.license-tools-config.json` stored right next to `hello.cpp` for auto discovery:
+
 ```json
 {
   "author": {
@@ -61,16 +62,20 @@ I will be using the following minimal `.license-tools-config.json` stored right 
   "license": "Unlicense",
 }
 ```
+
 In addition I am using a `.pre-commit-config.yaml` so that
 licenses get managed automatically as part of my git hooks:
+
 ```yaml
 repos:
     - repo: https://github.com/emzeat/mz-lictools
-      rev: v2.2
+      rev: v2.9.0
       hooks:
           - id: license-tools
 ```
+
 Committing my file to git will trigger `pre-commit` to invoke `lictool hello.cpp`. The tool will discover our config and process the new file. As it was not commited to git yet, it will check my `.gitconfig` for author information and add a header accordingly:
+
 ```C++
 /*
  * hello.cpp
@@ -286,6 +291,7 @@ A sample configuration is given below with each option annotated for explanation
   //     SLASH_STYLE -> // ...
   //     TRIPLE_SLASH_STYLE -> /// ...
   //     DASH_STYLE -> -- ...
+  //     GO_TEXT_TEMPLATE_STYLE -> -- {{/* ... */}}
   "style_override_for_suffix": {
     ".cpp": "C_STYLE"
   },
