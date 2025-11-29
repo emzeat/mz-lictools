@@ -23,6 +23,7 @@ from .test_header import TestHeader
 from .test_parser import TestParserBatchStyle, TestParserCStyle, TestParserDashStyle, TestParserDocStringStyle, TestParserPoundStyle, TestParserSlashStyle, TestParserXmlStyle
 from .test_date_utils import TestDateUtils
 from .test_file_filter import TestFileFilter
+from .test_config_discovery import TestConfigDiscovery
 import os
 import unittest
 
