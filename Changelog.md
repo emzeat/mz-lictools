@@ -1,6 +1,6 @@
 v2.9.0
 ------
-_WIP_
+_29.11.2025_
 
 * Added support for Go text/template commenting style, used e.g. by Helm charts
 * Fixed issue causing relative config paths to get resolved incorrectly
