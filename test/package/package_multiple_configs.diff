@@ -1,0 +1,33 @@
+diff --git a/code.cpp b/code.cpp
+index 3be912b..55ec82c 100644
+--- a/code.cpp
++++ b/code.cpp
+@@ -1,8 +1,7 @@
+ /*
+  * My Project
+  *
+- * Copyright (c) 2020 Test Author
+- * Copyright (c) 2021 Some Intern
++ * Copyright (c) 1999 - 2022 Umbrella Inc
+  * All rights reserved.
+  */
+ 
+diff --git a/subdir_a/subdir_b/code.cpp b/subdir_a/subdir_b/code.cpp
+index 3be912b..5a3d0b0 100644
+--- a/subdir_a/subdir_b/code.cpp
++++ b/subdir_a/subdir_b/code.cpp
+@@ -1,10 +1,7 @@
+-/*
+- * My Project
+- *
+- * Copyright (c) 2020 Test Author
+- * Copyright (c) 2021 Some Intern
+- * All rights reserved.
+- */
++# My Project
++#
++# Copyright (c) 1975 - 2022 Subdirectory Company
++# All rights reserved.
+ 
+ #include <iostream>
+ 
