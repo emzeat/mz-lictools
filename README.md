@@ -310,6 +310,30 @@ A sample configuration is given below with each option annotated for explanation
 }
 ```
 
+### Discovery of config files
+
+Similar to tools like clang-tidy or gitignore the configuration applicable to a file
+is determined by walking up the directory tree starting at the parent folder of a file
+until a config is found. Assume the following tree:
+
+```
+repo/
+├── .git
+├── .license-tools-config.json
+├── file_a.hpp
+├── subdir_b
+│   ├── .license-tools-config.json
+│   ├── file_b.hpp
+│   └── subdir_c
+│       └── file_c.hpp
+└── subdir_d
+    └── file_d.hpp
+```
+
+When running lictools in this repo the config `.license-tools-config.json` in the root
+will apply to `file_a.hpp` and `file_d.hpp`. Files `file_b.hpp` and `file_c.hpp` will
+be handled according to the config `.subdir_b/license-tools-config.json`.
+
 ## Contributing
 
 We welcome any contributions.
@@ -330,6 +354,14 @@ SPDX licenses get pulled directly from spdx.org by help of the `update_spdx.py` 
 2. Missing expected output in the test assets will automatically be added and should be inspected for correctness manually. Future runs of the tests will track regressions against those assets.
 3. Open an MR with the changes.
 
+### Running the tests
+
+We have an extensive test suite ensuring stability of the generated headers and robustness against various scenarios:
+
+1. The lictools have a single dependency on `jinja2` so either install it globally or into a local venv
+2. Enter the root of the lictools repo
+3. Make sure the venv which has the dependencies installed is active
+4. Run the test module via `python3 -m test`
 
 ## Acknowledgements
 
