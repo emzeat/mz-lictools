@@ -217,7 +217,7 @@ class ParsedHeader:
         else:
             authors_raw = contents
         self.authors = []
-        for match in re.finditer(r" Copyright[^\d]*(?P<from>[0-9]+) *(?:- *(?P<to>[0-9]+))? *(?P<name>[^\n\r]+)", authors_raw, re.IGNORECASE):
+        for match in re.finditer(r" Copyright[^\d]*(?P<from>[0-9]+) *(?:- *(?P<to>[0-9]+))? *(?P<name>[^\n\r]+). All rights reserved.", authors_raw, re.IGNORECASE):
             args = {
                 'name': match.group('name'),
                 'year_from': int(match.group('from'))
