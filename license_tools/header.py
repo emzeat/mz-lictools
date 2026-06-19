@@ -218,8 +218,17 @@ class ParsedHeader:
             authors_raw = contents
         self.authors = []
         for match in re.finditer(r" Copyright[^\d]*(?P<from>[0-9]+) *(?:- *(?P<to>[0-9]+))? *(?P<name>[^\n\r]+)", authors_raw, re.IGNORECASE):
+            name = match.group('name')
+            # the outer header pattern uses 'All rights reserved.' as its delimiter and
+            # strips it out, so the author line immediately preceding that cut is left
+            # with a dangling '. '; only trim that artifact (detected by the match
+            # running right up to the end of authors_raw with nothing following, not
+            # even a newline) and not a name that legitimately ends in a period (e.g.
+            # 'Awesome Limited Inc.') followed by further authors or content
+            if match.end() == len(authors_raw):
+                name = name.rstrip(' .')
             args = {
-                'name': match.group('name'),
+                'name': name,
                 'year_from': int(match.group('from'))
             }
             try:
