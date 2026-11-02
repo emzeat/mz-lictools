@@ -308,6 +308,16 @@ class TestParserPoundStyle(unittest.TestCase):
         self.assertTrue(parsed.license.startswith(
             "This library is"), parsed.license)
 
+    @parser_test(BASE / 'test/parser/TestParserPoundStyle-all_rights_reserved_same_line.py')
+    def test_all_rights_reserved_same_line(self, parsed):
+        self.assertEqual(1, len(parsed.authors))
+        self.assertEqual("MyProject authors", parsed.authors[0].name)
+        self.assertEqual(2026, parsed.authors[0].year_from)
+        self.assertEqual(2026, parsed.authors[0].year_to)
+        self.assertEqual(license_tools.Style.DOCSTRING_STYLE, parsed.style)
+        self.assertEqual("SPDX-License-Identifier: Apache-2.0", parsed.license)
+        self.assertEqual("import unittest", parsed.remainder)
+
 
 class TestParserDocStringStyle(unittest.TestCase):
 
