@@ -1,3 +1,8 @@
+_WIP_
+
+* Fixed greedy parsing for "All rights reserved"
+* Fixed config discovery if config is in the root dir
+
 v2.9.0
 ------
 _29.11.2025_

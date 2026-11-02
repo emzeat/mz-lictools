@@ -1,6 +1,6 @@
 # __init__.py
 #
-# Copyright (c) 2012 - 2025 Marius Zwicker
+# Copyright (c) 2012 - 2026 Marius Zwicker
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -270,14 +270,14 @@ def discover_config(level: pathlib.Path) -> pathlib.Path:
     Searches the given level and any directories
     above for a LICENSE_JSON configuration file
     """
-    config = None
-    while config is None and level.parent != level:
+    while True:
         candidate = level / LICENSE_JSON
         if candidate.exists():
-            config = candidate
-        else:
-            level = level.parent
-    return config
+            return candidate
+        if level == level.parent:
+            break
+        level = level.parent
+    return None
 
 
 @functools.lru_cache(maxsize=256, typed=True)
