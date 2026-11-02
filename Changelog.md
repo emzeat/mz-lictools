@@ -1,5 +1,6 @@
 _WIP_
 
+* Added file extensions for Visual Studio users
 * Fixed greedy parsing for "All rights reserved"
 * Fixed config discovery if config is in the root dir
 
